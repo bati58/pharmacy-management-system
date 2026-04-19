@@ -5,6 +5,8 @@ Manage inventory, sales, stock transfers, users, branches, and analytics – all
 ### Login Page
 ![Login](frontend/assets/login.jpg)
 ---
+### Manager Dashboard page
+![Login](frontend/assets/dashboard.jpg)
 🗄️ Database (phpMyAdmin)
 http://localhost/phpmyadmin
 
