@@ -10,12 +10,12 @@ include '../includes/sidebar.php';
 <div class="ml-64 flex-1">
     <?php include '../includes/navbar.php'; ?>
     <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="page-toolbar flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Branches</h2>
             <button onclick="showBranchModal()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Add
                 Branch</button>
         </div>
-        <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
             <table class="min-w-full">
                 <thead class="bg-gray-50">
                     <tr>

@@ -10,7 +10,7 @@ include '../includes/sidebar.php';
 <div class="ml-64 flex-1">
     <?php include '../includes/navbar.php'; ?>
     <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
+        <div class="page-toolbar flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">User Management</h2>
             <button onclick="showInviteModal()" class="bg-blue-600 text-white px-4 py-2 rounded">+ Invite User</button>
         </div>

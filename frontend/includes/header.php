@@ -42,9 +42,10 @@
         }
 
         .main-content {
-            margin-left: 260px;
+            margin-left: 0;
             background-color: #f1f5f9;
             min-height: 100vh;
+            width: 100%;
         }
 
         .card {

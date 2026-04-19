@@ -1,6 +1,6 @@
 <!-- Top bar (visible on all pages) -->
 <div class="main-content">
-    <div class="bg-white shadow-sm px-6 py-3 flex justify-between items-center">
+    <div class="bg-white shadow-sm px-4 md:px-6 py-3 flex justify-between items-center">
         <h1 class="text-xl font-semibold text-gray-800">
             <?php
             $page = basename($_SERVER['PHP_SELF'], '.php');
@@ -12,4 +12,3 @@
             <span class="text-gray-700"><?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?></span>
         </div>
     </div>
-    <div class="p-6">

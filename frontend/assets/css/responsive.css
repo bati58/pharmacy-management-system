@@ -24,8 +24,17 @@
     }
 }
 
+/* Desktop/tablet base content offset aligned with sidebar width */
+.ml-64 {
+    margin-left: 260px !important;
+}
+
 /* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
     .sidebar {
         transform: translateX(-100%);
         position: fixed;
@@ -33,6 +42,8 @@
         transition: transform 0.3s ease;
         width: 80%;
         max-width: 280px;
+        height: 100vh;
+        overflow-y: auto;
     }
 
     .sidebar.open {
@@ -40,12 +51,56 @@
     }
 
     .ml-64 {
-        margin-left: 0;
+        margin-left: 0 !important;
+        width: 100%;
+        min-width: 0;
     }
 
     .main-content {
         margin-left: 0 !important;
-        padding-top: 3rem;
+        padding-top: 4rem;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .main-content>.p-6,
+    .main-content .p-6 {
+        padding: 1rem;
+    }
+
+    .main-content .bg-white.shadow-sm {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .main-content .bg-white.shadow-sm h1 {
+        font-size: 1.125rem;
+        line-height: 1.35;
+    }
+
+    .main-content .bg-white.shadow-sm .text-gray-700 {
+        font-size: 0.9rem;
+        max-width: 7rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .page-toolbar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .page-toolbar>* {
+        width: 100%;
+    }
+
+    .page-toolbar button,
+    .page-toolbar a {
+        width: 100%;
+        text-align: center;
     }
 
     .mobile-menu-btn {
@@ -61,6 +116,18 @@
     .grid {
         grid-template-columns: 1fr;
         gap: 1rem;
+    }
+
+    /* Avoid footer/profile block covering menu items on short screens */
+    .sidebar nav {
+        padding-bottom: 5.5rem;
+    }
+
+    .sidebar>.absolute.bottom-0 {
+        position: sticky;
+        bottom: 0;
+        background-color: #1e293b;
+        z-index: 2;
     }
 
     .card {

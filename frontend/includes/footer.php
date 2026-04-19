@@ -1,4 +1,3 @@
-    </div> <!-- close .p-6 -->
     </div> <!-- close .main-content -->
 
     <script>
