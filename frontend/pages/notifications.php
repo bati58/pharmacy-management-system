@@ -34,7 +34,7 @@ include '../includes/sidebar.php';
                                 <p class="text-gray-700">${escapeHtml(n.message)}</p>
                                 <small class="text-gray-500">${formatDateTime(n.created_at)}</small>
                             </div>
-                            ${!n.is_read ? `<button onclick="markRead(${n.id})" class="text-green-600">Mark read</button>` : ''}
+                            ${!n.is_read ? `<button onclick="markRead(${n.id})" class="action-icon-btn action-activate" title="Mark as read" aria-label="Mark as read"><i class="fas fa-check"></i></button>` : ''}
                         </div>
                     </div>
                 `;

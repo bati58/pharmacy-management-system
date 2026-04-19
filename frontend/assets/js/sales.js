@@ -29,7 +29,11 @@ async function loadSalesTable() {
                         <td class="px-4 py-2">${sale.payment_method}</td>
                         <td class="px-4 py-2">${escapeHtml(sale.pharmacist_name)}</td>
                         <td class="px-4 py-2">${formatDateTime(sale.sale_date)}</td>
-                        <td class="px-4 py-2"><button class="text-blue-600" onclick="viewSale(${sale.id})">View</button></td>
+                        <td class="px-4 py-2">
+                            <button class="action-icon-btn action-view" onclick="viewSale(${sale.id})" title="View sale" aria-label="View sale">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
@@ -106,7 +110,11 @@ function updateCartDisplay() {
                 <td class="px-2 py-1">${item.quantity}</td>
                 <td class="px-2 py-1">${formatCurrency(item.price)}</td>
                 <td class="px-2 py-1">${formatCurrency(subtotal)}</td>
-                <td class="px-2 py-1"><button class="text-red-600" onclick="removeFromCart(${index})">Remove</button></td>
+                <td class="px-2 py-1">
+                    <button class="action-icon-btn action-delete" onclick="removeFromCart(${index})" title="Remove item" aria-label="Remove item">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
             </tr>
         `;
     });

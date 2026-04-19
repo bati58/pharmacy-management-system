@@ -194,3 +194,48 @@ textarea:focus {
     height: 250px;
     width: 100%;
 }
+
+/* Compact icon action buttons used in table action cells */
+.action-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    background: transparent;
+    line-height: 1;
+}
+
+.action-icon-btn i {
+    font-size: 0.9rem;
+}
+
+.action-icon-btn:hover {
+    background: #f3f4f6;
+}
+
+.action-edit {
+    color: #2563eb;
+}
+
+.action-view {
+    color: #2563eb;
+}
+
+.action-delete {
+    color: #dc2626;
+}
+
+.action-activate {
+    color: #16a34a;
+}
+
+.action-deactivate {
+    color: #ea580c;
+}
+
+.action-stock {
+    color: #059669;
+}

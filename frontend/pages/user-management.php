@@ -71,10 +71,17 @@ include '../includes/sidebar.php';
                             <td class="px-6 py-3">${branchMap[u.branch_id] || '-'}</td>
                             <td class="px-6 py-3"><span class="px-2 py-1 rounded text-xs ${u.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${u.status}</span></td>
                             <td class="px-6 py-3">${formatDate(u.created_at)}</td>
-                            <td class="px-6 py-3">
-                                <button onclick="editUser(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.email)}', '${u.role}', ${u.branch_id || 'null'}, '${u.status}')" class="text-blue-600 hover:underline mr-2">Edit</button>
-                                ${u.status === 'active' ? `<button onclick="toggleUserStatus(${u.id}, 'inactive')" class="text-orange-600 hover:underline mr-2">Deactivate</button>` : `<button onclick="toggleUserStatus(${u.id}, 'active')" class="text-green-600 hover:underline mr-2">Activate</button>`}
-                                <button onclick="deleteUser(${u.id})" class="text-red-600 hover:underline">Delete</button>
+                            <td class="px-6 py-3 whitespace-nowrap">
+                                <button onclick="editUser(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.email)}', '${u.role}', ${u.branch_id || 'null'}, '${u.status}')" class="action-icon-btn action-edit mr-1" title="Edit user" aria-label="Edit user">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                ${u.status === 'active'
+                                    ? `<button onclick="toggleUserStatus(${u.id}, 'inactive')" class="action-icon-btn action-deactivate mr-1" title="Deactivate user" aria-label="Deactivate user"><i class="fas fa-user-slash"></i></button>`
+                                    : `<button onclick="toggleUserStatus(${u.id}, 'active')" class="action-icon-btn action-activate mr-1" title="Activate user" aria-label="Activate user"><i class="fas fa-user-check"></i></button>`
+                                }
+                                <button onclick="deleteUser(${u.id})" class="action-icon-btn action-delete" title="Delete user" aria-label="Delete user">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     `;

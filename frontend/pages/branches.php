@@ -60,9 +60,13 @@ include '../includes/sidebar.php';
                         <td class="px-6 py-3">${escapeHtml(b.name)}</td>
                         <td class="px-6 py-3">${escapeHtml(b.address || '-')}</td>
                         <td class="px-6 py-3">${escapeHtml(b.phone || '-')}</td>
-                        <td class="px-6 py-3">
-                            <button onclick="editBranch(${b.id}, '${escapeHtml(b.name)}', '${escapeHtml(b.address || '')}', '${escapeHtml(b.phone || '')}')" class="text-blue-600 mr-2">Edit</button>
-                            <button onclick="deleteBranch(${b.id})" class="text-red-600">Delete</button>
+                        <td class="px-6 py-3 whitespace-nowrap">
+                            <button onclick="editBranch(${b.id}, '${escapeHtml(b.name)}', '${escapeHtml(b.address || '')}', '${escapeHtml(b.phone || '')}')" class="action-icon-btn action-edit mr-1" title="Edit branch" aria-label="Edit branch">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button onclick="deleteBranch(${b.id})" class="action-icon-btn action-delete" title="Delete branch" aria-label="Delete branch">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;

@@ -57,10 +57,16 @@ async function loadDrugs() {
                     <td class="px-4 py-2">${formatCurrency(drug.price)}</td>
                     <td class="px-4 py-2 ${expiryClass}">${formatDate(drug.expiry_date)}</td>
                     <td class="px-4 py-2">${escapeHtml(drug.branch_name)}</td>
-                    <td class="px-4 py-2">
-                        <button class="btn-edit text-blue-600 hover:underline mr-2" data-id="${drug.id}">Edit</button>
-                        <button class="btn-delete text-red-600 hover:underline mr-2" data-id="${drug.id}">Delete</button>
-                        <button class="btn-stock text-green-600 hover:underline" data-id="${drug.id}">Stock</button>
+                    <td class="px-4 py-2 whitespace-nowrap">
+                        <button class="btn-edit action-icon-btn action-edit mr-1" data-id="${drug.id}" title="Edit drug" aria-label="Edit drug">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        <button class="btn-delete action-icon-btn action-delete mr-1" data-id="${drug.id}" title="Delete drug" aria-label="Delete drug">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn-stock action-icon-btn action-stock" data-id="${drug.id}" title="Adjust stock" aria-label="Adjust stock">
+                            <i class="fas fa-boxes-stacked"></i>
+                        </button>
                     </td>
                 </tr>
             `;
