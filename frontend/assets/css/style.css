@@ -1,0 +1,180 @@
+/* ======================================================
+   BatiFlow Smart Pharma - Main Styles
+   Custom overrides and additional styles beyond Tailwind
+   ====================================================== */
+
+/* Custom scrollbar for sidebar and tables */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Sidebar custom scroll */
+.sidebar::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+/* Table hover effect */
+table tbody tr:hover {
+    background-color: #f9fafb;
+    transition: background-color 0.2s;
+}
+
+/* Card hover effect */
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Button transitions */
+button,
+.btn {
+    transition: all 0.2s ease;
+}
+
+button:active,
+.btn:active {
+    transform: scale(0.98);
+}
+
+/* Status badges */
+.badge-active {
+    background-color: #10b981;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-inactive {
+    background-color: #ef4444;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-warning {
+    background-color: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+}
+
+/* Expiry status colors */
+.expiry-expired {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.expiry-soon {
+    color: #f59e0b;
+}
+
+/* Form focus effects */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    ring: 2px solid #3b82f6;
+    border-color: transparent;
+}
+
+/* Modal animation */
+.modal-enter {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Print styles for invoices */
+@media print {
+
+    .sidebar,
+    .navbar,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+
+    .main-content,
+    .ml-64 {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    body {
+        background: white;
+    }
+}
+
+/* Loading spinner */
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dashboard KPI card numbers */
+.kpi-number {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+/* Notification item hover */
+.notification-item:hover {
+    background-color: #f3f4f6;
+}
+
+/* Chart container responsiveness */
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+}
