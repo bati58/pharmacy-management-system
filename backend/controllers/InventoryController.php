@@ -1,16 +1,19 @@
 <?php
 require_once __DIR__ . '/../models/Drug.php';
+require_once __DIR__ . '/../models/StockMovement.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
 
 class InventoryController
 {
     private $drugModel;
+    private $stockMovementModel;
 
     public function __construct()
     {
         global $pdo;
         $this->drugModel = new Drug($pdo);
+        $this->stockMovementModel = new StockMovement($pdo);
         AuthMiddleware::check();
     }
 
@@ -48,6 +51,12 @@ class InventoryController
 
         $updated = $this->drugModel->updateStock($id, $newStock);
         if ($updated) {
+            $this->stockMovementModel->create(
+                $id,
+                (int)$quantityChange,
+                (string)$reason,
+                (int)($_SESSION['user_id'] ?? 0)
+            );
             sendSuccess(['new_stock' => $newStock], 'Stock updated');
         } else {
             sendError('Failed to update stock', 500);

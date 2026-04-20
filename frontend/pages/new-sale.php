@@ -58,6 +58,14 @@ include '../includes/sidebar.php';
                         <option>Mobile Money</option>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label>Discount Amount</label>
+                    <input type="number" id="discountAmount" value="0" min="0" step="0.01" class="w-full border rounded px-3 py-2">
+                </div>
+                <div class="mb-3">
+                    <label>Prescription Reference (optional)</label>
+                    <input type="text" id="prescriptionReference" placeholder="RX-12345" class="w-full border rounded px-3 py-2">
+                </div>
                 <button onclick="completeSale()" class="bg-green-600 text-white px-4 py-2 rounded w-full">Complete
                     Sale</button>
             </div>

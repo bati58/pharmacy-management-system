@@ -134,9 +134,18 @@ async function completeSale() {
     }
     const customerName = document.getElementById('customerName').value.trim() || 'Walk-in customer';
     const paymentMethod = document.getElementById('paymentMethod').value;
+    const discountAmount = parseFloat(document.getElementById('discountAmount')?.value || '0');
+    const prescriptionReference = document.getElementById('prescriptionReference')?.value?.trim() || '';
+    if (discountAmount < 0) {
+        showToast('Discount cannot be negative', 'error');
+        return;
+    }
+
     const saleData = {
         customer_name: customerName,
         payment_method: paymentMethod,
+        discount_amount: discountAmount,
+        prescription_reference: prescriptionReference,
         items: currentSaleCart.map(item => ({
             drug_id: item.drug_id,
             quantity: item.quantity

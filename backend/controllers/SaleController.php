@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/Sale.php';
 require_once __DIR__ . '/../models/Drug.php';
+require_once __DIR__ . '/../models/StockMovement.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
 
@@ -8,12 +9,14 @@ class SaleController
 {
     private $saleModel;
     private $drugModel;
+    private $stockMovementModel;
 
     public function __construct()
     {
         global $pdo;
         $this->saleModel = new Sale($pdo);
         $this->drugModel = new Drug($pdo);
+        $this->stockMovementModel = new StockMovement($pdo);
         AuthMiddleware::check();
         AuthMiddleware::requireRole(['manager', 'pharmacist']);
     }
@@ -62,8 +65,10 @@ class SaleController
 
         $data = json_decode(file_get_contents('php://input'), true);
         $customerName = $data['customer_name'] ?? 'Walk-in customer';
+        $prescriptionReference = trim((string)($data['prescription_reference'] ?? ''));
         $items = $data['items'] ?? [];
         $paymentMethod = $data['payment_method'] ?? 'Cash';
+        $discountAmount = (float)($data['discount_amount'] ?? 0);
         $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
         if (($_SESSION['role'] ?? '') !== 'manager') {
             $branchId = $_SESSION['branch_id'];
@@ -75,7 +80,7 @@ class SaleController
         }
 
         global $pdo;
-        $total = 0;
+        $subTotal = 0;
         $saleItems = [];
 
         foreach ($items as $item) {
@@ -92,7 +97,7 @@ class SaleController
                 sendError("Insufficient stock for {$drug['name']}", 400);
                 return;
             }
-            $total += $drug['price'] * $item['quantity'];
+            $subTotal += $drug['price'] * $item['quantity'];
             $saleItems[] = [
                 'drug_id' => $drug['id'],
                 'quantity' => $item['quantity'],
@@ -100,16 +105,41 @@ class SaleController
             ];
         }
 
+        if ($discountAmount < 0) {
+            sendError('Discount cannot be negative', 400);
+            return;
+        }
+        if ($discountAmount > $subTotal) {
+            sendError('Discount cannot exceed subtotal', 400);
+            return;
+        }
+        $total = $subTotal - $discountAmount;
+
         $invoiceNo = 'INV-' . strtoupper(uniqid());
 
         try {
             $pdo->beginTransaction();
 
-            $saleId = $this->saleModel->create($invoiceNo, $customerName, $total, $paymentMethod, $_SESSION['user_id'], $branchId);
+            $saleId = $this->saleModel->create(
+                $invoiceNo,
+                $customerName,
+                $total,
+                $paymentMethod,
+                $_SESSION['user_id'],
+                $branchId,
+                $discountAmount,
+                $prescriptionReference !== '' ? $prescriptionReference : null
+            );
 
             foreach ($saleItems as $item) {
                 $this->saleModel->addItem($saleId, $item['drug_id'], $item['quantity'], $item['price']);
                 $this->drugModel->updateStock($item['drug_id'], null, -$item['quantity']);
+                $this->stockMovementModel->create(
+                    (int)$item['drug_id'],
+                    (int)$item['quantity'] * -1,
+                    'sale:' . $invoiceNo,
+                    (int)($_SESSION['user_id'] ?? 0)
+                );
             }
 
             $pdo->commit();
@@ -121,6 +151,12 @@ class SaleController
             return;
         }
 
-        sendSuccess(['sale_id' => $saleId, 'invoice_no' => $invoiceNo], 'Sale completed successfully');
+        sendSuccess([
+            'sale_id' => $saleId,
+            'invoice_no' => $invoiceNo,
+            'subtotal' => $subTotal,
+            'discount_amount' => $discountAmount,
+            'net_total' => $total
+        ], 'Sale completed successfully');
     }
 }

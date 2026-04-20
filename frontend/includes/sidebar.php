@@ -17,28 +17,28 @@ $name = $_SESSION['name'] ?? 'User';
             <i class="fas fa-tachometer-alt w-5 mr-3"></i> Dashboard
         </a>
         <!-- Manager only -->
-        <a href="branches.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'branches.php' ? 'active' : ''; ?>">
+        <a href="branches.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'branches.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-store w-5 mr-3"></i> Branches
         </a>
-        <a href="user-management.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'user-management.php' ? 'active' : ''; ?>">
+        <a href="user-management.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'user-management.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-users w-5 mr-3"></i> User Management
         </a>
         <!-- Store Keeper & Manager -->
-        <a href="drug-inventory.php" class="role-storekeeper role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'drug-inventory.php' ? 'active' : ''; ?>">
+        <a href="drug-inventory.php" class="role-storekeeper role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'drug-inventory.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-capsules w-5 mr-3"></i> Drug Inventory
         </a>
-        <a href="stock-transfers.php" class="role-storekeeper role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'stock-transfers.php' ? 'active' : ''; ?>">
+        <a href="stock-transfers.php" class="role-storekeeper role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'stock-transfers.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-exchange-alt w-5 mr-3"></i> Stock Transfers
         </a>
         <!-- Pharmacist & Manager -->
-        <a href="sales.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'sales.php' ? 'active' : ''; ?>">
+        <a href="sales.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'sales.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-shopping-cart w-5 mr-3"></i> Sales
         </a>
-        <a href="new-sale.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'new-sale.php' ? 'active' : ''; ?>">
+        <a href="new-sale.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'new-sale.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-plus-circle w-5 mr-3"></i> New Sale
         </a>
         <!-- Manager only -->
-        <a href="reports.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : ''; ?>">
+        <a href="reports.php" class="role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-chart-line w-5 mr-3"></i> Reports
         </a>
         <!-- All roles -->

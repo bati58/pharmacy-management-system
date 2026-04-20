@@ -56,13 +56,13 @@ class Sale
         return $sale;
     }
 
-    public function create($invoiceNo, $customerName, $total, $paymentMethod, $pharmacistId, $branchId)
+    public function create($invoiceNo, $customerName, $total, $paymentMethod, $pharmacistId, $branchId, $discountAmount = 0, $prescriptionReference = null)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO sales (invoice_no, customer_name, total_amount, payment_method, pharmacist_id, branch_id, sale_date) 
-            VALUES (?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO sales (invoice_no, customer_name, total_amount, payment_method, pharmacist_id, branch_id, discount_amount, prescription_reference, sale_date) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
-        $stmt->execute([$invoiceNo, $customerName, $total, $paymentMethod, $pharmacistId, $branchId]);
+        $stmt->execute([$invoiceNo, $customerName, $total, $paymentMethod, $pharmacistId, $branchId, $discountAmount, $prescriptionReference]);
         return $this->db->lastInsertId();
     }
 

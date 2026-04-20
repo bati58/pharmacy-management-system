@@ -11,10 +11,11 @@ class Transfer
     public function getAll($branchId = null)
     {
         $sql = "
-            SELECT t.*, d.name as drug_name, u.name as created_by_name 
+            SELECT t.*, d.name as drug_name, u.name as created_by_name, b.name as branch_name
             FROM transfers t 
             JOIN drugs d ON t.drug_id = d.id 
             JOIN users u ON t.created_by = u.id
+            JOIN branches b ON t.branch_id = b.id
         ";
         $params = [];
         if ($branchId) {
