@@ -27,12 +27,16 @@ class AuthController
         }
 
         $user = $this->userModel->findByEmail($email);
-        if (!$user || !password_verify($password, $user['password'])) {
+        if (!$user || empty($user['password']) || !password_verify($password, $user['password'])) {
             sendError('Invalid credentials', 401);
             return;
         }
 
         if ($user['status'] !== 'active') {
+            if ($user['status'] === 'pending') {
+                sendError('Your account is pending activation. Please check your invitation email.', 403);
+                return;
+            }
             sendError('Your account is inactive. Contact manager.', 403);
             return;
         }
@@ -100,38 +104,7 @@ class AuthController
 
     public function register()
     {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $name = trim($data['name'] ?? '');
-        $email = trim($data['email'] ?? '');
-        $password = $data['password'] ?? '';
-
-        if (empty($name) || empty($email) || empty($password)) {
-            sendError('Name, email and password are required', 400);
-            return;
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            sendError('Invalid email format', 400);
-            return;
-        }
-        if (strlen($password) < 6) {
-            sendError('Password must be at least 6 characters', 400);
-            return;
-        }
-
-        $existingUser = $this->userModel->findByEmail($email);
-        if ($existingUser) {
-            sendError('Email already exists', 409);
-            return;
-        }
-
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $userId = $this->userModel->create($name, $email, $hashed, 'pharmacist', null, 'inactive');
-
-        if ($userId) {
-            sendSuccess(['id' => $userId], 'Account created successfully. Please wait for manager approval.');
-        } else {
-            sendError('Failed to create account', 500);
-        }
+        sendError('Public registration is disabled. Contact your manager for an invitation.', 403);
     }
 
     /**
@@ -141,39 +114,51 @@ class AuthController
     {
         $data = json_decode(file_get_contents('php://input'), true);
         $token = $data['token'] ?? '';
-        $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
 
-        if (empty($token) || empty($email) || empty($password)) {
+        if (empty($token) || empty($password)) {
             sendError('Missing data', 400);
             return;
         }
-        if (strlen($password) < 6) {
-            sendError('Password must be at least 6 characters', 400);
+        if (strlen($password) < 8 || !preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
+            sendError('Password must be at least 8 characters and include letters and numbers', 400);
             return;
         }
 
-        // Validate invitation
-        $stmt = $this->db->prepare("SELECT * FROM invitations WHERE token = ? AND email = ? AND used = 0 AND expires_at > NOW()");
-        $stmt->execute([$token, $email]);
-        $invite = $stmt->fetch();
-        if (!$invite) {
+        $stmt = $this->db->prepare("
+            SELECT id, status, token_expiry
+            FROM users
+            WHERE invite_token = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$token]);
+        $user = $stmt->fetch();
+
+        if (!$user) {
             sendError('Invalid or expired invitation', 400);
             return;
         }
+        if ($user['status'] !== 'pending') {
+            sendError('This invitation has already been used.', 400);
+            return;
+        }
+        if (empty($user['token_expiry']) || strtotime($user['token_expiry']) < time()) {
+            sendError('This invitation link has expired. Contact your manager for a new invitation.', 400);
+            return;
+        }
 
-        // Create user (name = part of email before @)
-        $name = explode('@', $email)[0];
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $userId = $this->userModel->create($name, $email, $hashed, $invite['role'], $invite['branch_id'], 'active');
+        $stmt2 = $this->db->prepare("
+            UPDATE users
+            SET password = ?, status = 'active', invite_token = NULL, token_expiry = NULL
+            WHERE id = ? AND status = 'pending'
+        ");
+        $ok = $stmt2->execute([$hashed, $user['id']]);
 
-        if ($userId) {
-            // Mark invitation as used
-            $stmt2 = $this->db->prepare("UPDATE invitations SET used = 1 WHERE id = ?");
-            $stmt2->execute([$invite['id']]);
+        if ($ok && $stmt2->rowCount() > 0) {
             sendSuccess(null, 'Account activated successfully. Please log in.');
         } else {
-            sendError('Failed to create user', 500);
+            sendError('Failed to activate account', 500);
         }
     }
 }

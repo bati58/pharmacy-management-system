@@ -7,6 +7,10 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'ph
 include '../includes/header.php';
 include '../includes/sidebar.php';
 ?>
+<script>
+    window.APP_ROLE = '<?php echo htmlspecialchars($_SESSION['role'] ?? '', ENT_QUOTES, 'UTF-8'); ?>';
+    window.APP_BRANCH_ID = <?php echo (int)($_SESSION['branch_id'] ?? 0); ?>;
+</script>
 <div class="ml-64 flex-1">
     <?php include '../includes/navbar.php'; ?>
     <div class="p-6">
@@ -15,6 +19,14 @@ include '../includes/sidebar.php';
             <!-- Add Items -->
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="font-semibold mb-3">Add Items</h3>
+                <div class="mb-3" id="saleBranchWrap" style="display:none;">
+                    <label>Branch</label>
+                    <select id="saleBranch" class="w-full border rounded px-3 py-2"></select>
+                </div>
+                <div class="mb-3">
+                    <label>Search Drug</label>
+                    <input type="text" id="drugSearch" placeholder="Type name, category, or batch..." class="w-full border rounded px-3 py-2">
+                </div>
                 <div class="mb-3">
                     <label>Drug</label>
                     <select id="drugSelect" class="w-full border rounded px-3 py-2"></select>

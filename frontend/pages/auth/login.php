@@ -54,8 +54,6 @@ if (isset($_SESSION['user_id'])) {
         </form>
         <div class="mt-6 text-center text-sm">
             <a href="forgot-password.php" class="text-purple-600 hover:underline">Forgot password?</a>
-            <span class="mx-2 text-gray-400">|</span>
-            <a href="signup.php" class="text-purple-600 hover:underline">Create an account</a>
         </div>
         <div class="mt-4 text-center text-xs text-gray-500">
             &copy; 2026 BatiFlow Pharma. All rights reserved.

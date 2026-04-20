@@ -134,7 +134,17 @@ async function loadBranchesIntoSelect() {
     if (!branchSelect) return;
     if ((window.APP_ROLE || '') !== 'manager') {
         const bid = window.APP_BRANCH_ID || '';
-        branchSelect.innerHTML = `<option value="${bid}">Branch #${escapeHtml(String(bid))}</option>`;
+        let branchLabel = `Branch #${escapeHtml(String(bid))}`;
+        try {
+            const branches = await API.getBranches();
+            const found = (branches.data || []).find(b => String(b.id) === String(bid));
+            if (found) {
+                branchLabel = escapeHtml(found.name);
+            }
+        } catch (e) {
+            // Keep fallback label when branch list cannot be loaded.
+        }
+        branchSelect.innerHTML = `<option value="${bid}">${branchLabel}</option>`;
         branchSelect.disabled = true;
         return;
     }

@@ -1,5 +1,7 @@
 let currentSaleCart = [];
 let currentDrugsList = [];
+let filteredDrugsList = [];
+let activeSaleBranchId = '';
 
 document.addEventListener('DOMContentLoaded', function () {
     // If on sales.php, load the table
@@ -8,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // If on new-sale.php, load drugs
     if (document.getElementById('drugSelect')) {
-        loadDrugsForSale();
+        setupSaleBranchAndSearch();
     }
 });
 
@@ -46,18 +48,94 @@ async function loadSalesTable() {
     }
 }
 
+async function setupSaleBranchAndSearch() {
+    const role = window.APP_ROLE || '';
+    const userBranchId = String(window.APP_BRANCH_ID || '');
+    const branchWrap = document.getElementById('saleBranchWrap');
+    const branchSelect = document.getElementById('saleBranch');
+    const searchInput = document.getElementById('drugSearch');
+
+    activeSaleBranchId = userBranchId;
+
+    if (role === 'manager' && branchWrap && branchSelect) {
+        branchWrap.style.display = 'block';
+        const branches = await API.getBranches();
+        branchSelect.innerHTML = '<option value="">Select branch</option>';
+        (branches.data || []).forEach(b => {
+            branchSelect.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
+        });
+        if (userBranchId) {
+            branchSelect.value = userBranchId;
+            activeSaleBranchId = userBranchId;
+        }
+        branchSelect.addEventListener('change', () => {
+            activeSaleBranchId = branchSelect.value || '';
+            currentSaleCart = [];
+            updateCartDisplay();
+            loadDrugsForSale();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            filterAndRenderDrugOptions(searchInput.value || '');
+        });
+    }
+
+    loadDrugsForSale();
+}
+
+function filterAndRenderDrugOptions(keyword) {
+    const select = document.getElementById('drugSelect');
+    if (!select) return;
+
+    const q = String(keyword || '').trim().toLowerCase();
+    filteredDrugsList = currentDrugsList.filter(drug => {
+        if (q === '') return true;
+        return (
+            String(drug.name || '').toLowerCase().includes(q) ||
+            String(drug.category || '').toLowerCase().includes(q) ||
+            String(drug.batch || '').toLowerCase().includes(q)
+        );
+    });
+
+    select.innerHTML = '<option value="">Select drug</option>';
+    if (filteredDrugsList.length === 0) {
+        select.innerHTML = '<option value="">No matching drugs found</option>';
+        return;
+    }
+
+    filteredDrugsList.forEach(drug => {
+        select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}">${escapeHtml(drug.name)} - $${drug.price} (Stock: ${drug.stock})</option>`;
+    });
+}
+
 async function loadDrugsForSale() {
     try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const branchId = user.branch_id || '';
+        const role = window.APP_ROLE || '';
+        const userBranchId = String(window.APP_BRANCH_ID || '');
+        const branchId = role === 'manager' ? (activeSaleBranchId || '') : userBranchId;
+
+        if (!branchId) {
+            const select = document.getElementById('drugSelect');
+            if (select) {
+                select.innerHTML = '<option value="">Select a branch first</option>';
+            }
+            return;
+        }
+
         const drugs = await API.getDrugs(branchId);
         const select = document.getElementById('drugSelect');
         if (!select) return;
         select.innerHTML = '<option value="">Select drug</option>';
-        currentDrugsList = drugs.data || [];
-        currentDrugsList.forEach(drug => {
-            select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}">${escapeHtml(drug.name)} - $${drug.price} (Stock: ${drug.stock})</option>`;
-        });
+        currentDrugsList = (drugs.data || []).filter(d => Number(d.stock || 0) > 0);
+        if (currentDrugsList.length === 0) {
+            select.innerHTML = '<option value="">No drugs available in your branch</option>';
+            showToast('No drugs available for your branch. Ask store keeper/manager to add or transfer stock.', 'info');
+            return;
+        }
+        const searchInput = document.getElementById('drugSearch');
+        filterAndRenderDrugOptions(searchInput ? searchInput.value : '');
     } catch (err) {
         console.error('Error loading drugs for sale:', err);
         showToast('Failed to load drugs', 'error');
@@ -136,14 +214,23 @@ async function completeSale() {
     const paymentMethod = document.getElementById('paymentMethod').value;
     const discountAmount = parseFloat(document.getElementById('discountAmount')?.value || '0');
     const prescriptionReference = document.getElementById('prescriptionReference')?.value?.trim() || '';
+    const role = window.APP_ROLE || '';
+    const branchId = role === 'manager'
+        ? (document.getElementById('saleBranch')?.value || '')
+        : String(window.APP_BRANCH_ID || '');
     if (discountAmount < 0) {
         showToast('Discount cannot be negative', 'error');
+        return;
+    }
+    if (!branchId) {
+        showToast('Please select branch before completing sale', 'error');
         return;
     }
 
     const saleData = {
         customer_name: customerName,
         payment_method: paymentMethod,
+        branch_id: branchId,
         discount_amount: discountAmount,
         prescription_reference: prescriptionReference,
         items: currentSaleCart.map(item => ({

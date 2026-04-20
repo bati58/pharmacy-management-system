@@ -41,7 +41,6 @@ include '../includes/sidebar.php';
         <select id="inviteRole" class="w-full border rounded px-3 py-2 mb-3">
             <option value="pharmacist">Pharmacist</option>
             <option value="store_keeper">Store Keeper</option>
-            <option value="manager">Manager</option>
         </select>
         <select id="inviteBranch" class="w-full border rounded px-3 py-2 mb-3"></select>
         <div class="flex justify-end space-x-2">

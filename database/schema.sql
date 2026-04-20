@@ -25,15 +25,18 @@ CREATE TABLE `users` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE,
-    `password` VARCHAR(255) NOT NULL,
+    `password` VARCHAR(255) DEFAULT NULL,
     `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
     `branch_id` INT(11) DEFAULT NULL,
-    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    `status` ENUM('pending', 'active', 'inactive') NOT NULL DEFAULT 'pending',
+    `invite_token` VARCHAR(64) DEFAULT NULL,
+    `token_expiry` DATETIME DEFAULT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_users_email` (`email`),
     KEY `idx_users_role` (`role`),
     KEY `idx_users_status` (`status`),
+    UNIQUE KEY `idx_users_invite_token` (`invite_token`),
     FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

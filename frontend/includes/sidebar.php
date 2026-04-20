@@ -4,9 +4,14 @@ $name = $_SESSION['name'] ?? 'User';
 ?>
 <div class="sidebar" id="sidebar">
     <div class="p-4 border-b border-gray-700 flex justify-between items-center">
-        <div>
-            <h2 class="text-white text-xl font-bold">BatiFlow Smart</h2>
-            <p class="text-gray-400 text-sm">Pharma Management</p>
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+                <i class="fas fa-prescription-bottle-alt"></i>
+            </div>
+            <div>
+                <h2 class="text-white text-xl font-bold">BatiFlow Smart</h2>
+                <p class="text-gray-400 text-sm">Pharma Management</p>
+            </div>
         </div>
         <button class="text-gray-400 hover:text-white md:hidden" id="closeSidebarBtn">
             <i class="fas fa-times text-xl"></i>
