@@ -36,6 +36,13 @@ $smtpPassRaw = trim((string)$smtpPass);
 // Gmail app passwords are often copied with spaces (e.g., "abcd efgh ..."); normalize them.
 $smtpPass = str_replace(' ', '', $smtpPassRaw);
 
+function logEmailError($message)
+{
+    $logFile = __DIR__ . '/../logs/email.log';
+    $line = '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL;
+    @file_put_contents($logFile, $line, FILE_APPEND);
+}
+
 /**
  * @param string $to
  * @param string $subject
@@ -77,16 +84,19 @@ function sendEmail($to, $subject, $message, $from = null)
         } catch (\Throwable $e) {
             $GLOBALS['_batiflow_email_error'] = 'SMTP send failed: ' . $e->getMessage();
             error_log('PHPMailer: ' . $e->getMessage());
+            logEmailError($GLOBALS['_batiflow_email_error']);
             return false;
         }
     }
 
     if (empty($GLOBALS['_batiflow_phpmailer'])) {
         $GLOBALS['_batiflow_email_error'] = 'PHPMailer is not installed. Run: composer require phpmailer/phpmailer';
+        logEmailError($GLOBALS['_batiflow_email_error']);
         return false;
     }
     if (empty($smtpUser) || empty($smtpPass)) {
         $GLOBALS['_batiflow_email_error'] = 'SMTP credentials are missing. Configure backend/config/email.local.php';
+        logEmailError($GLOBALS['_batiflow_email_error']);
         return false;
     }
 
@@ -94,6 +104,7 @@ function sendEmail($to, $subject, $message, $from = null)
     $ok = @mail($to, $subject, $message, $headers);
     if (!$ok) {
         $GLOBALS['_batiflow_email_error'] = 'PHP mail() failed.';
+        logEmailError($GLOBALS['_batiflow_email_error']);
     }
     return $ok;
 }

@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', function () {
     setupInventoryEventListeners();
 });
 
+function canDeleteDrug() {
+    return (window.APP_ROLE || '') === 'manager';
+}
+
 // Load branches into filter dropdown (managers only)
 async function loadBranchFilter() {
     const branchSelect = document.getElementById('branchFilter');
@@ -47,6 +51,11 @@ async function loadDrugs() {
             const expiryStatus = checkExpiryStatus(drug.expiry_date);
             const expiryClass = expiryStatus.status === 'expired' ? 'text-red-600' : (expiryStatus.status === 'expiring_soon' ? 'text-orange-500' : '');
             const ms = [drug.manufacturer, drug.supplier].filter(Boolean).join(' / ') || '-';
+            const deleteBtn = canDeleteDrug()
+                ? `<button class="btn-delete action-icon-btn action-delete mr-1" data-id="${drug.id}" title="Delete drug" aria-label="Delete drug">
+                        <i class="fas fa-trash"></i>
+                   </button>`
+                : '';
             const row = `
                 <tr class="border-b hover:bg-gray-50">
                     <td class="px-4 py-2">${escapeHtml(drug.name)}</td>
@@ -61,9 +70,7 @@ async function loadDrugs() {
                         <button class="btn-edit action-icon-btn action-edit mr-1" data-id="${drug.id}" title="Edit drug" aria-label="Edit drug">
                             <i class="fas fa-pen"></i>
                         </button>
-                        <button class="btn-delete action-icon-btn action-delete mr-1" data-id="${drug.id}" title="Delete drug" aria-label="Delete drug">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        ${deleteBtn}
                         <button class="btn-stock action-icon-btn action-stock" data-id="${drug.id}" title="Adjust stock" aria-label="Adjust stock">
                             <i class="fas fa-boxes-stacked"></i>
                         </button>

@@ -154,11 +154,43 @@ class UserController
 
     public function delete($id)
     {
-        $deleted = $this->userModel->delete($id);
-        if ($deleted) {
-            sendSuccess(null, 'User deleted successfully');
-        } else {
-            sendError('User not found', 404);
+        try {
+            $this->db->beginTransaction();
+
+            // Delete dependent transactional rows first.
+            $stmt = $this->db->prepare("SELECT id FROM sales WHERE pharmacist_id = ?");
+            $stmt->execute([$id]);
+            $saleIds = array_column($stmt->fetchAll(), 'id');
+            if (!empty($saleIds)) {
+                $in = implode(',', array_fill(0, count($saleIds), '?'));
+                $stmtItems = $this->db->prepare("DELETE FROM sale_items WHERE sale_id IN ($in)");
+                $stmtItems->execute($saleIds);
+
+                $stmtSales = $this->db->prepare("DELETE FROM sales WHERE id IN ($in)");
+                $stmtSales->execute($saleIds);
+            }
+
+            $stmt = $this->db->prepare("DELETE FROM transfers WHERE created_by = ?");
+            $stmt->execute([$id]);
+
+            $stmt = $this->db->prepare("DELETE FROM stock_movements WHERE user_id = ?");
+            $stmt->execute([$id]);
+
+            $deleted = $this->userModel->delete($id);
+            if ($deleted) {
+                $this->db->commit();
+                sendSuccess(null, 'User deleted successfully (including related records).');
+            } else {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                sendError('User not found', 404);
+            }
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            sendError('Failed to delete user. ' . $e->getMessage(), 500);
         }
     }
 

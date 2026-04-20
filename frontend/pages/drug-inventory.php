@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/init_session.php';
-if (!isset($_SESSION['user_id'])) {
-    header('Location: auth/login.php');
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'store_keeper'])) {
+    header('Location: dashboard.php');
     exit;
 }
 include '../includes/header.php';

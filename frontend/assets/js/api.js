@@ -25,7 +25,14 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     }
     try {
         const response = await fetch(url, options);
-        const result = await response.json();
+        const contentType = response.headers.get('content-type') || '';
+        let result;
+        if (contentType.includes('application/json')) {
+            result = await response.json();
+        } else {
+            const text = await response.text();
+            throw new Error('Server returned non-JSON response. Check backend error logs.');
+        }
         if (!response.ok) {
             if (response.status === 401 && result.message === 'Unauthorized. Please login.') {
                 localStorage.removeItem('user');

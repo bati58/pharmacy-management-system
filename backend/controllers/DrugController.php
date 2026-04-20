@@ -6,10 +6,12 @@ require_once __DIR__ . '/../helpers/response.php';
 class DrugController
 {
     private $drugModel;
+    private $db;
 
     public function __construct()
     {
         global $pdo;
+        $this->db = $pdo;
         $this->drugModel = new Drug($pdo);
         AuthMiddleware::check();
     }
@@ -88,11 +90,39 @@ class DrugController
     public function delete($id)
     {
         AuthMiddleware::requireRole(['manager']);
-        $deleted = $this->drugModel->delete($id);
-        if ($deleted) {
-            sendSuccess(null, 'Drug deleted');
-        } else {
-            sendError('Drug not found', 404);
+        try {
+            $this->db->beginTransaction();
+
+            // Remove child rows that block drug deletion.
+            $stmt = $this->db->prepare("DELETE FROM sale_items WHERE drug_id = ?");
+            $stmt->execute([$id]);
+
+            $stmt = $this->db->prepare("DELETE FROM transfers WHERE drug_id = ?");
+            $stmt->execute([$id]);
+
+            $stmt = $this->db->prepare("DELETE FROM stock_movements WHERE drug_id = ?");
+            $stmt->execute([$id]);
+
+            $deleted = $this->drugModel->delete($id);
+            if ($deleted) {
+                $this->db->commit();
+                sendSuccess(null, 'Drug deleted successfully (including related records).');
+            } else {
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                sendError('Drug not found', 404);
+            }
+        } catch (PDOException $e) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            $msg = $e->getMessage();
+            if (stripos($msg, 'foreign key constraint fails') !== false) {
+                sendError('Cannot delete this drug because related sale, transfer, or stock movement records exist.', 409);
+                return;
+            }
+            sendError('Failed to delete drug. ' . $msg, 500);
         }
     }
 }

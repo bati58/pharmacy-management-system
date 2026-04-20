@@ -35,11 +35,12 @@ $name = $_SESSION['name'] ?? 'User';
         <a href="stock-transfers.php" class="role-storekeeper role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'stock-transfers.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-exchange-alt w-5 mr-3"></i> Stock Transfers
         </a>
-        <!-- Pharmacist & Manager -->
+        <!-- Pharmacist & Manager (sales list oversight for manager) -->
         <a href="sales.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'sales.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-shopping-cart w-5 mr-3"></i> Sales
         </a>
-        <a href="new-sale.php" class="role-pharmacist role-manager <?php echo basename($_SERVER['PHP_SELF']) == 'new-sale.php' ? 'active' : ''; ?>" style="display:none;">
+        <!-- Pharmacist only -->
+        <a href="new-sale.php" class="role-pharmacist <?php echo basename($_SERVER['PHP_SELF']) == 'new-sale.php' ? 'active' : ''; ?>" style="display:none;">
             <i class="fas fa-plus-circle w-5 mr-3"></i> New Sale
         </a>
         <!-- Manager only -->
@@ -76,7 +77,6 @@ $name = $_SESSION['name'] ?? 'User';
     const role = '<?php echo $role; ?>';
     if (role === 'manager') {
         document.querySelectorAll('.role-manager').forEach(el => el.style.display = 'flex');
-        document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
         document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
     } else if (role === 'pharmacist') {
         document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');

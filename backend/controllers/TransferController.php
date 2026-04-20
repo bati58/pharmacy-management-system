@@ -34,7 +34,7 @@ class TransferController
 
     public function create()
     {
-        AuthMiddleware::requireRole(['manager', 'store_keeper']);
+        AuthMiddleware::requireRole(['store_keeper']);
         $data = json_decode(file_get_contents('php://input'), true);
         $drugId = $data['drug_id'] ?? null;
         $quantity = $data['quantity'] ?? 0;

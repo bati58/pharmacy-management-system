@@ -58,7 +58,7 @@ class SaleController
 
     public function create()
     {
-        if ($_SESSION['role'] !== 'pharmacist' && $_SESSION['role'] !== 'manager') {
+        if (($_SESSION['role'] ?? '') !== 'pharmacist') {
             sendError('Only pharmacists can process sales', 403);
             return;
         }
@@ -69,10 +69,7 @@ class SaleController
         $items = $data['items'] ?? [];
         $paymentMethod = $data['payment_method'] ?? 'Cash';
         $discountAmount = (float)($data['discount_amount'] ?? 0);
-        $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
-        if (($_SESSION['role'] ?? '') !== 'manager') {
-            $branchId = $_SESSION['branch_id'];
-        }
+        $branchId = $_SESSION['branch_id'] ?? null;
 
         if (empty($items)) {
             sendError('No items in sale', 400);

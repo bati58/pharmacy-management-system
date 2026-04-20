@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.getElementById('drugSelect')) {
         setupSaleBranchAndSearch();
     }
+    setupSaleDetailsModal();
 });
 
 async function loadSalesTable() {
@@ -57,23 +58,8 @@ async function setupSaleBranchAndSearch() {
 
     activeSaleBranchId = userBranchId;
 
-    if (role === 'manager' && branchWrap && branchSelect) {
-        branchWrap.style.display = 'block';
-        const branches = await API.getBranches();
-        branchSelect.innerHTML = '<option value="">Select branch</option>';
-        (branches.data || []).forEach(b => {
-            branchSelect.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
-        });
-        if (userBranchId) {
-            branchSelect.value = userBranchId;
-            activeSaleBranchId = userBranchId;
-        }
-        branchSelect.addEventListener('change', () => {
-            activeSaleBranchId = branchSelect.value || '';
-            currentSaleCart = [];
-            updateCartDisplay();
-            loadDrugsForSale();
-        });
+    if (branchWrap) {
+        branchWrap.style.display = 'none';
     }
 
     if (searchInput) {
@@ -112,9 +98,8 @@ function filterAndRenderDrugOptions(keyword) {
 
 async function loadDrugsForSale() {
     try {
-        const role = window.APP_ROLE || '';
         const userBranchId = String(window.APP_BRANCH_ID || '');
-        const branchId = role === 'manager' ? (activeSaleBranchId || '') : userBranchId;
+        const branchId = userBranchId;
 
         if (!branchId) {
             const select = document.getElementById('drugSelect');
@@ -214,10 +199,7 @@ async function completeSale() {
     const paymentMethod = document.getElementById('paymentMethod').value;
     const discountAmount = parseFloat(document.getElementById('discountAmount')?.value || '0');
     const prescriptionReference = document.getElementById('prescriptionReference')?.value?.trim() || '';
-    const role = window.APP_ROLE || '';
-    const branchId = role === 'manager'
-        ? (document.getElementById('saleBranch')?.value || '')
-        : String(window.APP_BRANCH_ID || '');
+    const branchId = String(window.APP_BRANCH_ID || '');
     if (discountAmount < 0) {
         showToast('Discount cannot be negative', 'error');
         return;
@@ -255,5 +237,90 @@ async function completeSale() {
 }
 
 function viewSale(id) {
-    alert('View sale ' + id);
+    loadSaleDetails(id);
+}
+
+function setupSaleDetailsModal() {
+    const modal = document.getElementById('saleDetailsModal');
+    const closeBtn = document.getElementById('closeSaleDetailsBtn');
+    if (!modal) return;
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeSaleDetailsModal);
+    }
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeSaleDetailsModal();
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeSaleDetailsModal();
+        }
+    });
+}
+
+function openSaleDetailsModal() {
+    const modal = document.getElementById('saleDetailsModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeSaleDetailsModal() {
+    const modal = document.getElementById('saleDetailsModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function loadSaleDetails(id) {
+    try {
+        const res = await API.getSale(id);
+        const sale = res.data;
+        if (!sale) {
+            showToast('Sale not found', 'error');
+            return;
+        }
+
+        document.getElementById('detailInvoiceNo').innerText = sale.invoice_no || '-';
+        document.getElementById('detailDate').innerText = formatDateTime(sale.sale_date || '');
+        document.getElementById('detailCustomer').innerText = sale.customer_name || '-';
+        document.getElementById('detailPayment').innerText = sale.payment_method || '-';
+        document.getElementById('detailPharmacist').innerText = sale.pharmacist_name || '-';
+        document.getElementById('detailPrescription').innerText = sale.prescription_reference || 'N/A';
+
+        const tbody = document.getElementById('saleDetailsItems');
+        tbody.innerHTML = '';
+
+        let subtotal = 0;
+        (sale.items || []).forEach(item => {
+            const qty = Number(item.quantity || 0);
+            const price = Number(item.price || 0);
+            const rowTotal = qty * price;
+            subtotal += rowTotal;
+            tbody.innerHTML += `
+                <tr class="border-t">
+                    <td class="px-3 py-2">${escapeHtml(item.drug_name || '-')}</td>
+                    <td class="px-3 py-2">${qty}</td>
+                    <td class="px-3 py-2">${formatCurrency(price)}</td>
+                    <td class="px-3 py-2">${formatCurrency(rowTotal)}</td>
+                </tr>
+            `;
+        });
+        if (!sale.items || sale.items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-3 py-3 text-center text-gray-500">No items found</td></tr>';
+        }
+
+        const discount = Number(sale.discount_amount || 0);
+        const total = Number(sale.total_amount || 0);
+
+        document.getElementById('detailSubtotal').innerText = formatCurrency(subtotal);
+        document.getElementById('detailDiscount').innerText = formatCurrency(discount);
+        document.getElementById('detailTotal').innerText = formatCurrency(total);
+
+        openSaleDetailsModal();
+    } catch (err) {
+        showToast(err.message || 'Failed to load sale details', 'error');
+    }
 }

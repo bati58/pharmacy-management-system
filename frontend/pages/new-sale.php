@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/init_session.php';
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'pharmacist'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pharmacist') {
     header('Location: dashboard.php');
     exit;
 }
