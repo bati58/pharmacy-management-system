@@ -80,11 +80,15 @@ class DrugController
     public function delete($id)
     {
         AuthMiddleware::requireRole(['manager']);
-        $deleted = $this->drugModel->delete($id);
-        if ($deleted) {
-            sendSuccess(null, 'Drug deleted');
-        } else {
-            sendError('Drug not found', 404);
+        try {
+            $deleted = $this->drugModel->delete($id);
+            if ($deleted) {
+                sendSuccess(null, 'Drug deleted');
+            } else {
+                sendError('Drug not found', 404);
+            }
+        } catch (PDOException $e) {
+            sendError('Database error: ' . $e->getMessage(), 500);
         }
     }
 }

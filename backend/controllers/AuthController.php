@@ -1,12 +1,11 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../helpers/response.php';
-// session_start() is already started in backend/index.php
 
 class AuthController
 {
     private $userModel;
-    private $db; // optional, but useful for direct queries
+    private $db;
 
     public function __construct()
     {
@@ -119,18 +118,15 @@ class AuthController
         }
     }
 
-    /**
-     * Activate an invitation – creates user account after user sets password
-     */
     public function activateInvitation()
     {
         $data = json_decode(file_get_contents('php://input'), true);
         $token = $data['token'] ?? '';
-        $email = $data['email'] ?? '';
         $password = $data['password'] ?? '';
+        $name = trim($data['name'] ?? '');
 
-        if (empty($token) || empty($email) || empty($password)) {
-            sendError('Missing data', 400);
+        if (empty($token) || empty($password) || empty($name)) {
+            sendError('All fields (Name, Password) are required', 400);
             return;
         }
         if (strlen($password) < 6) {
@@ -138,31 +134,55 @@ class AuthController
             return;
         }
 
-        // Validate invitation
-        $stmt = $this->db->prepare("SELECT * FROM invitations WHERE token = ? AND email = ? AND used = 0 AND expires_at > NOW()");
-        $stmt->execute([$token, $email]);
+        // Validate token
+        $stmt = $this->db->prepare("SELECT * FROM invitations WHERE token = ? AND status = 'pending' AND expires_at > NOW()");
+        $stmt->execute([$token]);
         $invite = $stmt->fetch();
+        
         if (!$invite) {
-            sendError('Invalid or expired invitation', 400);
+            sendError('Invalid, expired, or already used invitation', 400);
             return;
         }
 
-        // Create user (name = part of email before @)
-        $name = explode('@', $email)[0];
+        // Check if user already exists (shouldn't happen if model check was done, but safe to re-check)
+        if ($this->userModel->findByEmail($invite['email'])) {
+            sendError('A user with this email already exists', 409);
+            return;
+        }
+
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $userId = $this->userModel->create($name, $email, $hashed, $invite['role'], $invite['branch_id'], 'active');
+        $userId = $this->userModel->create($name, $invite['email'], $hashed, $invite['role'], $invite['branch_id'], 'active');
 
         if ($userId) {
-            // Mark invitation as used
-            $stmt2 = $this->db->prepare("UPDATE invitations SET used = 1 WHERE id = ?");
+            // Mark invitation as accepted and used
+            $stmt2 = $this->db->prepare("UPDATE invitations SET status = 'accepted', used = 1 WHERE id = ?");
             $stmt2->execute([$invite['id']]);
-            sendSuccess(null, 'Account activated successfully. Please log in.');
+            sendSuccess(null, 'Account created and activated successfully. You can now log in.');
+        } else {
+            sendError('Failed to create account', 500);
         }
     }
 
-    /**
-     * Update user profile information
-     */
+    public function validateInvitation()
+    {
+        $token = $_GET['token'] ?? '';
+        if (empty($token)) {
+            sendError('Token is required', 400);
+            return;
+        }
+
+        $stmt = $this->db->prepare("SELECT email, role, expires_at FROM invitations WHERE token = ? AND status = 'pending' AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $invite = $stmt->fetch();
+
+        if (!$invite) {
+            sendError('Invalid or expired invitation', 404);
+            return;
+        }
+
+        sendSuccess($invite);
+    }
+
     public function updateProfile()
     {
         if (!isset($_SESSION['user_id'])) {
@@ -185,9 +205,6 @@ class AuthController
         sendSuccess(null, 'Profile updated successfully');
     }
 
-    /**
-     * Change user password
-     */
     public function changePassword()
     {
         if (!isset($_SESSION['user_id'])) {
@@ -209,7 +226,6 @@ class AuthController
             return;
         }
 
-        // Verify current password
         $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");
         $stmt->execute([$_SESSION['user_id']]);
         $user = $stmt->fetch();
@@ -219,7 +235,6 @@ class AuthController
             return;
         }
 
-        // Update to new password
         $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
         $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
         $stmt->execute([$hashed, $_SESSION['user_id']]);

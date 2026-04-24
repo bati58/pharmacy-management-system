@@ -66,11 +66,15 @@ class BranchController
     public function delete($id)
     {
         AuthMiddleware::requireRole(['manager']);
-        $deleted = $this->branchModel->delete($id);
-        if ($deleted) {
-            sendSuccess(null, 'Branch deleted successfully');
-        } else {
-            sendError('Branch not found', 404);
+        try {
+            $deleted = $this->branchModel->delete($id);
+            if ($deleted) {
+                sendSuccess(null, 'Branch deleted successfully');
+            } else {
+                sendError('Branch not found', 404);
+            }
+        } catch (PDOException $e) {
+            sendError('Database error: ' . $e->getMessage(), 500);
         }
     }
 }

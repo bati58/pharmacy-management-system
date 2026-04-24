@@ -40,7 +40,12 @@ define('CURRENCY_SYMBOL', '$');
 define('CURRENCY_CODE', 'USD');
 
 // ========== EMAIL ==========
-define('FROM_EMAIL', 'noreply@batiflow.com');
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 465);
+define('SMTP_USER', 'batijano58@gmail.com');
+define('SMTP_PASS', 'itakjzrerwgsndun');
+define('SMTP_SECURE', 'ssl');                     // 'tls' or 'ssl'
+define('FROM_EMAIL', 'batijano58@gmail.com');
 define('FROM_NAME', 'BatiFlow Pharma System');
 
 // ========== SYSTEM PATHS ==========

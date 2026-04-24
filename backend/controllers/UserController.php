@@ -87,26 +87,30 @@ class UserController
         }
 
         $token = bin2hex(random_bytes(32));
-        $expires = date('Y-m-d H:i:s', strtotime('+7 days'));
+        $expires = date('Y-m-d H:i:s', strtotime('+48 hours'));
+        $createdBy = $_SESSION['user_id'] ?? null;
 
         try {
-            $stmt = $this->db->prepare("INSERT INTO invitations (email, token, role, branch_id, expires_at) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$email, $token, $role, $branchId, $expires]);
+            // Delete existing pending invitations for this email
+            $stmt = $this->db->prepare("DELETE FROM invitations WHERE email = ? AND status = 'pending'");
+            $stmt->execute([$email]);
+
+            $stmt = $this->db->prepare("INSERT INTO invitations (email, token, role, branch_id, expires_at, created_by, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+            $stmt->execute([$email, $token, $role, $branchId, $expires, $createdBy]);
         } catch (PDOException $e) {
             sendError('Database error: ' . $e->getMessage(), 500);
             return;
         }
 
-        $resetLink = BASE_URL . "/frontend/pages/auth/set-password.php?token=$token&email=" . urlencode($email);
-        $subject = "Invitation to join BatiFlow Pharma";
-        $message = "You have been invited as a $role. Click the link to set your password and activate your account:<br><a href='$resetLink'>$resetLink</a>";
-
-        $emailSent = sendEmail($email, $subject, $message);
+        $emailSent = sendInvitationEmail($email, $role, $token);
+        
         if (!$emailSent) {
             // Log the link for manual retrieval
+            $registerLink = BASE_URL . "/register.php?token=$token";
             $logFile = __DIR__ . '/../logs/invite.log';
-            file_put_contents($logFile, $resetLink . PHP_EOL, FILE_APPEND);
-            sendSuccess(null, 'Invitation saved but email failed. Link logged in backend/logs/invite.log');
+            if (!is_dir(dirname($logFile))) mkdir(dirname($logFile), 0777, true);
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] $email: $registerLink" . PHP_EOL, FILE_APPEND);
+            sendSuccess(['link' => $registerLink], 'Invitation saved but email failed. Link logged in backend/logs/invite.log');
         } else {
             sendSuccess(null, 'Invitation sent successfully');
         }
@@ -130,11 +134,15 @@ class UserController
 
     public function delete($id)
     {
-        $deleted = $this->userModel->delete($id);
-        if ($deleted) {
-            sendSuccess(null, 'User deleted successfully');
-        } else {
-            sendError('User not found', 404);
+        try {
+            $deleted = $this->userModel->delete($id);
+            if ($deleted) {
+                sendSuccess(null, 'User deleted successfully');
+            } else {
+                sendError('User not found', 404);
+            }
+        } catch (PDOException $e) {
+            sendError('Database error: ' . $e->getMessage(), 500);
         }
     }
 

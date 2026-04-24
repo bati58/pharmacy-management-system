@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 /**
  * Front Controller - Entry point for all API requests
