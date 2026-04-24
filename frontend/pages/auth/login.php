@@ -17,46 +17,80 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: radial-gradient(circle at top left, #4f46e5 0%, #7c3aed 100%);
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-scale-in {
+            animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
     </style>
 </head>
 
-<body class="flex items-center justify-center min-h-screen">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8 m-4">
-        <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-gray-800">BatiFlow</h2>
-            <p class="text-gray-500">Pharmacy Management System</p>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <!-- Login Card -->
+    <div class="glass-card rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 m-4 animate-scale-in relative overflow-hidden">
+        <!-- Decoration -->
+        <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-100 rounded-full blur-3xl opacity-50"></div>
+        
+        <div class="text-center mb-10 relative">
+            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200 rotate-3">
+                <i class="fas fa-hand-holding-medical text-white text-2xl"></i>
+            </div>
+            <h2 class="text-4xl font-black text-slate-800 tracking-tight">Welcome Back</h2>
+            <p class="text-slate-400 font-medium mt-1">BatiFlow Pharma Ecosystem</p>
         </div>
-        <form id="loginForm">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                <div class="relative">
-                    <i class="fas fa-envelope absolute left-3 top-3 text-gray-400"></i>
+
+        <form id="loginForm" class="space-y-6 relative">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Email Address</label>
+                <div class="relative group">
+                    <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="email" id="email"
-                        class="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="you@example.com" required>
+                        class="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
+                        placeholder="admin@batiflow.com" required>
                 </div>
             </div>
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                <div class="relative">
-                    <i class="fas fa-lock absolute left-3 top-3 text-gray-400"></i>
+            <div>
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Password</label>
+                    <a href="forgot-password.php" class="text-[10px] font-bold text-indigo-500 hover:text-indigo-600 uppercase tracking-wider">Forgot?</a>
+                </div>
+                <div class="relative group">
+                    <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="password" id="password"
-                        class="w-full pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
                         placeholder="••••••••" required>
                 </div>
             </div>
-            <button type="submit"
-                class="w-full bg-purple-600 text-white font-bold py-2 rounded-lg hover:bg-purple-700 transition duration-200">
-                Sign In
+            <button type="submit" id="submitBtn"
+                class="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-200 transition-all transform hover:-translate-y-1 active:scale-[0.98] flex items-center justify-center gap-2">
+                <span>Sign Into Portal</span>
+                <i class="fas fa-arrow-right text-xs opacity-50"></i>
             </button>
         </form>
-        <div class="mt-6 text-center text-sm">
-            <a href="forgot-password.php" class="text-purple-600 hover:underline">Forgot password?</a>
+
+        <div class="mt-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+            &copy; 2026 BatiFlow Pharma Systems. Enterprise Edition.
         </div>
-        <div class="mt-4 text-center text-xs text-gray-500">
-            &copy; 2026 BatiFlow Pharma. All rights reserved.
+    </div>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="fixed inset-0 bg-white/80 backdrop-blur-xl z-[100] hidden items-center justify-center">
+        <div class="text-center animate-scale-in">
+            <div class="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-emerald-200">
+                <i class="fas fa-check text-white text-4xl"></i>
+            </div>
+            <h3 class="text-4xl font-black text-slate-800 tracking-tight mb-2">Login Successful</h3>
+            <p class="text-slate-500 font-medium" id="welcomeMessage">Preparing your personal dashboard...</p>
         </div>
     </div>
 
@@ -64,38 +98,50 @@ if (isset($_SESSION['user_id'])) {
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('submitBtn');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+
+            // Loading state
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Authenticating...';
 
             try {
                 const response = await fetch('../../../backend/index.php/auth/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
                     credentials: 'include'
                 });
+                
                 const data = await response.json();
+                
                 if (data.success) {
-                    showToast('Login successful! Redirecting...', 'success');
-                    // Store user info in localStorage for frontend use
+                    // Store user info
                     localStorage.setItem('user', JSON.stringify({
                         name: data.data.name,
                         role: data.data.role,
                         branch_id: data.data.branch_id
                     }));
+
+                    // Show Premium Success Overlay
+                    document.getElementById('welcomeMessage').innerText = `Welcome back, ${data.data.name}!`;
+                    const overlay = document.getElementById('successOverlay');
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+
                     setTimeout(() => {
                         window.location.href = '../dashboard.php';
-                    }, 1000);
+                    }, 2000);
                 } else {
                     showToast(data.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Sign Into Portal</span> <i class="fas fa-arrow-right text-xs opacity-50"></i>';
                 }
             } catch (err) {
-                showToast('Login failed. Please try again.', 'error');
+                showToast('Network error. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Sign Into Portal</span> <i class="fas fa-arrow-right text-xs opacity-50"></i>';
             }
         });
     </script>
