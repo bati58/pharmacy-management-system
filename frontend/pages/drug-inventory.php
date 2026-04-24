@@ -122,6 +122,40 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
+<!-- Stock Update Modal -->
+<div id="stockModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
+    <div class="bg-white/95 backdrop-blur shadow-2xl rounded-3xl p-8 w-full max-w-sm animate-fade-in border border-white/20 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mb-6 mx-auto">
+            <i class="fas fa-boxes text-2xl"></i>
+        </div>
+        <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight mb-2">Adjust Inventory</h3>
+        <p class="text-sm text-slate-500 font-medium mb-8" id="stockDrugName">Update medication count</p>
+        
+        <input type="hidden" id="stockDrugId">
+        <div class="space-y-4 text-left">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">Quantity Adjustment</label>
+                <input type="number" id="stockChange" placeholder="e.g. 50 or -10" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium">
+                <p class="text-[10px] text-slate-400 mt-1 px-1">Use positive for additions, negative for removals.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">Adjustment Reason</label>
+                <select id="stockReason" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-600">
+                    <option value="manual">Manual Adjustment</option>
+                    <option value="restock">New Stock Received</option>
+                    <option value="damaged">Damaged / Expired</option>
+                    <option value="return">Customer Return</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex gap-3">
+            <button onclick="closeStockModal()" class="flex-1 px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+            <button onclick="saveStockUpdate()" class="flex-1 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all">Update Stock</button>
+        </div>
+    </div>
+</div>
+
 <script src="../assets/js/utils.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/inventory.js"></script>

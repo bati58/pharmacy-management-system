@@ -151,9 +151,10 @@ function removeFromCart(index) {
     showToast('Item removed from basket', 'info');
 }
 
-function clearCart() {
+async function clearCart() {
     if (currentSaleCart.length === 0) return;
-    if (confirm('Clear all items from the basket?')) {
+    const confirmed = await showConfirm('Clear Basket', 'Are you sure you want to remove all items from your current sales basket?');
+    if (confirmed) {
         currentSaleCart = [];
         updateCartDisplay();
         showToast('Basket cleared');

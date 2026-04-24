@@ -54,14 +54,13 @@ if (isset($_SESSION['user_id'])) {
         </form>
         <div class="mt-6 text-center text-sm">
             <a href="forgot-password.php" class="text-purple-600 hover:underline">Forgot password?</a>
-            <span class="mx-2 text-gray-400">|</span>
-            <a href="signup.php" class="text-purple-600 hover:underline">Create an account</a>
         </div>
         <div class="mt-4 text-center text-xs text-gray-500">
             &copy; 2026 BatiFlow Pharma. All rights reserved.
         </div>
     </div>
 
+    <script src="../../assets/js/utils.js"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -82,18 +81,21 @@ if (isset($_SESSION['user_id'])) {
                 });
                 const data = await response.json();
                 if (data.success) {
+                    showToast('Login successful! Redirecting...', 'success');
                     // Store user info in localStorage for frontend use
                     localStorage.setItem('user', JSON.stringify({
                         name: data.data.name,
                         role: data.data.role,
                         branch_id: data.data.branch_id
                     }));
-                    window.location.href = '../dashboard.php';
+                    setTimeout(() => {
+                        window.location.href = '../dashboard.php';
+                    }, 1000);
                 } else {
-                    alert(data.message);
+                    showToast(data.message, 'error');
                 }
             } catch (err) {
-                alert('Login failed. Please try again.');
+                showToast('Login failed. Please try again.', 'error');
             }
         });
     </script>

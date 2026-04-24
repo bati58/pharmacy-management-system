@@ -131,3 +131,20 @@
     <div class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars text-xl"></i>
     </div>
+
+    <!-- Global Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[200] p-4">
+        <div class="bg-white/95 backdrop-blur shadow-2xl rounded-3xl p-8 w-full max-w-sm animate-fade-in border border-white/20">
+            <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center mb-6 mx-auto">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-xl font-black text-slate-800 tracking-tight mb-2" id="confirmTitle">Are you sure?</h3>
+                <p class="text-sm text-slate-500 font-medium leading-relaxed" id="confirmMessage">This action cannot be undone. Please confirm to proceed.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="confirmCancelBtn" class="flex-1 px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-all">Cancel</button>
+                <button id="confirmOkBtn" class="flex-1 px-6 py-3 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 shadow-lg shadow-rose-200 transition-all">Confirm</button>
+            </div>
+        </div>
+    </div>

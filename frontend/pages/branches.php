@@ -161,7 +161,8 @@ include '../includes/sidebar.php';
     }
 
     async function deleteBranch(id) {
-        if (confirm('Delete this branch? It may affect users and drugs.')) {
+        const confirmed = await showConfirm('Delete Branch', 'Are you sure you want to delete this branch? This action may affect associated users and medication stock records.');
+        if (confirmed) {
             try {
                 await API.deleteBranch(id);
                 showToast('Branch deleted');

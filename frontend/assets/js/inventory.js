@@ -227,7 +227,8 @@ async function saveDrug() {
 }
 
 async function deleteDrug(id) {
-    if (confirm('Are you sure you want to delete this drug?')) {
+    const confirmed = await showConfirm('Delete Medication', 'Are you sure you want to permanently remove this drug from the inventory? This action cannot be undone.');
+    if (confirmed) {
         try {
             await API.deleteDrug(id);
             showToast('Drug deleted');
@@ -239,22 +240,44 @@ async function deleteDrug(id) {
 }
 
 async function updateStock(id) {
-    const quantity = prompt('Enter quantity change (positive for addition, negative for removal):');
-    if (quantity !== null) {
-        const change = parseInt(quantity);
-        if (isNaN(change)) {
-            showToast('Invalid number', 'error');
-            return;
+    try {
+        const drug = await API.getDrug(id);
+        if (drug.data) {
+            document.getElementById('stockDrugId').value = drug.data.id;
+            document.getElementById('stockDrugName').innerText = drug.data.name;
+            document.getElementById('stockChange').value = '';
+            document.getElementById('stockReason').value = 'manual';
+            document.getElementById('stockModal').classList.remove('hidden');
+            document.getElementById('stockModal').classList.add('flex');
         }
-        const reason = prompt('Reason (e.g., restock, damaged):', 'manual');
-        try {
-            await API.updateStock(id, change, reason);
-            showToast('Stock updated');
-            loadDrugs();
-        } catch (error) {
-            showToast(error.message, 'error');
-        }
+    } catch (error) {
+        showToast('Error loading drug info', 'error');
     }
+}
+
+async function saveStockUpdate() {
+    const id = document.getElementById('stockDrugId').value;
+    const change = parseInt(document.getElementById('stockChange').value);
+    const reason = document.getElementById('stockReason').value;
+
+    if (isNaN(change) || change === 0) {
+        showToast('Please enter a valid quantity change', 'error');
+        return;
+    }
+
+    try {
+        await API.updateStock(id, change, reason);
+        showToast('Stock updated successfully');
+        closeStockModal();
+        loadDrugs();
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function closeStockModal() {
+    document.getElementById('stockModal').classList.add('hidden');
+    document.getElementById('stockModal').classList.remove('flex');
 }
 
 function closeDrugModal() {
