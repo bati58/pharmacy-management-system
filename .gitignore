@@ -1,5 +1,12 @@
-# Composer بالكامل
+# Composer
 /vendor/
+/backend/vendor/
 composer.json
 composer.lock
 composer.phar
+
+# Logs
+/backend/logs/
+
+# Temporary directories
+/scratch/

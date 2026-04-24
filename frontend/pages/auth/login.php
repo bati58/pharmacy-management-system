@@ -42,7 +42,7 @@ if (isset($_SESSION['user_id'])) {
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-100 rounded-full blur-3xl opacity-50"></div>
         
         <div class="text-center mb-10 relative">
-            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200 rotate-3">
+            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
                 <i class="fas fa-hand-holding-medical text-white text-2xl"></i>
             </div>
             <h2 class="text-4xl font-black text-slate-800 tracking-tight">Welcome Back</h2>

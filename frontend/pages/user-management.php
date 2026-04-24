@@ -92,119 +92,6 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
-<script src="../assets/js/utils.js"></script>
-<script src="../assets/js/api.js"></script>
-<script>
-    async function loadUsers() {
-        try {
-            const users = await API.getUsers();
-            const branches = await API.getBranches();
-            const branchMap = {};
-            if (branches.data) branches.data.forEach(b => branchMap[b.id] = b.name);
-            const tbody = document.getElementById('usersTable');
-            tbody.innerHTML = '';
-            if (users.data && users.data.length) {
-                users.data.forEach(u => {
-                    const statusClass = u.status === 'active' ? 'active' : 'inactive';
-                    const initials = u.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-                    tbody.innerHTML += `
-                        <tr class="group hover:bg-slate-50 transition-colors">
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100">
-                                        ${initials}
-                                    </div>
-                                    <div>
-                                        <p class="font-bold text-slate-800">${escapeHtml(u.name)}</p>
-                                        <p class="text-xs text-slate-500 font-medium">${escapeHtml(u.email)}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-lg uppercase tracking-tight">${u.role.replace('_', ' ')}</span></td>
-                            <td><span class="text-sm text-slate-600 font-medium">${branchMap[u.branch_id] || '<span class="text-slate-300">Not Assigned</span>'}</span></td>
-                            <td><span class="status-pill ${statusClass}">${u.status}</span></td>
-                            <td class="text-xs text-slate-500 font-medium">${formatDate(u.created_at)}</td>
-                            <td class="text-right">
-                                <div class="flex justify-end gap-2">
-                                    <button onclick="editUser(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.email)}', '${u.role}', ${u.branch_id || 'null'}, '${u.status}')" 
-                                        class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center" title="Edit">
-                                        <i class="fas fa-edit text-xs"></i>
-                                    </button>
-                                    ${u.status === 'active' ? 
-                                        `<button onclick="toggleUserStatus(${u.id}, 'inactive')" class="w-8 h-8 rounded-lg bg-slate-100 text-amber-500 hover:bg-amber-50 hover:text-amber-600 transition-all flex items-center justify-center" title="Deactivate"><i class="fas fa-user-minus text-xs"></i></button>` : 
-                                        `<button onclick="toggleUserStatus(${u.id}, 'active')" class="w-8 h-8 rounded-lg bg-slate-100 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center" title="Activate"><i class="fas fa-user-plus text-xs"></i></button>`
-                                    }
-                                    <button onclick="deleteUser(${u.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center" title="Delete">
-                                        <i class="fas fa-trash-alt text-xs"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tbody.innerHTML = '<td><td colspan="6" class="text-center py-4">No users found</td><tr>';
-            }
-        } catch (err) {
-            console.error(err);
-            showToast('Failed to load users', 'error');
-        }
-    }
-
-    async function loadBranchesForSelect(selectId) {
-        try {
-            const res = await API.getBranches();
-            const select = document.getElementById(selectId);
-            select.innerHTML = '<option value="">No Branch</option>';
-            if (res.data) {
-                res.data.forEach(b => {
-                    select.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
-                });
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    function showInviteModal() {
-        document.getElementById('inviteName').value = '';
-        document.getElementById('inviteEmail').value = '';
-        document.getElementById('inviteRole').value = 'pharmacist';
-        document.getElementById('inviteModal').classList.remove('hidden');
-        document.getElementById('inviteModal').classList.add('flex');
-        loadBranchesForSelect('inviteBranch');
-    }
-
-    function closeInviteModal() {
-        document.getElementById('inviteModal').classList.add('hidden');
-        document.getElementById('inviteModal').classList.remove('flex');
-    }
-
-    async function sendInvite() {
-        const name = document.getElementById('inviteName').value.trim();
-        const email = document.getElementById('inviteEmail').value.trim();
-        const role = document.getElementById('inviteRole').value;
-        const branchId = document.getElementById('inviteBranch').value || null;
-
-        if (!name || !email) {
-            showToast('Name and email are required', 'error');
-            return;
-        }
-        try {
-            await API.inviteUser({
-                name,
-                email,
-                role,
-                branch_id: branchId
-            });
-            showToast('Invitation sent! The user will receive an email.');
-            closeInviteModal();
-            // Optionally reload user list – but user not yet created, so maybe not needed.
-        } catch (err) {
-            showToast(err.message, 'error');
-        }
-    }
-
 <!-- Edit User Modal -->
 <div id="editUserModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[100] p-4">
     <div class="bg-white/95 backdrop-blur shadow-2xl rounded-3xl p-8 w-full max-w-md animate-fade-in border border-white/20">
@@ -293,7 +180,7 @@ include '../includes/sidebar.php';
                     `;
                 });
             } else {
-                tbody.innerHTML = '<td><td colspan="6" class="text-center py-4">No users found</td><tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-slate-400 font-medium">No team members found</td></tr>';
             }
         } catch (err) {
             console.error(err);
@@ -340,17 +227,36 @@ include '../includes/sidebar.php';
             showToast('Name and email are required', 'error');
             return;
         }
+        
+        const btn = document.querySelector('#inviteModal button[onclick="sendInvite()"]');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'Sending...';
+
         try {
-            await API.inviteUser({
+            const res = await API.inviteUser({
                 name,
                 email,
                 role,
                 branch_id: branchId
             });
-            showToast('Invitation sent! The user will receive an email.');
-            closeInviteModal();
+            
+            if (res.data && res.data.link) {
+                closeInviteModal();
+                await showConfirm('Invitation Link', 
+                    `Email could not be sent automatically, but the invitation was created.\n\nPlease copy this link and send it manually:\n\n${res.data.link}`,
+                    'Copy Link', 'Close');
+                navigator.clipboard.writeText(res.data.link);
+                showToast('Link copied to clipboard');
+            } else {
+                showToast('Invitation sent! The user will receive an email.');
+                closeInviteModal();
+            }
         } catch (err) {
             showToast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
     }
 

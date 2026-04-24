@@ -18,7 +18,7 @@
             <div class="flex items-center gap-4 border-r border-slate-200 pr-6 mr-2">
                 <button class="relative w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200" onclick="location.href='notifications.php'">
                     <i class="fas fa-bell"></i>
-                    <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+                    <span id="headerNotifCount" class="absolute -top-1.5 -right-1.5 min-w-[1.25rem] h-5 px-1 bg-rose-500 text-white text-[10px] font-black rounded-full border-2 border-white flex items-center justify-center hidden">0</span>
                 </button>
                 <button onclick="location.href='settings.php'" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200">
                     <i class="fas fa-cog"></i>

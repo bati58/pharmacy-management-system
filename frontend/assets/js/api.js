@@ -2,19 +2,27 @@
 const getProjectRoot = () => {
     const path = window.location.pathname;
     const parts = path.split('/');
+    
+    // Check for standard subfolders first
     const frontendIndex = parts.indexOf('frontend');
     if (frontendIndex !== -1) {
-        return parts.slice(0, frontendIndex).join('/');
+        return parts.slice(0, frontendIndex).join('/') || '';
     }
+    
     const backendIndex = parts.indexOf('backend');
     if (backendIndex !== -1) {
-        return parts.slice(0, backendIndex).join('/');
+        return parts.slice(0, backendIndex).join('/') || '';
     }
-    return '';
+    
+    // If we are in the root (like register.php), the root is everything before the last filename
+    // and we ensure it doesn't return an empty string if it's the domain root
+    const root = parts.slice(0, parts.length - 1).join('/');
+    return root || '';
 };
 
 const PROJECT_ROOT = getProjectRoot();
 const API_BASE_URL = PROJECT_ROOT + '/backend/index.php';
+console.log('API Base URL detected:', API_BASE_URL);
 
 async function apiRequest(endpoint, method = 'GET', data = null) {
     const url = API_BASE_URL + endpoint;
@@ -26,9 +34,19 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data);
     }
+    
     try {
         const response = await fetch(url, options);
-        const result = await response.json();
+        const text = await response.text(); // Get raw text first
+        
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Failed to parse JSON. Raw response:', text);
+            throw new Error('Server returned invalid response. Check console for details.');
+        }
+
         if (!response.ok) {
             if (response.status === 401 && result.message === 'Unauthorized. Please login.') {
                 localStorage.removeItem('user');
@@ -49,6 +67,7 @@ const API = {
     logout: () => apiRequest('/auth/logout', 'POST'),
     resetPassword: (email) => apiRequest('/auth/reset-password', 'POST', { email }),
     activateInvitation: (data) => apiRequest('/auth/activate-invitation', 'POST', data),
+    validateInvitation: (token) => apiRequest(`/auth/validate-invitation?token=${token}`, 'GET'),
     updateProfile: (data) => apiRequest('/auth/update-profile', 'POST', data),
     changePassword: (data) => apiRequest('/auth/change-password', 'POST', data),
 

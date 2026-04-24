@@ -69,7 +69,7 @@ $name = $_SESSION['name'] ?? 'User';
         <a href="notifications.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
             <div class="relative">
                 <i class="fas fa-bell text-lg"></i>
-                <span id="notifCount" class="absolute -top-1 -right-1 w-2 h-2 bg-rose-500 rounded-full border-2 border-slate-900 hidden"></span>
+                <span id="sidebarNotifCount" class="absolute -top-1 -right-1 min-w-[0.75rem] h-3 bg-rose-500 text-[8px] text-white flex items-center justify-center font-bold rounded-full border border-slate-900 hidden">0</span>
             </div>
             <span class="text-sm">Notifications</span>
         </a>

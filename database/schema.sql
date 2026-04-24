@@ -180,11 +180,15 @@ CREATE TABLE `invitations` (
     `email` VARCHAR(100) NOT NULL UNIQUE,
     `token` VARCHAR(255) NOT NULL,
     `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
+    `status` ENUM('pending', 'accepted', 'expired') NOT NULL DEFAULT 'pending',
+    `created_by` INT(11) DEFAULT NULL,
+    `used` TINYINT(1) NOT NULL DEFAULT 0,
     `branch_id` INT(11) DEFAULT NULL,
     `expires_at` DATETIME NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_invitations_email` (`email`),
     KEY `idx_invitations_token` (`token`),
-    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL
+    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
