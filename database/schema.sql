@@ -171,3 +171,20 @@ CREATE TABLE `stock_movements` (
     FOREIGN KEY (`drug_id`) REFERENCES `drugs`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ======================================================
+-- 9. Invitations table (for new user invites)
+-- ======================================================
+CREATE TABLE `invitations` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `token` VARCHAR(255) NOT NULL,
+    `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
+    `branch_id` INT(11) DEFAULT NULL,
+    `expires_at` DATETIME NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_invitations_email` (`email`),
+    KEY `idx_invitations_token` (`token`),
+    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
