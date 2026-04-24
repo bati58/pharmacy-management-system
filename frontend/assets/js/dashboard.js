@@ -9,20 +9,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function loadDashboardData() {
     try {
-        // Get sales report for last 7 days
-        const report = await API.getSalesReport('weekly');
-        const branches = await API.getBranches();
-        const drugs = await API.getDrugs();
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isManager = user.role === 'manager';
+        const branchId = isManager ? '' : (user.branch_id || '');
+
+        // Fetch data in parallel with individual error handling
+        const [reportRes, branchesRes, drugsRes] = await Promise.all([
+            API.getSalesReport('weekly', branchId).catch(err => ({ data: [] })),
+            API.getBranches().catch(err => ({ data: [] })),
+            API.getDrugs(branchId).catch(err => ({ data: [] }))
+        ]);
+
+        const report = reportRes.data || [];
+        const branches = branchesRes.data || [];
+        const drugs = drugsRes.data || [];
 
         // Calculate KPIs
-        const totalBranches = branches.data ? branches.data.length : 0;
-        const totalDrugs = drugs.data ? drugs.data.length : 0;
+        const totalBranches = isManager ? branches.length : 1; // Non-managers see their 1 branch
+        const totalDrugs = drugs.length;
         let totalSales = 0;
         let totalRevenue = 0;
 
-        if (report.data && report.data.length) {
-            totalSales = report.data.reduce((sum, day) => sum + day.transaction_count, 0);
-            totalRevenue = report.data.reduce((sum, day) => sum + day.total_revenue, 0);
+        if (report.length) {
+            totalSales = report.reduce((sum, day) => sum + day.transaction_count, 0);
+            totalRevenue = report.reduce((sum, day) => sum + day.total_revenue, 0);
         }
 
         document.getElementById('kpi-branches').innerText = totalBranches;
@@ -31,7 +41,7 @@ async function loadDashboardData() {
         document.getElementById('kpi-revenue').innerText = formatCurrency(totalRevenue);
 
         // Render chart
-        renderSalesChart(report.data);
+        renderSalesChart(report);
 
     } catch (error) {
         console.error('Dashboard data error:', error);

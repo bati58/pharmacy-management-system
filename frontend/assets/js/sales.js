@@ -195,6 +195,92 @@ async function completeSale() {
     }
 }
 
-function viewSale(id) {
-    alert('View sale ' + id);
+async function viewSale(id) {
+    try {
+        const res = await API.getSale(id);
+        if (!res.success) throw new Error(res.message);
+        const sale = res.data;
+
+        const panel = document.getElementById('saleDetailsPanel');
+        const content = document.getElementById('detailContent');
+        const invoiceNo = document.getElementById('detailInvoiceNo');
+
+        invoiceNo.innerText = `#${sale.invoice_no}`;
+        
+        let itemsHtml = '';
+        sale.items.forEach(item => {
+            itemsHtml += `
+                <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">${escapeHtml(item.drug_name)}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Qty: ${item.quantity} × ${formatCurrency(item.price)}</p>
+                    </div>
+                    <span class="font-black text-slate-700 text-sm">${formatCurrency(item.quantity * item.price)}</span>
+                </div>
+            `;
+        });
+
+        content.innerHTML = `
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Customer Information</p>
+                <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-indigo-500">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800 text-sm">${escapeHtml(sale.customer_name)}</p>
+                        <p class="text-[10px] text-slate-400 font-bold">${formatDateTime(sale.sale_date)}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Purchased Items</p>
+                <div class="space-y-1">${itemsHtml}</div>
+            </div>
+
+            <div class="bg-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-indigo-200">
+                <div class="flex justify-between items-center text-xs opacity-80 mb-1">
+                    <span>Subtotal</span>
+                    <span>${formatCurrency(parseFloat(sale.total_amount) + parseFloat(sale.discount_amount))}</span>
+                </div>
+                <div class="flex justify-between items-center text-xs opacity-80 mb-3 pb-3 border-b border-white/10">
+                    <span>Discount</span>
+                    <span>-${formatCurrency(sale.discount_amount)}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider">Total Amount</span>
+                    <span class="text-xl font-black">${formatCurrency(sale.total_amount)}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Payment Method</p>
+                    <p class="text-xs font-bold text-slate-700">${sale.payment_method}</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Pharmacist</p>
+                    <p class="text-xs font-bold text-slate-700">${escapeHtml(sale.pharmacist_name)}</p>
+                </div>
+            </div>
+        `;
+
+        panel.classList.remove('hidden');
+        panel.classList.add('block');
+        
+        // Scroll into view if needed on mobile
+        if (window.innerWidth < 1024) {
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+function closeDetails() {
+    const panel = document.getElementById('saleDetailsPanel');
+    panel.classList.add('hidden');
+    panel.classList.remove('block');
 }

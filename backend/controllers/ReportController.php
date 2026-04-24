@@ -15,7 +15,6 @@ class ReportController
         $this->saleModel = new Sale($pdo);
         $this->drugModel = new Drug($pdo);
         AuthMiddleware::check();
-        AuthMiddleware::requireRole(['manager']); // Only manager
     }
 
     public function salesReport()
@@ -25,18 +24,25 @@ class ReportController
         $startDate = $_GET['start_date'] ?? null;
         $endDate = $_GET['end_date'] ?? null;
 
+        // If not manager, force their own branch
+        if ($_SESSION['role'] !== 'manager') {
+            $branchId = $_SESSION['branch_id'];
+        }
+
         $data = $this->saleModel->getSalesReport($period, $branchId, $startDate, $endDate);
         sendSuccess($data);
     }
 
     public function revenueByBranch()
     {
+        AuthMiddleware::requireRole(['manager']);
         $data = $this->saleModel->getRevenueByBranch();
         sendSuccess($data);
     }
 
     public function revenueByPharmacist()
     {
+        AuthMiddleware::requireRole(['manager']);
         $data = $this->saleModel->getRevenueByPharmacist();
         sendSuccess($data);
     }
