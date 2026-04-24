@@ -20,7 +20,7 @@
                     <i class="fas fa-bell"></i>
                     <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
                 </button>
-                <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200">
+                <button onclick="location.href='settings.php'" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200">
                     <i class="fas fa-cog"></i>
                 </button>
             </div>

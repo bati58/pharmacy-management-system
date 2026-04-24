@@ -314,6 +314,63 @@ tr:hover td {
     animation: slideUp 0.5s ease forwards;
 }
 
+/* Print Styles */
+@media print {
+    .sidebar, 
+    header, 
+    .mobile-menu-btn,
+    .flex-1.w-full.overflow-hidden, /* Hide the table column */
+    .btn-premium,
+    #confirmModal,
+    #toast-container,
+    .main-content > div:first-child > div:first-child { /* Hide page headers */
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+    }
+
+    #saleDetailsPanel {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    #detailContent {
+        margin-top: 20px;
+    }
+
+    /* Keep the total card readable in BW */
+    .bg-indigo-600 {
+        background-color: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: none !important;
+    }
+    
+    .bg-indigo-600 * {
+        color: #0f172a !important;
+    }
+}
+
 /* Pulse for alerts */
 @keyframes pulse-soft {
     0%, 100% { opacity: 1; }

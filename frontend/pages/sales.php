@@ -73,10 +73,10 @@ include '../includes/sidebar.php';
                 </div>
                 
                 <div class="mt-8 pt-6 border-t border-slate-100 flex gap-3">
-                    <button class="flex-1 btn-premium bg-slate-100 text-slate-600">
+                    <button id="printBtn" onclick="printInvoice()" class="flex-1 btn-premium bg-slate-100 text-slate-600">
                         <i class="fas fa-print"></i> Print
                     </button>
-                    <button class="flex-1 btn-premium btn-premium-primary">
+                    <button id="pdfBtn" onclick="downloadPDF()" class="flex-1 btn-premium btn-premium-primary">
                         <i class="fas fa-download"></i> PDF
                     </button>
                 </div>

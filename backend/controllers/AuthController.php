@@ -41,6 +41,7 @@ class AuthController
         $_SESSION['role'] = $user['role'];
         $_SESSION['branch_id'] = $user['branch_id'];
         $_SESSION['name'] = $user['name'];
+        $_SESSION['email'] = $user['email'];
 
         sendSuccess([
             'role' => $user['role'],
@@ -156,8 +157,73 @@ class AuthController
             $stmt2 = $this->db->prepare("UPDATE invitations SET used = 1 WHERE id = ?");
             $stmt2->execute([$invite['id']]);
             sendSuccess(null, 'Account activated successfully. Please log in.');
-        } else {
-            sendError('Failed to create user', 500);
         }
+    }
+
+    /**
+     * Update user profile information
+     */
+    public function updateProfile()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            sendError('Not authenticated', 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = trim($data['name'] ?? '');
+
+        if (empty($name)) {
+            sendError('Name is required', 400);
+            return;
+        }
+
+        $stmt = $this->db->prepare("UPDATE users SET name = ? WHERE id = ?");
+        $stmt->execute([$name, $_SESSION['user_id']]);
+
+        $_SESSION['name'] = $name;
+        sendSuccess(null, 'Profile updated successfully');
+    }
+
+    /**
+     * Change user password
+     */
+    public function changePassword()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            sendError('Not authenticated', 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $currentPassword = $data['current_password'] ?? '';
+        $newPassword = $data['new_password'] ?? '';
+
+        if (empty($currentPassword) || empty($newPassword)) {
+            sendError('All fields are required', 400);
+            return;
+        }
+
+        if (strlen($newPassword) < 6) {
+            sendError('New password must be at least 6 characters', 400);
+            return;
+        }
+
+        // Verify current password
+        $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($currentPassword, $user['password'])) {
+            sendError('Current password is incorrect', 400);
+            return;
+        }
+
+        // Update to new password
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->execute([$hashed, $_SESSION['user_id']]);
+
+        sendSuccess(null, 'Password changed successfully');
     }
 }

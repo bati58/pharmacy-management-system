@@ -280,6 +280,16 @@ async function viewSale(id) {
     }
 }
 
+function printInvoice() {
+    window.print();
+}
+
+function downloadPDF() {
+    // In modern browsers, window.print() provides a "Save as PDF" option
+    // This is the cleanest implementation without external libraries.
+    window.print();
+}
+
 function closeDetails() {
     const panel = document.getElementById('saleDetailsPanel');
     panel.classList.add('hidden');

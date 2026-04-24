@@ -49,6 +49,8 @@ const API = {
     logout: () => apiRequest('/auth/logout', 'POST'),
     resetPassword: (email) => apiRequest('/auth/reset-password', 'POST', { email }),
     activateInvitation: (data) => apiRequest('/auth/activate-invitation', 'POST', data),
+    updateProfile: (data) => apiRequest('/auth/update-profile', 'POST', data),
+    changePassword: (data) => apiRequest('/auth/change-password', 'POST', data),
 
     // Branches
     getBranches: () => apiRequest('/branches'),
