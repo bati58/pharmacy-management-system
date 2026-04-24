@@ -9,7 +9,7 @@ Manage inventory, sales, stock transfers, users, branches, and analytics – all
 http://localhost/phpmyadmin
 
 🌐 Application Preview (Frontend)
-[http://localhost/pharmacy system/frontend/index.php](http://localhost/pharmacy%20system/frontend/pages/auth/login.php)
+http://localhost/pharmacy%20system/frontend/pages/auth/login.php
 
 ## ✨ Features
 
