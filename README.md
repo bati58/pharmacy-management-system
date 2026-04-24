@@ -3,6 +3,12 @@
 A complete, role‑based Pharmacy Management System built with **PHP (no framework)**, **MySQL**, and vanilla **HTML/CSS/JavaScript**.  
 Manage inventory, sales, stock transfers, users, branches, and analytics – all from a responsive web interface.
 ---
+### Login page
+![Login](frontend/assets/login.png)
+### Success page
+![Success](frontend/assets/success.png)
+## 🌐 Dashboard Preview
+![Dashboard](frontend/assets/dashboard.png)
 🗄️ Database (phpMyAdmin)
 http://localhost/phpmyadmin
 
