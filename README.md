@@ -32,10 +32,12 @@ http://localhost/pharmacy%20system/frontend/pages/auth/login.php
 - **Low Stock & Expiry Alerts** – receive notifications.
 
 ### General (All Roles)
-- **Authentication** – login/logout, password reset (email).
-- **Role‑Based Menus** – sidebar adapts to user role.
-- **Search & Filter** – drugs by name/category/batch, reports by date/branch.
-- **Notifications** – real‑time low stock and expiry alerts (badge and list).
+- **Authentication** – Secure login/logout.
+- **Invitation-only Onboarding** – Managers invite personnel via email; no open signup for security.
+- **Role‑Based Menus** – Sidebar adapts to user role permissions.
+- **Modern UI** – Premium glassmorphic interface with real-time notifications.
+- **Search & Filter** – Drugs by name/category/batch, reports by date/branch.
+- **Notifications** – Real‑time low stock and expiry alerts (badge and list).
 
 ---
 
