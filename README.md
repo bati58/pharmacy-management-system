@@ -5,6 +5,13 @@ Manage inventory, sales, stock transfers, users, branches, and analytics – all
 
 ---
 
+# BatiFlow Smart Pharma – Pharmacy Management System
+
+A complete, role-based Pharmacy Management System built with **PHP (no framework)**, **MySQL**, and vanilla **HTML/CSS/JavaScript**.  
+Manage inventory, sales, stock transfers, users, branches, and analytics – all from a responsive web interface.
+
+---
+
 ## ✨ Features
 
 ### Manager (Owner)
@@ -96,3 +103,7 @@ Manage inventory, sales, stock transfers, users, branches, and analytics – all
 
 ---
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> b34a2b25bba33c1fc85ff5d1259231a8aab59de3
