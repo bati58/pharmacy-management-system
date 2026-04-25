@@ -20,15 +20,25 @@ if (isset($_SESSION['user_id'])) {
             background: radial-gradient(circle at top left, #4f46e5 0%, #7c3aed 100%);
             font-family: 'Inter', sans-serif;
         }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
+
         .animate-scale-in {
             animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
@@ -40,7 +50,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="glass-card rounded-[2.5rem] shadow-2xl w-full max-w-md p-10 m-4 animate-scale-in relative overflow-hidden">
         <!-- Decoration -->
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-purple-100 rounded-full blur-3xl opacity-50"></div>
-        
+
         <div class="text-center mb-10 relative">
             <div class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
                 <i class="fas fa-hand-holding-medical text-white text-2xl"></i>
@@ -56,7 +66,7 @@ if (isset($_SESSION['user_id'])) {
                     <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="email" id="email"
                         class="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
-                        placeholder="admin@batiflow.com" required>
+                        placeholder="you@gmail.com" required>
                 </div>
             </div>
             <div>
@@ -67,8 +77,11 @@ if (isset($_SESSION['user_id'])) {
                 <div class="relative group">
                     <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="password" id="password"
-                        class="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
+                        class="w-full pl-12 pr-12 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
                         placeholder="••••••••" required>
+                    <button type="button" onclick="togglePassword('password', 'eyeIcon')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 focus:outline-none transition-colors">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
                 </div>
             </div>
             <button type="submit" id="submitBtn"
@@ -96,6 +109,20 @@ if (isset($_SESSION['user_id'])) {
 
     <script src="../../assets/js/utils.js"></script>
     <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -109,13 +136,18 @@ if (isset($_SESSION['user_id'])) {
             try {
                 const response = await fetch('../../../backend/index.php/auth/login', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    }),
                     credentials: 'include'
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Store user info
                     localStorage.setItem('user', JSON.stringify({

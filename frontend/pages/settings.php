@@ -69,17 +69,32 @@ include '../includes/sidebar.php';
                 <form id="passwordForm" class="space-y-6">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Current Password</label>
-                        <input type="password" id="currentPassword" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                        <div class="relative">
+                            <input type="password" id="currentPassword" class="w-full px-4 py-3 pr-12 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                            <button type="button" onclick="togglePassword('currentPassword', 'eyeIconCurrent')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 focus:outline-none transition-colors">
+                                <i class="fas fa-eye" id="eyeIconCurrent"></i>
+                            </button>
+                        </div>
                     </div>
                     
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">New Password</label>
-                        <input type="password" id="newPassword" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                        <div class="relative">
+                            <input type="password" id="newPassword" class="w-full px-4 py-3 pr-12 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                            <button type="button" onclick="togglePassword('newPassword', 'eyeIconNew')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 focus:outline-none transition-colors">
+                                <i class="fas fa-eye" id="eyeIconNew"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 px-1">Confirm New Password</label>
-                        <input type="password" id="confirmPassword" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" class="w-full px-4 py-3 pr-12 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" required>
+                            <button type="button" onclick="togglePassword('confirmPassword', 'eyeIconConfirm')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 focus:outline-none transition-colors">
+                                <i class="fas fa-eye" id="eyeIconConfirm"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="pt-4">
@@ -94,6 +109,20 @@ include '../includes/sidebar.php';
 <script src="../assets/js/utils.js"></script>
 <script src="../assets/js/api.js"></script>
 <script>
+    function togglePassword(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
     // Profile Update
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
