@@ -103,3 +103,53 @@ function sendPasswordResetEmail($to, $resetLink)
     ";
     return sendEmail($to, $subject, $message);
 }
+
+/**
+ * Send expiry alert email
+ */
+function sendExpiryAlert($to, $drugs)
+{
+    $subject = "Alert: Expiring Drugs in Inventory";
+    $message = "
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #e53e3e;'>Expiring Drugs Alert</h2>
+        <p>The following drugs are expiring soon:</p>
+        <ul>";
+    
+    foreach ($drugs as $drug) {
+        $message .= "<li><strong>{$drug['name']}</strong> (Batch: {$drug['batch']}) - Expires on " . date('M d, Y', strtotime($drug['expiry_date'])) . " at {$drug['branch_name']}</li>";
+    }
+
+    $message .= "</ul>
+        <p>Please take necessary actions.</p>
+        <br>
+        <p>BatiFlow Pharma Team</p>
+    </div>
+    ";
+    return sendEmail($to, $subject, $message);
+}
+
+/**
+ * Send low stock alert email
+ */
+function sendLowStockAlert($to, $drugs)
+{
+    $subject = "Alert: Low Stock in Inventory";
+    $message = "
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #dd6b20;'>Low Stock Alert</h2>
+        <p>The following drugs are running low on stock:</p>
+        <ul>";
+    
+    foreach ($drugs as $drug) {
+        $message .= "<li><strong>{$drug['name']}</strong> (Batch: {$drug['batch']}) - Only {$drug['stock']} units left at {$drug['branch_name']}</li>";
+    }
+
+    $message .= "</ul>
+        <p>Please restock these items soon.</p>
+        <br>
+        <p>BatiFlow Pharma Team</p>
+    </div>
+    ";
+    return sendEmail($to, $subject, $message);
+}

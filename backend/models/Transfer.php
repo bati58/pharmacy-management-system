@@ -27,6 +27,13 @@ class Transfer
         return $stmt->fetchAll();
     }
 
+    public function findById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM transfers WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
+    }
+
     public function create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $createdBy)
     {
         $stmt = $this->db->prepare("

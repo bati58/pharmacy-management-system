@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../models/Transfer.php';
 require_once __DIR__ . '/../models/Drug.php';
+require_once __DIR__ . '/../models/Notification.php';
+require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
 
@@ -14,6 +16,8 @@ class TransferController
         global $pdo;
         $this->transferModel = new Transfer($pdo);
         $this->drugModel = new Drug($pdo);
+        $this->notificationModel = new Notification($pdo);
+        $this->userModel = new User($pdo);
         AuthMiddleware::check();
         // Store keeper can create transfers, manager can view all, pharmacist read-only?
     }
@@ -61,6 +65,16 @@ class TransferController
         // We'll just record the transfer.
 
         $transferId = $this->transferModel->create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $_SESSION['user_id']);
+        
+        // Notify Pharmacists in the destination branch
+        $allUsers = $this->userModel->getAll();
+        $message = "Incoming Stock Transfer: {$quantity} units of {$drug['name']} sent to {$toLocation}.";
+        foreach ($allUsers as $user) {
+            if ($user['status'] === 'active' && $user['role'] === 'pharmacist' && $user['branch_id'] == $branchId) {
+                $this->notificationModel->create($user['id'], 'system', $message);
+            }
+        }
+
         sendSuccess(['id' => $transferId], 'Stock transferred successfully');
     }
 
@@ -77,6 +91,11 @@ class TransferController
 
         $updated = $this->transferModel->updateStatus($id, $status);
         if ($updated) {
+            $transfer = $this->transferModel->findById($id);
+            if ($transfer && $transfer['created_by'] != $_SESSION['user_id']) {
+                $message = "Your stock transfer request status has been updated to: {$status}.";
+                $this->notificationModel->create($transfer['created_by'], 'system', $message);
+            }
             sendSuccess(null, 'Transfer status updated');
         } else {
             sendError('Transfer not found', 404);

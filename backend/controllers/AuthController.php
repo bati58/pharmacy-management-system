@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../helpers/response.php';
 
 class AuthController
@@ -12,6 +13,7 @@ class AuthController
         global $pdo;
         $this->db = $pdo;
         $this->userModel = new User($pdo);
+        $this->notificationModel = new Notification($pdo);
     }
 
     public function login()
@@ -157,6 +159,16 @@ class AuthController
             // Mark invitation as accepted and used
             $stmt2 = $this->db->prepare("UPDATE invitations SET status = 'accepted', used = 1 WHERE id = ?");
             $stmt2->execute([$invite['id']]);
+            
+            // Notify managers
+            $allUsers = $this->userModel->getAll();
+            $message = "New user '{$name}' ({$invite['role']}) has successfully registered.";
+            foreach ($allUsers as $user) {
+                if ($user['role'] === 'manager' && $user['status'] === 'active') {
+                    $this->notificationModel->create($user['id'], 'system', $message);
+                }
+            }
+
             sendSuccess(null, 'Account created and activated successfully. You can now log in.');
         } else {
             sendError('Failed to create account', 500);
