@@ -5,8 +5,9 @@ require_once __DIR__ . '/../helpers/response.php';
 
 class AuthController
 {
-    private $userModel;
-    private $db;
+    private User $userModel;
+    private PDO $db;
+    private Notification $notificationModel;
 
     public function __construct()
     {
