@@ -103,7 +103,3 @@ Manage inventory, sales, stock transfers, users, branches, and analytics – all
 
 ---
 
-<<<<<<< HEAD
-=======
-
->>>>>>> b34a2b25bba33c1fc85ff5d1259231a8aab59de3

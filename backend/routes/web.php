@@ -17,6 +17,7 @@ $routes = [
     'GET /auth/logout' => ['AuthController', 'logout'],
     'POST /auth/register' => ['AuthController', 'register'],
     'POST /auth/reset-password' => ['AuthController', 'resetPassword'],
+    'POST /auth/reset-password-confirm' => ['AuthController', 'resetPasswordConfirm'],
     'POST /auth/activate-invitation' => ['AuthController', 'activateInvitation'],
     'GET /auth/validate-invitation' => ['AuthController', 'validateInvitation'],
     'POST /auth/update-profile' => ['AuthController', 'updateProfile'],

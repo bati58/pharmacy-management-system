@@ -20,6 +20,9 @@
             <h2 class="text-2xl font-bold text-gray-800">Reset your password</h2>
             <p class="text-gray-500 text-sm">Enter your email and we'll send you a link to reset your password.</p>
         </div>
+
+        <div id="messageBox" class="hidden mb-4 p-4 rounded-lg text-sm font-medium"></div>
+
         <form id="resetForm">
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-1">Email</label>
@@ -41,6 +44,14 @@
         document.getElementById('resetForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
+            const btn = document.querySelector('button[type="submit"]');
+            const messageBox = document.getElementById('messageBox');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            messageBox.className = 'hidden mb-4 p-4 rounded-lg text-sm font-medium';
+            messageBox.innerHTML = '';
+
             try {
                 const response = await fetch('../../../backend/index.php/auth/reset-password', {
                     method: 'POST',
@@ -48,12 +59,23 @@
                     body: JSON.stringify({ email })
                 });
                 const data = await response.json();
-                alert(data.message);
+                
+                messageBox.classList.remove('hidden');
                 if (data.success) {
-                    window.location.href = 'login.php';
+                    messageBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-300');
+                    messageBox.innerHTML = `<p><i class="fas fa-check-circle mr-2"></i>${data.message}</p>`;
+                    document.getElementById('resetForm').reset();
+                } else {
+                    messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-300');
+                    messageBox.innerHTML = `<p><i class="fas fa-exclamation-circle mr-2"></i>${data.message}</p>`;
                 }
             } catch (err) {
-                alert('Failed to send reset link. Please try again.');
+                messageBox.classList.remove('hidden');
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-300');
+                messageBox.innerHTML = `<p><i class="fas fa-exclamation-circle mr-2"></i>Failed to send reset link. Please try again.</p>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Send reset link';
             }
         });
     </script>

@@ -17,7 +17,13 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            background: radial-gradient(circle at top left, #4f46e5 0%, #7c3aed 100%);
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(135deg, rgba(79, 70, 229, 0.85) 0%, rgba(124, 58, 237, 0.85) 100%),
+                url('../../assets/login-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             font-family: 'Inter', sans-serif;
         }
 

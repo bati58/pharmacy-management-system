@@ -1,7 +1,12 @@
 <?php
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../helpers/response.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class AuthController
 {
@@ -76,13 +81,81 @@ class AuthController
         }
 
         $token = bin2hex(random_bytes(32));
-        $resetLink = BASE_URL . "/frontend/pages/auth/reset.html?token=$token&email=$email";
+        $resetLink = "http://localhost/pharmacy%20system/frontend/pages/auth/reset-password.php?token=$token&email=$email";
+        
+        // Save token to DB using MySQL's NOW() to prevent timezone mismatch between PHP and DB
+        $stmt = $this->db->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))");
+        $stmt->execute([$email, $token]);
 
-        $subject = "Reset your BatiFlow password";
-        $message = "Click this link to reset your password: $resetLink";
-        mail($email, $subject, $message);
+        // Send email via PHPMailer
+        $mail = new PHPMailer(true);
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = SMTP_HOST;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = SMTP_USER;
+            $mail->Password   = SMTP_PASS;
+            $mail->SMTPSecure = SMTP_SECURE === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = SMTP_PORT;
 
-        sendSuccess(null, 'Password reset link sent to your email');
+            // Recipients
+            $mail->setFrom(FROM_EMAIL, FROM_NAME);
+            $mail->addAddress($email);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Reset Your BatiFlow Password';
+            $mail->Body    = "
+                <h3>Password Reset Request</h3>
+                <p>We received a request to reset your password. Click the link below to create a new password:</p>
+                <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                <p>If you didn't request this, you can safely ignore this email.</p>
+                <p>Regards,<br>BatiFlow Team</p>
+            ";
+
+            $mail->send();
+            sendSuccess(null, 'Password reset link sent! Please check your email inbox.');
+        } catch (Exception $e) {
+            // Remove the token if email failed
+            $stmt = $this->db->prepare("DELETE FROM password_resets WHERE token = ?");
+            $stmt->execute([$token]);
+            sendError("Message could not be sent. Mailer Error: {$mail->ErrorInfo}", 500);
+        }
+    }
+
+    public function resetPasswordConfirm()
+    {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = $data['email'] ?? '';
+        $token = $data['token'] ?? '';
+        $password = $data['password'] ?? '';
+
+        if (empty($email) || empty($token) || empty($password)) {
+            sendError('All fields are required', 400);
+            return;
+        }
+
+        // Validate token
+        $stmt = $this->db->prepare("SELECT * FROM password_resets WHERE email = ? AND token = ? AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1");
+        $stmt->execute([$email, $token]);
+        $reset = $stmt->fetch();
+
+        if (!$reset) {
+            sendError('Invalid or expired reset token', 400);
+            return;
+        }
+
+        // Update user password
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt2 = $this->db->prepare("UPDATE users SET password = ? WHERE email = ?");
+        $stmt2->execute([$hashed, $email]);
+
+        // Delete the used token
+        $stmt3 = $this->db->prepare("DELETE FROM password_resets WHERE email = ?");
+        $stmt3->execute([$email]);
+
+        sendSuccess(null, 'Password has been successfully updated. You can now login.');
     }
 
     public function register()
