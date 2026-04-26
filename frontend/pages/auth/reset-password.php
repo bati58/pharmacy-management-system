@@ -19,6 +19,12 @@ if (empty($token) || empty($email)) {
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
+        /* Remove default eye icon in Edge browser */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
     </style>
 </head>
 

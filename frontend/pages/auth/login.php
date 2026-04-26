@@ -48,6 +48,12 @@ if (isset($_SESSION['user_id'])) {
         .animate-scale-in {
             animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        /* Remove default eye icon in Edge browser */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
     </style>
 </head>
 
