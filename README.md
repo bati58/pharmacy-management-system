@@ -4,6 +4,13 @@ A complete, role-based Pharmacy Management System built with **PHP (no framework
 Manage inventory, sales, stock transfers, users, branches, and analytics – all from a responsive web interface.
 
 ---
+## 🖥️ Website Preview
+## Login
+![login](frontend/assets/login.jpg)
+## Login success
+![success](frontend/assets/success.png)
+## Dashboard
+![dashboard](frontend/assets/dashboard.png)
 
 # BatiFlow Smart Pharma – Pharmacy Management System
 
