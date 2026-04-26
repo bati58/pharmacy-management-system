@@ -22,6 +22,11 @@ class SaleController
     public function index()
     {
         $branchId = $_GET['branch_id'] ?? $_SESSION['branch_id'];
+        
+        if ($_SESSION['role'] === 'pharmacist') {
+            $branchId = $_SESSION['branch_id'];
+        }
+        
         $sales = $this->saleModel->getAll($branchId);
         sendSuccess($sales);
     }
@@ -51,6 +56,11 @@ class SaleController
         $prescriptionRef = $data['prescription_ref'] ?? null;
         $paymentMethod = $data['payment_method'] ?? 'Cash';
         $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
+        
+        // Security: Pharmacists can ONLY create sales in their own branch
+        if ($_SESSION['role'] === 'pharmacist') {
+            $branchId = $_SESSION['branch_id'];
+        }
 
         if (empty($items)) {
             sendError('No items in sale', 400);

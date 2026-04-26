@@ -17,6 +17,12 @@ class DrugController
     public function index()
     {
         $branchId = $_GET['branch_id'] ?? null;
+        
+        // Security: Pharmacists can ONLY see drugs from their own branch
+        if ($_SESSION['role'] === 'pharmacist') {
+            $branchId = $_SESSION['branch_id'];
+        }
+        
         $search = $_GET['search'] ?? null;
         $drugs = $this->drugModel->getAll($branchId, $search);
         sendSuccess($drugs);

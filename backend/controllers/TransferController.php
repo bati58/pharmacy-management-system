@@ -25,6 +25,12 @@ class TransferController
     public function index()
     {
         $branchId = $_GET['branch_id'] ?? $_SESSION['branch_id'];
+        
+        // Security: Store keepers and pharmacists can ONLY view transfers in their own branch
+        if (in_array($_SESSION['role'], ['store_keeper', 'pharmacist'])) {
+            $branchId = $_SESSION['branch_id'];
+        }
+        
         $transfers = $this->transferModel->getAll($branchId);
         sendSuccess($transfers);
     }
@@ -38,6 +44,11 @@ class TransferController
         $fromLocation = $data['from_location'] ?? 'store';
         $toLocation = $data['to_location'] ?? 'dispensary';
         $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
+
+        // Security: Store keepers can ONLY create transfers in their own branch
+        if ($_SESSION['role'] === 'store_keeper') {
+            $branchId = $_SESSION['branch_id'];
+        }
 
         if (!$drugId || $quantity <= 0) {
             sendError('Drug ID and positive quantity required', 400);

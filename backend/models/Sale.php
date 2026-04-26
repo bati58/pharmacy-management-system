@@ -11,9 +11,11 @@ class Sale
     public function getAll($branchId = null)
     {
         $sql = "
-            SELECT s.*, u.name as pharmacist_name 
+            SELECT s.*, u.name as pharmacist_name, b.name as branch_name,
+                   (SELECT COUNT(*) FROM sale_items si WHERE si.sale_id = s.id) as items_count
             FROM sales s 
             JOIN users u ON s.pharmacist_id = u.id
+            LEFT JOIN branches b ON s.branch_id = b.id
         ";
         $params = [];
         if ($branchId) {

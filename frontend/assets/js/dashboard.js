@@ -75,7 +75,7 @@ async function loadRecentSales() {
                         </div>
                     </td>
                     <td class="font-bold text-slate-900">${formatCurrency(sale.total_amount)}</td>
-                    <td><span class="text-xs font-semibold text-slate-500">${sale.branch_name || 'Main Branch'}</span></td>
+                    <td><span class="text-xs font-semibold text-slate-500">${sale.branch_name || 'N/A'}</span></td>
                     <td><span class="status-pill active">Completed</span></td>
                     <td class="text-slate-500 text-xs">${formatDateTime(sale.sale_date)}</td>
                 </tr>
@@ -133,7 +133,8 @@ function renderSalesChart(salesData) {
     const values = [];
 
     if (salesData && salesData.length) {
-        salesData.forEach(item => {
+        // Reverse to show chronological order (oldest to newest) left to right
+        [...salesData].reverse().forEach(item => {
             labels.push(item.period);
             values.push(item.total_revenue);
         });
