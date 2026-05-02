@@ -66,12 +66,12 @@ $name = $_SESSION['name'] ?? 'User';
         </div>
         
         <!-- All roles -->
-        <a href="notifications.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
-            <div class="relative">
+        <a href="notifications.php" class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
+            <div class="flex items-center gap-3">
                 <i class="fas fa-bell text-lg"></i>
-                <span id="sidebarNotifCount" class="absolute -top-1 -right-1 min-w-[0.75rem] h-3 bg-rose-500 text-[8px] text-white flex items-center justify-center font-bold rounded-full border border-slate-900 hidden">0</span>
+                <span class="text-sm">Notifications</span>
             </div>
-            <span class="text-sm">Notifications</span>
+            <span id="sidebarNotifCount" class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
         </a>
     </nav>
 

@@ -40,13 +40,18 @@ define('CURRENCY_SYMBOL', '$');
 define('CURRENCY_CODE', 'USD');
 
 // ========== EMAIL ==========
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 465);
-define('SMTP_USER', 'batijano58@gmail.com');
-define('SMTP_PASS', 'itakjzrerwgsndun');
-define('SMTP_SECURE', 'ssl');                     // 'tls' or 'ssl'
-define('FROM_EMAIL', 'batijano58@gmail.com');
-define('FROM_NAME', 'BatiFlow Pharma System');
+if (file_exists(__DIR__ . '/config.local.php')) {
+    require_once __DIR__ . '/config.local.php';
+} else {
+    // WARNING: Never hardcode real passwords in this file if it's pushed to GitHub!
+    define('SMTP_HOST', 'smtp.gmail.com');
+    define('SMTP_PORT', 465);
+    define('SMTP_USER', 'your-email@gmail.com'); // Replace locally, do not commit
+    define('SMTP_PASS', 'your-app-password');    // Replace locally, do not commit
+    define('SMTP_SECURE', 'ssl');                     // 'tls' or 'ssl'
+    define('FROM_EMAIL', 'your-email@gmail.com');
+    define('FROM_NAME', 'BatiFlow Pharma System');
+}
 
 // ========== SYSTEM PATHS ==========
 // Dynamically detect base URL

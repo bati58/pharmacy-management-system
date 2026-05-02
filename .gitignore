@@ -10,3 +10,9 @@ composer.phar
 
 # Temporary directories
 /scratch/
+
+# Environment Variables and Local Configs
+.env
+.env.*
+config.local.php
+credentials.php
