@@ -17,10 +17,10 @@ include '../includes/sidebar.php';
                 <p class="text-slate-500 mt-1 font-medium">Here's your pharmacy's performance at a glance.</p>
             </div>
             <div class="flex items-center gap-3">
-                <button class="btn-premium btn-premium-primary">
-                    <i class="fas fa-plus"></i> New Transaction
-                </button>
-            </div>
+            <a href="new-sale.php" class="btn-premium btn-premium-primary">
+                <i class="fas fa-plus"></i> New Transaction
+            </a>
+        </div>
         </div>
 
         <!-- KPI Cards -->

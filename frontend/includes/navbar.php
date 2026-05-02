@@ -1,6 +1,6 @@
 <!-- Top bar -->
 <div class="main-content min-h-screen flex flex-col transition-all duration-300">
-    <header class="h-20 bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200/60 px-8 flex justify-between items-center">
+    <header class="h-16 md:h-20 bg-white/80 backdrop-blur-md sticky top-0 z-[210] border-b border-slate-200/60 px-4 md:px-8 flex justify-between items-center">
         <div class="flex items-center gap-4">
             <button id="mobileMenuBtn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200 focus:outline-none">
                 <i class="fas fa-bars text-lg"></i>
@@ -39,4 +39,4 @@
             </div>
         </div>
     </header>
-    <div class="p-8 flex-1">
+    <div class="p-4 md:p-8 flex-1">

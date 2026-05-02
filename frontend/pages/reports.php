@@ -17,9 +17,9 @@ include '../includes/sidebar.php';
     </div>
 
     <!-- Filters -->
-    <div class="card p-6 mb-8 bg-white/50 backdrop-blur-sm border-slate-200/60">
-        <div class="flex flex-wrap items-center gap-4">
-            <div class="flex-1 min-w-[200px]">
+    <div class="card p-4 md:p-6 mb-8 bg-white/50 backdrop-blur-sm border-slate-200/60">
+        <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4">
+            <div class="flex-1 min-w-[160px]">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Time Period</label>
                 <select id="reportPeriod" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                     <option value="daily">Daily Analysis</option>
@@ -27,13 +27,13 @@ include '../includes/sidebar.php';
                     <option value="monthly">Monthly Summary</option>
                 </select>
             </div>
-            <div class="flex-1 min-w-[200px]">
+            <div class="flex-1 min-w-[160px]">
                 <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Branch filter</label>
                 <select id="reportBranch" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
-                    <option value="">Consolidated (All Branches)</option>
+                    <option value="">All Branches</option>
                 </select>
             </div>
-            <div class="flex-[2] min-w-[300px] flex gap-3">
+            <div class="flex flex-col sm:flex-row gap-3 flex-1 min-w-[240px]">
                 <div class="flex-1">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">From</label>
                     <input type="date" id="startDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
@@ -42,9 +42,9 @@ include '../includes/sidebar.php';
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">To</label>
                     <input type="date" id="endDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
-                <div class="flex-none flex items-end">
-                    <button type="button" onclick="loadReports()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all">
-                        Update
+                <div class="flex items-end">
+                    <button type="button" onclick="loadReports()" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all">
+                        <i class="fas fa-sync-alt mr-1"></i> Update
                     </button>
                 </div>
             </div>
@@ -89,12 +89,14 @@ include '../includes/sidebar.php';
 
     <!-- Analytics Tabs & Chart -->
     <div class="card overflow-hidden">
-        <div class="bg-slate-50/80 p-1 flex border-b border-slate-100">
-            <button id="tabRevenueTrend" class="tab-btn active px-6 py-3 text-sm font-bold rounded-xl transition-all">Revenue Trend</button>
-            <button id="tabProfitTrend" class="tab-btn px-6 py-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all">Profitability</button>
-            <button id="tabRevenueBranch" class="tab-btn px-6 py-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all">By Branch</button>
-            <button id="tabRevenuePharmacist" class="tab-btn px-6 py-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all">By Staff</button>
-            <button id="tabTopDrugs" class="tab-btn px-6 py-3 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all">Top Items</button>
+        <div class="bg-slate-50/80 border-b border-slate-100 overflow-x-auto">
+            <div class="flex p-1 min-w-max">
+                <button id="tabRevenueTrend" class="tab-btn active px-4 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap">Revenue Trend</button>
+                <button id="tabProfitTrend" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Profitability</button>
+                <button id="tabRevenueBranch" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Branch</button>
+                <button id="tabRevenuePharmacist" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Staff</button>
+                <button id="tabTopDrugs" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Top Items</button>
+            </div>
         </div>
         
         <div class="p-8">
