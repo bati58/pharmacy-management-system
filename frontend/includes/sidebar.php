@@ -78,53 +78,59 @@ $name = $_SESSION['name'] ?? 'User';
     <!-- Profile (Fixed Bottom) -->
     <div class="p-4 border-t border-slate-800/50 flex-shrink-0">
         <div class="bg-slate-800/40 rounded-2xl p-4 border border-slate-700/50">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-inner">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-inner flex-shrink-0">
                     <?php echo strtoupper(substr($name, 0, 1)); ?>
                 </div>
-                <div class="overflow-hidden">
+                <div class="overflow-hidden flex-1 min-w-0">
                     <p class="text-white text-sm font-semibold truncate"><?php echo htmlspecialchars($name); ?></p>
                     <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tight"><?php echo ucfirst(str_replace('_', ' ', $role)); ?></p>
                 </div>
+                <a href="../../backend/index.php/auth/logout"
+                   id="logout-btn"
+                   title="Logout"
+                   class="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-700/50 hover:bg-rose-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 group">
+                    <i class="fas fa-power-off text-sm group-hover:scale-110 transition-transform"></i>
+                </a>
             </div>
-            <a href="../../backend/index.php/auth/logout" class="flex items-center justify-center gap-2 w-full py-2 bg-slate-700/50 hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 text-xs font-bold rounded-xl transition-all duration-200" id="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
         </div>
     </div>
 </div>
 
 <script>
-    // Show/hide menu items based on user role
-    const role = '<?php echo $role; ?>';
-    if (role === 'manager') {
-        document.querySelectorAll('.role-manager').forEach(el => el.style.display = 'flex');
-        document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
-        document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
-    } else if (role === 'pharmacist') {
-        document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
-    } else if (role === 'store_keeper') {
-        document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide menu items based on user role
+        const role = '<?php echo $role; ?>';
+        if (role === 'manager') {
+            document.querySelectorAll('.role-manager').forEach(el => el.style.display = 'flex');
+            document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
+            document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
+        } else if (role === 'pharmacist') {
+            document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
+        } else if (role === 'store_keeper') {
+            document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
+        }
 
-    // Mobile sidebar toggle
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const openBtn = document.getElementById('mobileMenuBtn');
-    const closeBtn = document.getElementById('closeSidebarBtn');
+        // Mobile sidebar toggle
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const openBtn = document.getElementById('mobileMenuBtn');
+        const closeBtn = document.getElementById('closeSidebarBtn');
 
-    function openSidebar() {
-        sidebar.classList.add('open');
-        overlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+        function openSidebar() {
+            if (sidebar) sidebar.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-    function closeSidebar() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-    if (openBtn) openBtn.addEventListener('click', openSidebar);
-    if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
-    if (overlay) overlay.addEventListener('click', closeSidebar);
+        function closeSidebar() {
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        if (openBtn) openBtn.addEventListener('click', openSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (overlay) overlay.addEventListener('click', closeSidebar);
+    });
 </script>

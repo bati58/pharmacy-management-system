@@ -26,41 +26,58 @@
 
 /* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
+    /* Sidebar: hidden off-screen by default */
     .sidebar {
         transform: translateX(-100%);
         position: fixed;
-        z-index: 50;
-        transition: transform 0.3s ease;
+        top: 0;
+        left: 0;
+        z-index: 200 !important;
         width: 80%;
         max-width: 280px;
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
     }
 
+    /* When sidebar is open, make it visible and interactive */
     .sidebar.open {
         transform: translateX(0);
+        pointer-events: auto;
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
     }
 
-    .ml-64 {
-        margin-left: 0;
+    /* Nav area scrolls independently */
+    .sidebar nav {
+        flex: 1 1 0;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* All sidebar links must be clickable */
+    .sidebar a,
+    .sidebar button {
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 1;
     }
 
     .main-content {
         margin-left: 0 !important;
-        padding-top: 3rem;
     }
 
     .mobile-menu-btn {
         display: block !important;
     }
 
-    /* Hide desktop navbar adjustments (optional) */
     .navbar {
         margin-left: 0;
         padding-left: 3rem;
-    }
-
-    .grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
     }
 
     .card {
@@ -98,24 +115,18 @@
         content: none;
     }
 
-    /* Modal fullscreen on mobile */
-    .fixed>div {
-        width: 95% !important;
-        margin: 1rem auto !important;
-    }
-
     /* Form elements full width */
     input,
     select,
     button {
-        font-size: 16px;
-        /* prevent zoom on iOS */
+        font-size: 16px; /* prevent zoom on iOS */
     }
 
     .kpi-number {
         font-size: 1.25rem;
     }
 }
+
 
 /* Small mobile (max-width: 480px) */
 @media (max-width: 480px) {
@@ -178,29 +189,13 @@
     }
 }
 
-/* Ensure mobile sidebar links are clickable */
-@media (max-width: 768px) {
-    .sidebar {
-        z-index: 100;
-        /* higher than overlay */
-    }
-
-    .sidebar a {
-        pointer-events: auto !important;
-        z-index: 101;
-        position: relative;
-    }
-
-    .overlay {
-        z-index: 99;
-    }
+/* Always ensure sidebar links are clickable when sidebar is open */
+.sidebar.open a,
+.sidebar.open button {
+    pointer-events: auto !important;
 }
 
-/* Ensure sidebar links are clickable when open */
-.sidebar.open {
-    pointer-events: auto;
-}
-
-.sidebar a {
+.sidebar a,
+.sidebar button {
     pointer-events: auto;
 }

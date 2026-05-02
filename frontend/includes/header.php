@@ -26,7 +26,7 @@
             position: fixed;
             left: 0;
             top: 0;
-            z-index: 50;
+            z-index: 200;
         }
 
         .sidebar a {
@@ -90,7 +90,7 @@
             display: none;
         }
 
-        /* Overlay for mobile sidebar */
+        /* Overlay for mobile sidebar — must be BELOW sidebar z-index */
         .overlay {
             display: none;
             position: fixed;
@@ -99,7 +99,8 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 45;
+            z-index: 150;
+            cursor: pointer;
         }
 
         .overlay.active {
