@@ -1,0 +1,12 @@
+{
+    "name": "bati/pharma-system",
+    "description": "Pharmacy Management System Backend",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bati\\Pharma\\": "src/"
+        }
+    }
+}

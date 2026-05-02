@@ -63,7 +63,7 @@ include '../includes/sidebar.php';
                         <h3 class="text-2xl font-black text-slate-800 tracking-tight">Invoice Details</h3>
                         <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest mt-1" id="detailInvoiceNo">#INV-0000</p>
                     </div>
-                    <button onclick="closeDetails()" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center">
+                    <button type="button" onclick="closeDetails()" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center relative z-50">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

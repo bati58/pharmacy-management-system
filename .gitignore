@@ -1,12 +1,26 @@
 # Composer
 /vendor/
 /backend/vendor/
-composer.json
-composer.lock
 composer.phar
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Logs
 /backend/logs/
+*.log
 
 # Temporary directories
 /scratch/
@@ -15,4 +29,5 @@ composer.phar
 .env
 .env.*
 config.local.php
+**/config.local.php
 credentials.php

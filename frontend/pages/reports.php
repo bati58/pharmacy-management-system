@@ -42,6 +42,11 @@ include '../includes/sidebar.php';
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">To</label>
                     <input type="date" id="endDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
+                <div class="flex-none flex items-end">
+                    <button type="button" onclick="loadReports()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all">
+                        Update
+                    </button>
+                </div>
             </div>
         </div>
     </div>

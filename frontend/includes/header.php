@@ -16,9 +16,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
     <style>
         /* Sidebar fixed and other overrides */
         .sidebar {
@@ -93,21 +90,6 @@
             display: none;
         }
 
-        /* Mobile menu button (visible only on small screens) */
-        .mobile-menu-btn {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 60;
-            background: #3b82f6;
-            color: white;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
         /* Overlay for mobile sidebar */
         .overlay {
             display: none;
@@ -124,13 +106,13 @@
             display: block;
         }
     </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
 </head>
 
 <body class="font-sans bg-gray-100">
     <div class="overlay" id="overlay"></div>
-    <div class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars text-xl"></i>
-    </div>
 
     <!-- Global Confirmation Modal -->
     <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[200] p-4">
