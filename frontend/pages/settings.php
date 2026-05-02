@@ -123,6 +123,7 @@ include '../includes/sidebar.php';
         }
     }
 
+
     // Profile Update
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();

@@ -89,11 +89,8 @@ if (isset($_SESSION['user_id'])) {
                 <div class="relative group">
                     <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="password" id="password"
-                        class="w-full pl-12 pr-12 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
+                        class="w-full pl-12 pr-4 py-4 bg-slate-50 border-0 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700"
                         placeholder="••••••••" required>
-                    <button type="button" onclick="togglePassword('password', 'eyeIcon')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 focus:outline-none transition-colors">
-                        <i class="fas fa-eye" id="eyeIcon"></i>
-                    </button>
                 </div>
             </div>
             <button type="submit" id="submitBtn"
@@ -121,19 +118,6 @@ if (isset($_SESSION['user_id'])) {
 
     <script src="../../assets/js/utils.js"></script>
     <script>
-        function togglePassword(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
