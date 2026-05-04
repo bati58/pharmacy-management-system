@@ -38,7 +38,7 @@ include '../includes/sidebar.php';
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal for creating/editing branches -->
 <div id="branchModal" class="modal-backdrop hidden z-50">
     <div class="modal-content !max-w-md">
         <div class="flex items-center justify-between p-6 border-b border-slate-100">

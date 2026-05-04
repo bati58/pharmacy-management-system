@@ -9,7 +9,7 @@ $appBranchId = (int)($_SESSION['branch_id'] ?? 0);
 include '../includes/header.php';
 include '../includes/sidebar.php';
 
-// Trigger expiry checker if not run in the last hour
+// Trigger expiry checker if not run in the last hour.
 $lastRunFile = __DIR__ . '/../../backend/logs/last_expiry_check.txt';
 $shouldRun = true;
 if (file_exists($lastRunFile)) {
