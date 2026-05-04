@@ -29,7 +29,7 @@ if (empty($token)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Account - BatiFlow Pharma</title>
+    <title>Activate Account - PharmaFlow System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -40,37 +40,59 @@ if (empty($token)) {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
         }
+
         .login-bg {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 0% 100%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
             z-index: -1;
         }
+
         .card {
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(10px);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .btn-primary {
             background: linear-gradient(to right, #4f46e5, #4338ca);
             transition: all 0.3s ease;
         }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
         }
+
         .input-field {
-            width: 100%; padding: 0.75rem 1rem 0.75rem 3rem;
-            border: 1px solid #e2e8f0; border-radius: 0.75rem;
-            font-size: 0.875rem; outline: none; transition: all 0.2s;
-            background: #f8fafc; font-family: inherit;
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+            background: #f8fafc;
+            font-family: inherit;
         }
+
         .input-field:focus {
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
@@ -114,7 +136,7 @@ if (empty($token)) {
                 </div>
             <?php else: ?>
                 <!-- Set Password Form -->
-                <p class="text-slate-500 text-sm mb-6 text-center">Create a strong password to activate your BatiFlow account.</p>
+                <p class="text-slate-500 text-sm mb-6 text-center">Create a strong password to activate your PharmaFlow account.</p>
 
                 <!-- Alert messages -->
                 <div id="setPassAlert" class="hidden items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4">
@@ -153,7 +175,7 @@ if (empty($token)) {
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026 BatiFlow Pharma Systems. All rights reserved.
+                    &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
         </div>
@@ -161,55 +183,60 @@ if (empty($token)) {
 
     <script src="../../assets/js/api.js?v=<?php echo time(); ?>"></script>
     <?php if ($isValidToken): ?>
-    <script>
-        function showSetPassAlert(msg, type = 'error') {
-            const box = document.getElementById('setPassAlert');
-            const icon = document.getElementById('setPassAlertIcon');
-            const msgEl = document.getElementById('setPassAlertMsg');
-            msgEl.textContent = msg;
-            if (type === 'success') {
-                box.className = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4 bg-green-50 border border-green-200 text-green-700';
-                icon.className = 'fas fa-circle-check text-green-500 text-lg';
-            } else {
-                box.className = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4 bg-red-50 border border-red-200 text-red-700';
-                icon.className = 'fas fa-circle-xmark text-red-500 text-lg';
-            }
-        }
-
-        document.getElementById('setPasswordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            const confirm = document.getElementById('confirm').value;
-            const btn = document.getElementById('activateBtn');
-            const originalText = btn.innerHTML;
-
-            if (password !== confirm) {
-                showSetPassAlert('Passwords do not match. Please try again.', 'error');
-                return;
-            }
-
-            const token = document.getElementById('token').value;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Activating...';
-
-            try {
-                const data = await API.activateInvitation({ token, password });
-                if (data.success) {
-                    showSetPassAlert('Account activated successfully! Redirecting to login...', 'success');
-                    btn.innerHTML = '<i class="fas fa-check"></i> Activated!';
-                    setTimeout(() => { window.location.href = 'login.php'; }, 2000);
+        <script>
+            function showSetPassAlert(msg, type = 'error') {
+                const box = document.getElementById('setPassAlert');
+                const icon = document.getElementById('setPassAlertIcon');
+                const msgEl = document.getElementById('setPassAlertMsg');
+                msgEl.textContent = msg;
+                if (type === 'success') {
+                    box.className = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4 bg-green-50 border border-green-200 text-green-700';
+                    icon.className = 'fas fa-circle-check text-green-500 text-lg';
                 } else {
-                    showSetPassAlert(data.message || 'Account activation failed. Please try again.', 'error');
+                    box.className = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4 bg-red-50 border border-red-200 text-red-700';
+                    icon.className = 'fas fa-circle-xmark text-red-500 text-lg';
+                }
+            }
+
+            document.getElementById('setPasswordForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = document.getElementById('password').value;
+                const confirm = document.getElementById('confirm').value;
+                const btn = document.getElementById('activateBtn');
+                const originalText = btn.innerHTML;
+
+                if (password !== confirm) {
+                    showSetPassAlert('Passwords do not match. Please try again.', 'error');
+                    return;
+                }
+
+                const token = document.getElementById('token').value;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Activating...';
+
+                try {
+                    const data = await API.activateInvitation({
+                        token,
+                        password
+                    });
+                    if (data.success) {
+                        showSetPassAlert('Account activated successfully! Redirecting to login...', 'success');
+                        btn.innerHTML = '<i class="fas fa-check"></i> Activated!';
+                        setTimeout(() => {
+                            window.location.href = 'login.php';
+                        }, 2000);
+                    } else {
+                        showSetPassAlert(data.message || 'Account activation failed. Please try again.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                } catch (err) {
+                    showSetPassAlert(err.message || 'An error occurred. Please try again.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalText;
                 }
-            } catch (err) {
-                showSetPassAlert(err.message || 'An error occurred. Please try again.', 'error');
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        });
-    </script>
+            });
+        </script>
     <?php endif; ?>
 </body>
 

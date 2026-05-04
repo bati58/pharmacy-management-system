@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - BatiFlow Pharma</title>
+    <title>Reset Password - PharmaFlow System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,18 +15,24 @@
             --primary: #4f46e5;
             --primary-dark: #4338ca;
         }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
             overflow: hidden;
         }
+
         .login-bg {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
             z-index: -1;
         }
+
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -34,16 +40,32 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .input-group:focus-within label { color: var(--primary); }
-        .input-group:focus-within .icon { color: var(--primary); }
+
+        .input-group:focus-within label {
+            color: var(--primary);
+        }
+
+        .input-group:focus-within .icon {
+            color: var(--primary);
+        }
+
         .btn-primary {
             background: linear-gradient(to right, var(--primary), var(--primary-dark));
             transition: all 0.3s ease;
         }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
@@ -67,7 +89,7 @@
                     <i class="fas fa-unlock-alt text-2xl"></i>
                 </div>
                 <h2 class="text-3xl font-extrabold text-white tracking-tight">Reset Password</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">BatiFlow Smart Pharma</p>
+                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow System</p>
             </div>
         </div>
 
@@ -107,7 +129,7 @@
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026 BatiFlow Pharma Systems. All rights reserved.
+                    &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
         </div>

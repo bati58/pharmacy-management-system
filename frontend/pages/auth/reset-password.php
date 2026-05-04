@@ -22,40 +22,72 @@ if (empty($token) || empty($email)) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - BatiFlow Pharma</title>
+    <title>Reset Password - PharmaFlow System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background: #0f172a; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+        }
+
         .login-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(79,70,229,0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 0%, rgba(6,182,212,0.1) 0%, transparent 40%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
             z-index: -1;
         }
+
         .card {
-            background: rgba(255,255,255,0.97);
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1);
+            background: rgba(255, 255, 255, 0.97);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .btn-primary {
             background: linear-gradient(to right, #4f46e5, #4338ca);
             transition: all 0.3s;
         }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(79,70,229,0.4); }
-        input:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
-        #strengthBar { transition: width 0.3s, background 0.3s; }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        #strengthBar {
+            transition: width 0.3s, background 0.3s;
+        }
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
     <div class="card w-full max-w-md rounded-2xl overflow-hidden">
@@ -65,7 +97,7 @@ if (empty($token) || empty($email)) {
                 <i class="fas fa-lock text-2xl"></i>
             </div>
             <h2 class="text-3xl font-extrabold text-white tracking-tight">Reset Password</h2>
-            <p class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">BatiFlow Pharma</p>
+            <p class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">PharmaFlow System</p>
         </div>
 
         <!-- Body -->
@@ -80,7 +112,7 @@ if (empty($token) || empty($email)) {
                     </div>
                 </div>
                 <a href="forgot-password.php"
-                   class="btn-primary w-full text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                    class="btn-primary w-full text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2">
                     <i class="fas fa-redo text-sm"></i> Request New Reset Link
                 </a>
             <?php else: ?>
@@ -144,80 +176,104 @@ if (empty($token) || empty($email)) {
 
     <script src="../../assets/js/api.js?v=<?php echo time(); ?>"></script>
     <?php if ($isValidToken): ?>
-    <script>
-        function toggleVis(id, btn) {
-            const input = document.getElementById(id);
-            const isPass = input.type === 'password';
-            input.type = isPass ? 'text' : 'password';
-            btn.querySelector('i').className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
-        }
+        <script>
+            function toggleVis(id, btn) {
+                const input = document.getElementById(id);
+                const isPass = input.type === 'password';
+                input.type = isPass ? 'text' : 'password';
+                btn.querySelector('i').className = isPass ? 'fas fa-eye-slash' : 'fas fa-eye';
+            }
 
-        function checkStrength(val) {
-            const bar   = document.getElementById('strengthBar');
-            const label = document.getElementById('strengthLabel');
-            let score = 0;
-            if (val.length >= 8) score++;
-            if (/[A-Z]/.test(val)) score++;
-            if (/\d/.test(val)) score++;
-            if (/[^A-Za-z0-9]/.test(val)) score++;
+            function checkStrength(val) {
+                const bar = document.getElementById('strengthBar');
+                const label = document.getElementById('strengthLabel');
+                let score = 0;
+                if (val.length >= 8) score++;
+                if (/[A-Z]/.test(val)) score++;
+                if (/\d/.test(val)) score++;
+                if (/[^A-Za-z0-9]/.test(val)) score++;
 
-            const levels = [
-                { pct: '0%',   cls: 'bg-slate-300', txt: '' },
-                { pct: '25%',  cls: 'bg-red-500',   txt: 'Weak' },
-                { pct: '50%',  cls: 'bg-yellow-500', txt: 'Fair' },
-                { pct: '75%',  cls: 'bg-blue-500',  txt: 'Good' },
-                { pct: '100%', cls: 'bg-green-500', txt: 'Strong' },
-            ];
-            const l = levels[val.length ? score : 0];
-            bar.style.width = l.pct;
-            bar.className = 'h-full rounded-full transition-all ' + l.cls;
-            label.textContent = l.txt;
-        }
+                const levels = [{
+                        pct: '0%',
+                        cls: 'bg-slate-300',
+                        txt: ''
+                    },
+                    {
+                        pct: '25%',
+                        cls: 'bg-red-500',
+                        txt: 'Weak'
+                    },
+                    {
+                        pct: '50%',
+                        cls: 'bg-yellow-500',
+                        txt: 'Fair'
+                    },
+                    {
+                        pct: '75%',
+                        cls: 'bg-blue-500',
+                        txt: 'Good'
+                    },
+                    {
+                        pct: '100%',
+                        cls: 'bg-green-500',
+                        txt: 'Strong'
+                    },
+                ];
+                const l = levels[val.length ? score : 0];
+                bar.style.width = l.pct;
+                bar.className = 'h-full rounded-full transition-all ' + l.cls;
+                label.textContent = l.txt;
+            }
 
-        function showAlert(msg, type) {
-            const box = document.getElementById('alertBox');
-            box.className = `rounded-xl px-4 py-3 text-sm font-medium ${
+            function showAlert(msg, type) {
+                const box = document.getElementById('alertBox');
+                box.className = `rounded-xl px-4 py-3 text-sm font-medium ${
                 type === 'error'
                     ? 'bg-red-50 border border-red-200 text-red-700'
                     : 'bg-green-50 border border-green-200 text-green-700'
             }`;
-            box.textContent = msg;
-            box.classList.remove('hidden');
-        }
-
-        document.getElementById('resetForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            const confirm  = document.getElementById('confirm').value;
-            const token    = document.getElementById('resetToken').value;
-            const email    = document.getElementById('resetEmail').value;
-            const btn      = document.getElementById('submitBtn');
-
-            if (password !== confirm) {
-                showAlert('Passwords do not match.', 'error');
-                return;
+                box.textContent = msg;
+                box.classList.remove('hidden');
             }
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Resetting...';
+            document.getElementById('resetForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = document.getElementById('password').value;
+                const confirm = document.getElementById('confirm').value;
+                const token = document.getElementById('resetToken').value;
+                const email = document.getElementById('resetEmail').value;
+                const btn = document.getElementById('submitBtn');
 
-            try {
-                const res = await API.confirmReset({ token, email, password });
-                if (res.success) {
-                    showAlert('Password reset successfully! Redirecting to login...', 'success');
-                    setTimeout(() => window.location.href = 'login.php', 2000);
-                } else {
-                    showAlert(res.message || 'Reset failed.', 'error');
+                if (password !== confirm) {
+                    showAlert('Passwords do not match.', 'error');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Resetting...';
+
+                try {
+                    const res = await API.confirmReset({
+                        token,
+                        email,
+                        password
+                    });
+                    if (res.success) {
+                        showAlert('Password reset successfully! Redirecting to login...', 'success');
+                        setTimeout(() => window.location.href = 'login.php', 2000);
+                    } else {
+                        showAlert(res.message || 'Reset failed.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle"></i> Reset Password';
+                    }
+                } catch (err) {
+                    showAlert(err.message || 'Something went wrong.', 'error');
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-check-circle"></i> Reset Password';
                 }
-            } catch (err) {
-                showAlert(err.message || 'Something went wrong.', 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> Reset Password';
-            }
-        });
-    </script>
+            });
+        </script>
     <?php endif; ?>
 </body>
+
 </html>
