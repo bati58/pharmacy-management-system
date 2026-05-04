@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BatiFlow Pharma</title>
+    <title>Login - PharnFlow system</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -82,7 +82,7 @@ if (isset($_SESSION['user_id'])) {
                 <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
                     <i class="fas fa-prescription-bottle-alt text-2xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold text-white tracking-tight">BatiFlow</h2>
+                <h2 class="text-3xl font-extrabold text-white tracking-tight">PharmaFlow</h2>
                 <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">Smart Pharma Management</p>
             </div>
         </div>
@@ -127,7 +127,7 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="mt-8 pt-8 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026 BatiFlow Pharma Systems. All rights reserved.
+                    &copy; 2026  Pharma Systems. All rights reserved.
                 </p>
             </div>
         </div>
