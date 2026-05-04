@@ -116,7 +116,7 @@ if (empty($token)) {
                     <i class="fas fa-user-shield text-2xl"></i>
                 </div>
                 <h2 class="text-3xl font-extrabold text-white tracking-tight">Activate Account</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">BatiFlow Smart Pharma</p>
+                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow Smart Pharmacy</p>
             </div>
         </div>
 

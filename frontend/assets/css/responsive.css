@@ -1,0 +1,195 @@
+/* ======================================================
+   Responsive Styles for BatiFlow Smart Pharma
+   Mobile, tablet, and desktop adjustments
+   ====================================================== */
+
+/* Overlay for mobile sidebar */
+#overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 49;
+    backdrop-filter: blur(2px);
+}
+#overlay.active {
+    display: block;
+}
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .sidebar {
+        width: var(--sidebar-width);
+    }
+
+    .main-content, .ml-64 {
+        margin-left: var(--sidebar-width);
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Sidebar: slide off-screen, show on toggle */
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 100;
+        width: 280px;
+        height: 100vh;
+        overflow-y: auto;
+        /* Ensure all internal links are above overlay */
+    }
+
+    .sidebar a,
+    .sidebar button,
+    .sidebar nav {
+        position: relative;
+        z-index: 101;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Main content takes full width on mobile */
+    .main-content, .ml-64 {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    /* Show mobile menu button */
+    .mobile-menu-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Padding adjustments */
+    .main-content .p-6,
+    .p-6 {
+        padding: 1rem !important;
+    }
+
+    /* Grid: single column on mobile */
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    /* Modal: near full-width */
+    .modal-content {
+        width: 96% !important;
+        max-width: 96% !important;
+        margin: 0 auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Table scrolling */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    /* KPI: 2 columns on mobile */
+    .grid-cols-4 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Navbar page title size */
+    .navbar h1,
+    nav h1 {
+        font-size: 1rem;
+    }
+
+    /* Toast: full width on mobile */
+    .toast-container {
+        bottom: 1rem;
+        right: 1rem;
+        left: 1rem;
+    }
+
+    .toast {
+        min-width: unset;
+        width: 100%;
+    }
+
+    /* Action buttons table column: wrap nicely */
+    td .action-icon-btn {
+        margin: 2px;
+    }
+
+    /* Form grids become single col */
+    .grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Page header stacking */
+    .flex.flex-col.md\\:flex-row {
+        flex-direction: column !important;
+    }
+
+    .flex.flex-col.md\\:flex-row .btn,
+    .flex.flex-col.md\\:flex-row button {
+        width: 100%;
+    }
+}
+
+/* Small mobile (max-width: 480px) */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 85%;
+    }
+
+    .grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kpi-value {
+        font-size: 1.25rem;
+    }
+
+    /* Auth pages */
+    .login-card,
+    .card {
+        max-width: 100%;
+    }
+
+    table th,
+    table td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .navbar, .btn, .mobile-menu-btn, .no-print, #overlay {
+        display: none !important;
+    }
+
+    .main-content, .ml-64 {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    body {
+        background: white;
+    }
+}
