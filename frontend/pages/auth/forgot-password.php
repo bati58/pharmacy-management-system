@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - BatiFlow Pharma</title>
+    <title>Reset Password - PharmaFlow</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -107,7 +107,7 @@
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026 BatiFlow Pharma Systems. All rights reserved.
+                    &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
         </div>
