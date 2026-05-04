@@ -24,11 +24,13 @@ if (isset($_SESSION['user_id'])) {
             --primary: #4f46e5;
             --primary-dark: #4338ca;
         }
+
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
             overflow: hidden;
         }
+
         .login-bg {
             position: fixed;
             top: 0;
@@ -36,9 +38,10 @@ if (isset($_SESSION['user_id'])) {
             width: 100%;
             height: 100%;
             background: radial-gradient(circle at 50% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
             z-index: -1;
         }
+
         .login-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -46,20 +49,32 @@ if (isset($_SESSION['user_id'])) {
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
+
         .input-group:focus-within label {
             color: var(--primary);
         }
+
         .input-group:focus-within .icon {
             color: var(--primary);
         }
+
         .btn-primary {
             background: linear-gradient(to right, var(--primary), var(--primary-dark));
             transition: all 0.3s ease;
         }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
@@ -69,7 +84,7 @@ if (isset($_SESSION['user_id'])) {
 
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
-    
+
     <div class="login-card w-full max-w-[440px] rounded-2xl overflow-hidden">
         <!-- Logo/Header Section -->
         <div class="bg-slate-900 p-8 text-center relative overflow-hidden">
@@ -141,6 +156,7 @@ if (isset($_SESSION['user_id'])) {
             box.classList.remove('hidden');
             box.classList.add('flex');
         }
+
         function hideLoginError() {
             const box = document.getElementById('loginError');
             box.classList.add('hidden');
