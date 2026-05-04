@@ -114,7 +114,7 @@ include '../includes/sidebar.php';
             </div>
         </div>
         <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center rounded-b-lg">
-            <button class="btn !bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 no-print" onclick="window.print()">
+            <button class="btn !bg-white border border-slate-200 text-slate-600 hover:bg-slate-100" id="printReceiptBtn">
                 <i class="fas fa-print"></i> Print Invoice
             </button>
             <button id="closeSaleDetailsBtnBottom" class="btn btn-primary px-8" onclick="closeModal()">Close Details</button>

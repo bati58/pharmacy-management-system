@@ -94,8 +94,8 @@ class SaleController
                 sendError("Cannot sell expired drug: {$drug['name']}", 400);
                 return;
             }
-            if ($drug['stock'] < $item['quantity']) {
-                sendError("Insufficient stock for {$drug['name']}", 400);
+            if ($drug['dispensary_stock'] < $item['quantity']) {
+                sendError("Insufficient stock for {$drug['name']} in dispensary", 400);
                 return;
             }
             $subTotal += $drug['price'] * $item['quantity'];
@@ -134,13 +134,30 @@ class SaleController
 
             foreach ($saleItems as $item) {
                 $this->saleModel->addItem($saleId, $item['drug_id'], $item['quantity'], $item['price']);
-                $this->drugModel->updateStock($item['drug_id'], null, -$item['quantity']);
+                $this->drugModel->updateStock($item['drug_id'], null, -$item['quantity'], 'dispensary');
                 $this->stockMovementModel->create(
                     (int)$item['drug_id'],
                     (int)$item['quantity'] * -1,
                     'sale:' . $invoiceNo,
                     (int)($_SESSION['user_id'] ?? 0)
                 );
+
+                // Check for low stock alert
+                $drug = $this->drugModel->findById($item['drug_id']);
+                if ($drug && $drug['dispensary_stock'] <= 5) {
+                    require_once __DIR__ . '/../models/Notification.php';
+                    require_once __DIR__ . '/../models/User.php';
+                    $notifModel = new Notification($pdo);
+                    $userModel = new User($pdo);
+                    $users = $userModel->getAll();
+                    
+                    $msg = "Low stock alert: {$drug['name']} (Batch: {$drug['batch']}) has only {$drug['stock']} units left.";
+                    foreach ($users as $user) {
+                        if (in_array($user['role'], ['manager', 'store_keeper']) && (int)$user['branch_id'] === (int)$branchId) {
+                            $notifModel->create($user['id'], 'low_stock', $msg);
+                        }
+                    }
+                }
             }
 
             $pdo->commit();

@@ -37,7 +37,7 @@ class TransferController
         AuthMiddleware::requireRole(['store_keeper']);
         $data = json_decode(file_get_contents('php://input'), true);
         $drugId = $data['drug_id'] ?? null;
-        $quantity = $data['quantity'] ?? 0;
+        $quantity = (int)($data['quantity'] ?? 0);
         $fromLocation = $data['from_location'] ?? 'store';
         $toLocation = $data['to_location'] ?? 'dispensary';
         $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
@@ -63,27 +63,16 @@ class TransferController
                 sendError('Insufficient stock in store', 400);
                 return;
             }
-            $newStock = $drug['stock'] - $quantity;
-            $this->drugModel->updateStock($drugId, $newStock);
-            $this->stockMovementModel->create(
-                (int)$drugId,
-                (int)$quantity * -1,
-                'transfer:store_to_dispensary',
-                (int)($_SESSION['user_id'] ?? 0)
-            );
-        } elseif ($fromLocation === 'dispensary' && $toLocation === 'store') {
-            // Dispensary stock is not tracked separately, so a reverse transfer returns stock to main inventory.
-            $this->drugModel->updateStock($drugId, null, $quantity);
-            $this->stockMovementModel->create(
-                (int)$drugId,
-                (int)$quantity,
-                'transfer:dispensary_to_store',
-                (int)($_SESSION['user_id'] ?? 0)
-            );
+        } else {
+            if ($drug['dispensary_stock'] < $quantity) {
+                sendError('Insufficient stock in dispensary', 400);
+                return;
+            }
         }
 
-        $transferId = $this->transferModel->create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $_SESSION['user_id']);
-        sendSuccess(['id' => $transferId], 'Stock transferred successfully');
+        // Just create the pending transfer. Stock is moved on approval (completed status).
+        $transferId = $this->transferModel->create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $_SESSION['user_id'], 'pending');
+        sendSuccess(['id' => $transferId], 'Transfer request created and pending manager approval');
     }
 
     public function updateStatus($id)
@@ -97,11 +86,49 @@ class TransferController
             return;
         }
 
+        $transfer = $this->transferModel->findById($id);
+        if (!$transfer) {
+            sendError('Transfer not found', 404);
+            return;
+        }
+
+        if ($transfer['status'] !== 'pending' && $status !== 'pending') {
+            sendError('Only pending transfers can be updated', 400);
+            return;
+        }
+
+        if ($status === 'completed') {
+            $drug = $this->drugModel->findById($transfer['drug_id']);
+            if (!$drug) {
+                sendError('Drug not found', 404);
+                return;
+            }
+
+            // Perform movement
+            if ($transfer['from_location'] === 'store' && $transfer['to_location'] === 'dispensary') {
+                if ($drug['stock'] < $transfer['quantity']) {
+                    sendError('Insufficient stock in store to complete transfer', 400);
+                    return;
+                }
+                $this->drugModel->updateStock($drug['id'], null, -$transfer['quantity'], 'stock');
+                $this->drugModel->updateStock($drug['id'], null, $transfer['quantity'], 'dispensary');
+                $this->stockMovementModel->create($drug['id'], -$transfer['quantity'], 'transfer:store_to_shelf', $_SESSION['user_id']);
+            } elseif ($transfer['from_location'] === 'dispensary' && $transfer['to_location'] === 'store') {
+                if ($drug['dispensary_stock'] < $transfer['quantity']) {
+                    sendError('Insufficient stock in dispensary to complete transfer', 400);
+                    return;
+                }
+                $this->drugModel->updateStock($drug['id'], null, $transfer['quantity'], 'stock');
+                $this->drugModel->updateStock($drug['id'], null, -$transfer['quantity'], 'dispensary');
+                $this->stockMovementModel->create($drug['id'], $transfer['quantity'], 'transfer:shelf_to_store', $_SESSION['user_id']);
+            }
+        }
+
         $updated = $this->transferModel->updateStatus($id, $status);
         if ($updated) {
-            sendSuccess(null, 'Transfer status updated');
+            sendSuccess(null, 'Transfer status updated successfully');
         } else {
-            sendError('Transfer not found', 404);
+            sendError('Failed to update status', 500);
         }
     }
 }

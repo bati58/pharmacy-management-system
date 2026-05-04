@@ -48,7 +48,8 @@ include '../includes/sidebar.php';
                             <th>Category</th>
                             <th>Mfr / Supplier</th>
                             <th>Batch</th>
-                            <th>Stock</th>
+                            <th>Store</th>
+                            <th>Shelf</th>
                             <th>Cost</th>
                             <th>Price</th>
                             <th>Rx</th>
@@ -102,11 +103,14 @@ include '../includes/sidebar.php';
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Selling Price</label>
-                    <input type="number" step="0.01" id="drugPrice" placeholder="0.00" class="!bg-slate-50" required>
+                    <input type="number" step="0.01" id="drugPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo $_SESSION['role'] !== 'manager' ? 'disabled' : ''; ?>>
+                    <?php if ($_SESSION['role'] !== 'manager'): ?>
+                        <p class="text-[10px] text-slate-400">Only managers can update pricing.</p>
+                    <?php endif; ?>
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cost Price</label>
-                    <input type="number" step="0.01" id="drugCostPrice" placeholder="0.00" class="!bg-slate-50" required>
+                    <input type="number" step="0.01" id="drugCostPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo $_SESSION['role'] !== 'manager' ? 'disabled' : ''; ?>>
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Expiry Date</label>

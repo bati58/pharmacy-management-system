@@ -33,9 +33,14 @@ async function loadSalesTable() {
                         <td class="px-4 py-2">${escapeHtml(sale.pharmacist_name)}</td>
                         <td class="px-4 py-2">${formatDateTime(sale.sale_date)}</td>
                         <td class="px-4 py-2">
-                            <button class="action-icon-btn action-view" onclick="viewSale(${sale.id})" title="View sale" aria-label="View sale">
-                                <i class="fas fa-eye"></i>
-                            </button>
+                            <div class="flex gap-1">
+                                <button class="action-icon-btn action-view" onclick="viewSale(${sale.id})" title="View sale" aria-label="View sale">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-icon-btn action-print" onclick="location.href='view-receipt.php?id=${sale.id}'" title="Print receipt" aria-label="Print receipt">
+                                    <i class="fas fa-print text-blue-600"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -93,7 +98,7 @@ function filterAndRenderDrugOptions(keyword) {
 
     filteredDrugsList.forEach(drug => {
         const rx = drug.requires_prescription ? '[Rx Only] ' : '';
-        select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}">${rx}${escapeHtml(drug.name)} - $${drug.price} (Stock: ${drug.stock})</option>`;
+        select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.dispensary_stock}">${rx}${escapeHtml(drug.name)} - $${drug.price} (Shelf: ${drug.dispensary_stock})</option>`;
     });
 }
 
@@ -114,10 +119,10 @@ async function loadDrugsForSale() {
         const select = document.getElementById('drugSelect');
         if (!select) return;
         select.innerHTML = '<option value="">Select drug</option>';
-        currentDrugsList = (drugs.data || []).filter(d => Number(d.stock || 0) > 0);
+        currentDrugsList = (drugs.data || []).filter(d => Number(d.dispensary_stock || 0) > 0);
         if (currentDrugsList.length === 0) {
-            select.innerHTML = '<option value="">No drugs available in your branch</option>';
-            showToast('No drugs available for your branch. Ask store keeper/manager to add or transfer stock.', 'info');
+            select.innerHTML = '<option value="">No drugs available in your branch shelf</option>';
+            showToast('No drugs available on the dispensary shelf. Ask store keeper to transfer stock from store.', 'info');
             return;
         }
         const searchInput = document.getElementById('drugSearch');
@@ -138,8 +143,8 @@ function addToCart() {
     }
     const drug = currentDrugsList.find(d => d.id == drugId);
     if (!drug) return;
-    if (quantity > drug.stock) {
-        showToast(`Only ${drug.stock} units available`, 'error');
+    if (quantity > drug.dispensary_stock) {
+        showToast(`Only ${drug.dispensary_stock} units available on shelf`, 'error');
         return;
     }
     if (drug.requires_prescription) {
@@ -340,6 +345,13 @@ async function loadSaleDetails(id) {
         document.getElementById('detailSubtotal').innerText = formatCurrency(subtotal);
         document.getElementById('detailDiscount').innerText = formatCurrency(discount);
         document.getElementById('detailTotal').innerText = formatCurrency(total);
+        
+        const printBtn = document.getElementById('printReceiptBtn');
+        if (printBtn) {
+            printBtn.onclick = () => {
+                window.location.href = `view-receipt.php?id=${sale.id}`;
+            };
+        }
 
         openSaleDetailsModal();
     } catch (err) {

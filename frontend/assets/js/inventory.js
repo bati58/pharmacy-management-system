@@ -43,7 +43,7 @@ async function loadDrugs() {
 
         tbody.innerHTML = '';
         if (!drugs.data || drugs.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4">No drugs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="12" class="text-center py-4">No drugs found</td></tr>';
             return;
         }
 
@@ -62,7 +62,8 @@ async function loadDrugs() {
                     <td class="px-4 py-2">${escapeHtml(drug.category || '-')}</td>
                     <td class="px-4 py-2 text-sm">${escapeHtml(ms)}</td>
                     <td class="px-4 py-2">${escapeHtml(drug.batch)}</td>
-                    <td class="px-4 py-2">${drug.stock}</td>
+                    <td class="px-4 py-2 font-bold text-slate-800" title="Backroom Store Stock">${drug.stock}</td>
+                    <td class="px-4 py-2 font-bold text-blue-600" title="Front Shelf Dispensary Stock">${drug.dispensary_stock}</td>
                     <td class="px-4 py-2">${formatCurrency(drug.cost_price || 0)}</td>
                     <td class="px-4 py-2">${formatCurrency(drug.price)}</td>
                     <td class="px-4 py-2">
@@ -92,7 +93,7 @@ async function loadDrugs() {
     } catch (error) {
         console.error('Error loading drugs:', error);
         const tbody = document.getElementById('drugsTable');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-red-600">Error loading drugs. Check console.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="12" class="text-center py-4 text-red-600">Error loading drugs. Check console.</td></tr>';
         showToast('Error loading drugs', 'error');
     }
 }

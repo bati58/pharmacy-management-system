@@ -57,6 +57,7 @@ CREATE TABLE `drugs` (
     `supplier` VARCHAR(150) DEFAULT NULL,
     `batch` VARCHAR(50) NOT NULL,
     `stock` INT(11) NOT NULL DEFAULT 0,
+    `dispensary_stock` INT(11) NOT NULL DEFAULT 0,
     `price` DECIMAL(10,2) NOT NULL COMMENT 'Selling price',
     `cost_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Purchase price for profit analysis',
     `requires_prescription` TINYINT(1) NOT NULL DEFAULT 0,
