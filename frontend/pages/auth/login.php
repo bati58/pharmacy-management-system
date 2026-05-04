@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - PharnFlow system</title>
+    <title>Login - PharmaFlow System</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -127,7 +127,7 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="mt-8 pt-8 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026  Pharma Systems. All rights reserved.
+                    &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
         </div>
