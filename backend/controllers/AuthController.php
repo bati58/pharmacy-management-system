@@ -6,7 +6,7 @@ require_once __DIR__ . '/../helpers/response.php';
 class AuthController
 {
     private $userModel;
-    private $db; // optional, but useful for direct queries
+    private $db; // optional, but useful for direct queries if needed
 
     public function __construct()
     {
@@ -89,7 +89,7 @@ class AuthController
         }
 
         $user = $this->userModel->findByEmail($email);
-        // Always return success to avoid user enumeration
+        // Always return success to avoid user enumeration issues, even if email doesn't exist. The reset link will only be sent if the email is valid and exists.
         if (!$user) {
             sendSuccess(null, 'If this email exists in our system, a reset link has been sent.');
             return;
