@@ -81,12 +81,6 @@ class DrugController
         $price = $data['price'] ?? null;
         $costPrice = $data['cost_price'] ?? null;
 
-        // Requirement: Only Manager can manage pricing.
-        if ($_SESSION['role'] === 'store_keeper') {
-            $price = null;
-            $costPrice = null;
-        }
-
         $requiresPrescription = $data['requires_prescription'] ?? null;
         $expiry = $data['expiry_date'] ?? null;
 

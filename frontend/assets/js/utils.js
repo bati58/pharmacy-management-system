@@ -94,55 +94,55 @@ function closeModal(modalId) {
    ===================================================== */
 
 function _ensureDialogStyles() {
-    if (document.getElementById('batiflow-dialog-styles')) return;
+    if (document.getElementById('pharmaflow-dialog-styles')) return;
     const style = document.createElement('style');
-    style.id = 'batiflow-dialog-styles';
+    style.id = 'pharmaflow-dialog-styles';
     style.textContent = `
-        .batiflow-dialog-overlay {
+        .pharmaflow-dialog-overlay {
             position: fixed; inset: 0;
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(6px);
             z-index: 99999;
             display: flex; align-items: center; justify-content: center;
             padding: 1rem;
-            animation: bfDialogFadeIn 0.2s ease;
+            animation: pfDialogFadeIn 0.2s ease;
         }
-        @keyframes bfDialogFadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .batiflow-dialog-box {
+        @keyframes pfDialogFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .pharmaflow-dialog-box {
             background: #fff;
             border-radius: 1rem;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35);
             width: 100%; max-width: 420px;
-            animation: bfDialogSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: pfDialogSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
         }
-        @keyframes bfDialogSlideUp {
+        @keyframes pfDialogSlideUp {
             from { opacity: 0; transform: translateY(24px) scale(0.97); }
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .batiflow-dialog-icon-wrap {
+        .pharmaflow-dialog-icon-wrap {
             width: 52px; height: 52px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem; margin: 0 auto 1rem;
         }
-        .batiflow-dialog-icon-danger  { background: #fee2e2; color: #dc2626; }
-        .batiflow-dialog-icon-warning { background: #fef3c7; color: #d97706; }
-        .batiflow-dialog-icon-success { background: #d1fae5; color: #059669; }
-        .batiflow-dialog-icon-info    { background: #dbeafe; color: #2563eb; }
-        .batiflow-dialog-header {
+        .pharmaflow-dialog-icon-danger  { background: #fee2e2; color: #dc2626; }
+        .pharmaflow-dialog-icon-warning { background: #fef3c7; color: #d97706; }
+        .pharmaflow-dialog-icon-success { background: #d1fae5; color: #059669; }
+        .pharmaflow-dialog-icon-info    { background: #dbeafe; color: #2563eb; }
+        .pharmaflow-dialog-header {
             padding: 1.75rem 1.75rem 0;
             text-align: center;
         }
-        .batiflow-dialog-title {
+        .pharmaflow-dialog-title {
             font-size: 1.1rem; font-weight: 700;
             color: #0f172a; margin-bottom: 0.4rem;
         }
-        .batiflow-dialog-message {
+        .pharmaflow-dialog-message {
             font-size: 0.875rem; color: #64748b;
             line-height: 1.6;
         }
-        .batiflow-dialog-body { padding: 1.25rem 1.75rem; }
-        .batiflow-dialog-input {
+        .pharmaflow-dialog-body { padding: 1.25rem 1.75rem; }
+        .pharmaflow-dialog-input {
             width: 100%; padding: 0.625rem 0.875rem;
             border: 1.5px solid #e2e8f0; border-radius: 0.5rem;
             font-size: 0.875rem; margin-top: 0.75rem;
@@ -150,39 +150,39 @@ function _ensureDialogStyles() {
             outline: none; font-family: inherit;
             box-sizing: border-box;
         }
-        .batiflow-dialog-input:focus {
+        .pharmaflow-dialog-input:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-        .batiflow-dialog-footer {
+        .pharmaflow-dialog-footer {
             padding: 1rem 1.75rem 1.5rem;
             display: flex; gap: 0.75rem; justify-content: center;
         }
-        .batiflow-btn {
+        .pharmaflow-btn {
             flex: 1; padding: 0.65rem 1rem;
             border-radius: 0.6rem; font-weight: 600;
             font-size: 0.875rem; cursor: pointer;
             border: none; transition: all 0.2s ease;
             font-family: inherit;
         }
-        .batiflow-btn-cancel {
+        .pharmaflow-btn-cancel {
             background: #f1f5f9; color: #475569;
             border: 1.5px solid #e2e8f0;
         }
-        .batiflow-btn-cancel:hover { background: #e2e8f0; }
-        .batiflow-btn-confirm-danger {
+        .pharmaflow-btn-cancel:hover { background: #e2e8f0; }
+        .pharmaflow-btn-confirm-danger {
             background: #dc2626; color: white;
         }
-        .batiflow-btn-confirm-danger:hover { background: #b91c1c; transform: translateY(-1px); }
-        .batiflow-btn-confirm-primary {
+        .pharmaflow-btn-confirm-danger:hover { background: #b91c1c; transform: translateY(-1px); }
+        .pharmaflow-btn-confirm-primary {
             background: #2563eb; color: white;
         }
-        .batiflow-btn-confirm-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
-        .batiflow-btn-ok {
+        .pharmaflow-btn-confirm-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .pharmaflow-btn-ok {
             background: #2563eb; color: white;
             max-width: 140px; margin: 0 auto;
         }
-        .batiflow-btn-ok:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .pharmaflow-btn-ok:hover { background: #1d4ed8; transform: translateY(-1px); }
     `;
     document.head.appendChild(style);
 }
@@ -201,35 +201,35 @@ function showConfirmDialog({ title, message, type = 'danger', confirmText = 'Con
     _ensureDialogStyles();
     return new Promise((resolve) => {
         const iconMap = {
-            danger:  { cls: 'batiflow-dialog-icon-danger',  icon: 'fa-triangle-exclamation' },
-            warning: { cls: 'batiflow-dialog-icon-warning', icon: 'fa-circle-exclamation' },
-            info:    { cls: 'batiflow-dialog-icon-info',    icon: 'fa-circle-info' },
+            danger:  { cls: 'pharmaflow-dialog-icon-danger',  icon: 'fa-triangle-exclamation' },
+            warning: { cls: 'pharmaflow-dialog-icon-warning', icon: 'fa-circle-exclamation' },
+            info:    { cls: 'pharmaflow-dialog-icon-info',    icon: 'fa-circle-info' },
         };
-        const btnCls = type === 'danger' ? 'batiflow-btn-confirm-danger' : 'batiflow-btn-confirm-primary';
+        const btnCls = type === 'danger' ? 'pharmaflow-btn-confirm-danger' : 'pharmaflow-btn-confirm-primary';
         const { cls: iconWrapCls, icon: iconCls } = iconMap[type] || iconMap.danger;
 
         const overlay = document.createElement('div');
-        overlay.className = 'batiflow-dialog-overlay';
+        overlay.className = 'pharmaflow-dialog-overlay';
         overlay.innerHTML = `
-            <div class="batiflow-dialog-box" role="dialog" aria-modal="true">
-                <div class="batiflow-dialog-header">
-                    <div class="batiflow-dialog-icon-wrap ${iconWrapCls}">
+            <div class="pharmaflow-dialog-box" role="dialog" aria-modal="true">
+                <div class="pharmaflow-dialog-header">
+                    <div class="pharmaflow-dialog-icon-wrap ${iconWrapCls}">
                         <i class="fas ${iconCls}"></i>
                     </div>
-                    <div class="batiflow-dialog-title">${escapeHtml(title)}</div>
-                    <div class="batiflow-dialog-message">${message}</div>
+                    <div class="pharmaflow-dialog-title">${escapeHtml(title)}</div>
+                    <div class="pharmaflow-dialog-message">${message}</div>
                 </div>
-                <div class="batiflow-dialog-footer">
-                    <button class="batiflow-btn batiflow-btn-cancel" id="bfDialogCancel">${escapeHtml(cancelText)}</button>
-                    <button class="batiflow-btn ${btnCls}" id="bfDialogConfirm">${escapeHtml(confirmText)}</button>
+                <div class="pharmaflow-dialog-footer">
+                    <button class="pharmaflow-btn pharmaflow-btn-cancel" id="pfDialogCancel">${escapeHtml(cancelText)}</button>
+                    <button class="pharmaflow-btn ${btnCls}" id="pfDialogConfirm">${escapeHtml(confirmText)}</button>
                 </div>
             </div>
         `;
         document.body.appendChild(overlay);
 
         const cleanup = (result) => { overlay.remove(); resolve(result); };
-        overlay.querySelector('#bfDialogConfirm').addEventListener('click', () => cleanup(true));
-        overlay.querySelector('#bfDialogCancel').addEventListener('click',  () => cleanup(false));
+        overlay.querySelector('#pfDialogConfirm').addEventListener('click', () => cleanup(true));
+        overlay.querySelector('#pfDialogCancel').addEventListener('click',  () => cleanup(false));
         overlay.addEventListener('click', (e) => { if (e.target === overlay) cleanup(false); });
     });
 }
@@ -246,33 +246,33 @@ function showAlertDialog({ title, message, type = 'info' } = {}) {
     _ensureDialogStyles();
     return new Promise((resolve) => {
         const iconMap = {
-            success: { cls: 'batiflow-dialog-icon-success', icon: 'fa-circle-check' },
-            error:   { cls: 'batiflow-dialog-icon-danger',  icon: 'fa-circle-xmark' },
-            warning: { cls: 'batiflow-dialog-icon-warning', icon: 'fa-triangle-exclamation' },
-            info:    { cls: 'batiflow-dialog-icon-info',    icon: 'fa-circle-info' },
+            success: { cls: 'pharmaflow-dialog-icon-success', icon: 'fa-circle-check' },
+            error:   { cls: 'pharmaflow-dialog-icon-danger',  icon: 'fa-circle-xmark' },
+            warning: { cls: 'pharmaflow-dialog-icon-warning', icon: 'fa-triangle-exclamation' },
+            info:    { cls: 'pharmaflow-dialog-icon-info',    icon: 'fa-circle-info' },
         };
         const { cls: iconWrapCls, icon: iconCls } = iconMap[type] || iconMap.info;
 
         const overlay = document.createElement('div');
-        overlay.className = 'batiflow-dialog-overlay';
+        overlay.className = 'pharmaflow-dialog-overlay';
         overlay.innerHTML = `
-            <div class="batiflow-dialog-box" role="alertdialog" aria-modal="true">
-                <div class="batiflow-dialog-header">
-                    <div class="batiflow-dialog-icon-wrap ${iconWrapCls}">
+            <div class="pharmaflow-dialog-box" role="alertdialog" aria-modal="true">
+                <div class="pharmaflow-dialog-header">
+                    <div class="pharmaflow-dialog-icon-wrap ${iconWrapCls}">
                         <i class="fas ${iconCls}"></i>
                     </div>
-                    <div class="batiflow-dialog-title">${escapeHtml(title)}</div>
-                    <div class="batiflow-dialog-message">${message}</div>
+                    <div class="pharmaflow-dialog-title">${escapeHtml(title)}</div>
+                    <div class="pharmaflow-dialog-message">${message}</div>
                 </div>
-                <div class="batiflow-dialog-footer">
-                    <button class="batiflow-btn batiflow-btn-ok" id="bfDialogOk">OK</button>
+                <div class="pharmaflow-dialog-footer">
+                    <button class="pharmaflow-btn pharmaflow-btn-ok" id="pfDialogOk">OK</button>
                 </div>
             </div>
         `;
         document.body.appendChild(overlay);
 
         const cleanup = () => { overlay.remove(); resolve(); };
-        overlay.querySelector('#bfDialogOk').addEventListener('click', cleanup);
+        overlay.querySelector('#pfDialogOk').addEventListener('click', cleanup);
         overlay.addEventListener('click', (e) => { if (e.target === overlay) cleanup(); });
     });
 }
@@ -292,40 +292,40 @@ function showPromptDialog({ title, message, placeholder = '', defaultValue = '',
     _ensureDialogStyles();
     return new Promise((resolve) => {
         const overlay = document.createElement('div');
-        overlay.className = 'batiflow-dialog-overlay';
+        overlay.className = 'pharmaflow-dialog-overlay';
         overlay.innerHTML = `
-            <div class="batiflow-dialog-box" role="dialog" aria-modal="true">
-                <div class="batiflow-dialog-header">
-                    <div class="batiflow-dialog-icon-wrap batiflow-dialog-icon-info">
+            <div class="pharmaflow-dialog-box" role="dialog" aria-modal="true">
+                <div class="pharmaflow-dialog-header">
+                    <div class="pharmaflow-dialog-icon-wrap pharmaflow-dialog-icon-info">
                         <i class="fas fa-pencil"></i>
                     </div>
-                    <div class="batiflow-dialog-title">${escapeHtml(title)}</div>
-                    <div class="batiflow-dialog-message">${message}</div>
+                    <div class="pharmaflow-dialog-title">${escapeHtml(title)}</div>
+                    <div class="pharmaflow-dialog-message">${message}</div>
                 </div>
-                <div class="batiflow-dialog-body">
+                <div class="pharmaflow-dialog-body">
                     <input
-                        class="batiflow-dialog-input"
-                        id="bfDialogInput"
+                        class="pharmaflow-dialog-input"
+                        id="pfDialogInput"
                         type="${inputType}"
                         placeholder="${escapeHtml(placeholder)}"
                         value="${escapeHtml(defaultValue)}"
                         autocomplete="off"
                     >
                 </div>
-                <div class="batiflow-dialog-footer">
-                    <button class="batiflow-btn batiflow-btn-cancel" id="bfDialogCancel">Cancel</button>
-                    <button class="batiflow-btn batiflow-btn-confirm-primary" id="bfDialogConfirm">${escapeHtml(confirmText)}</button>
+                <div class="pharmaflow-dialog-footer">
+                    <button class="pharmaflow-btn pharmaflow-btn-cancel" id="pfDialogCancel">Cancel</button>
+                    <button class="pharmaflow-btn pharmaflow-btn-confirm-primary" id="pfDialogConfirm">${escapeHtml(confirmText)}</button>
                 </div>
             </div>
         `;
         document.body.appendChild(overlay);
-        const input = overlay.querySelector('#bfDialogInput');
+        const input = overlay.querySelector('#pfDialogInput');
         input.focus();
         input.select();
 
         const cleanup = (result) => { overlay.remove(); resolve(result); };
-        overlay.querySelector('#bfDialogConfirm').addEventListener('click', () => cleanup(input.value));
-        overlay.querySelector('#bfDialogCancel').addEventListener('click',  () => cleanup(null));
+        overlay.querySelector('#pfDialogConfirm').addEventListener('click', () => cleanup(input.value));
+        overlay.querySelector('#pfDialogCancel').addEventListener('click',  () => cleanup(null));
         overlay.addEventListener('click', (e) => { if (e.target === overlay) cleanup(null); });
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') cleanup(input.value);

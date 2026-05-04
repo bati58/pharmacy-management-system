@@ -28,7 +28,7 @@ if (isset($_SESSION['user_id'])) {
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .login-bg {
@@ -85,63 +85,63 @@ if (isset($_SESSION['user_id'])) {
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
 
-    <div class="login-card w-full max-w-[440px] rounded-2xl overflow-hidden">
+    <div class="login-card w-full max-w-[400px] rounded-2xl overflow-hidden shadow-2xl">
         <!-- Logo/Header Section -->
-        <div class="bg-slate-900 p-8 text-center relative overflow-hidden">
+        <div class="bg-slate-900 p-7 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-full opacity-10">
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 0 L100 0 L100 100 Z" fill="white"></path>
                 </svg>
             </div>
             <div class="relative z-10">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
-                    <i class="fas fa-prescription-bottle-alt text-2xl"></i>
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
+                    <i class="fas fa-prescription-bottle-alt text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold text-white tracking-tight">PharmaFlow</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">Smart Pharma Management</p>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">PharmaFlow</h2>
+                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Smart Pharma Management</p>
             </div>
         </div>
 
         <!-- Form Section -->
-        <div class="p-8 sm:p-10">
-            <form id="loginForm" class="space-y-6">
+        <div class="p-8">
+            <form id="loginForm" class="space-y-5">
                 <div id="loginError" class="hidden items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-medium">
                     <i class="fas fa-circle-xmark text-red-500"></i>
                     <span id="loginErrorMsg"></span>
                 </div>
 
                 <div class="input-group">
-                    <label class="block text-slate-700 text-sm font-bold mb-2 transition-colors">Email Address</label>
+                    <label class="block text-slate-700 text-xs font-bold mb-2 transition-colors uppercase tracking-wider">Email Address</label>
                     <div class="relative">
                         <i class="fas fa-envelope icon absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
                         <input type="email" id="email"
-                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-900"
                             placeholder="you@example.com" required>
                     </div>
                 </div>
 
                 <div class="input-group">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="text-slate-700 text-sm font-bold transition-colors">Password</label>
+                        <label class="text-slate-700 text-xs font-bold transition-colors uppercase tracking-wider">Password</label>
                         <a href="forgot-password.php" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Forgot?</a>
                     </div>
                     <div class="relative">
                         <i class="fas fa-lock icon absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
                         <input type="password" id="password"
-                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-900"
                             placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;" required>
                     </div>
                 </div>
 
                 <button type="submit" id="loginBtn"
-                    class="btn-primary w-full text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+                    class="btn-primary w-full text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 text-sm">
                     <span>Sign In to Dashboard</span>
-                    <i class="fas fa-arrow-right text-xs opacity-70"></i>
+                    <i class="fas fa-arrow-right text-[10px] opacity-70"></i>
                 </button>
             </form>
 
-            <div class="mt-8 pt-8 border-t border-slate-100 text-center">
-                <p class="text-slate-500 text-xs font-medium">
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p class="text-slate-400 text-[10px] font-medium">
                     &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>

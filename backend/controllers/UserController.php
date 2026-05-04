@@ -114,12 +114,12 @@ class UserController
         $scriptDir = dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '/pharmacy-management-system/backend/index.php'));
         $setupLink = $baseUrl . $scriptDir . '/frontend/pages/auth/set-password.php?token=' . $token;
 
-        $subject = "Welcome to BatiFlow - Set up your account";
+        $subject = "Welcome to PharmaFlow System - Set up your account";
         $message = "
             <html><body style='font-family:Arial,sans-serif;color:#111827;line-height:1.5;'>
-                <h2 style='margin:0 0 12px;'>Welcome to BatiFlow Pharmacy Management System</h2>
+                <h2 style='margin:0 0 12px;'>Welcome to PharmaFlow System</h2>
                 <p>Hello " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ",</p>
-                <p>You have been invited to join <strong>BatiFlow</strong> as <strong>" . htmlspecialchars(str_replace('_', ' ', $role), ENT_QUOTES, 'UTF-8') . "</strong>.</p>
+                <p>You have been invited to join <strong>PharmaFlow System</strong> as <strong>" . htmlspecialchars(str_replace('_', ' ', $role), ENT_QUOTES, 'UTF-8') . "</strong>.</p>
                 <p>Please click the button below to set your password and activate your account.</p>
                 <p style='margin:20px 0;'>
                     <a href='" . htmlspecialchars($setupLink, ENT_QUOTES, 'UTF-8') . "' style='background:#2563eb;color:#fff;text-decoration:none;padding:10px 16px;border-radius:6px;display:inline-block;'>Set Up Password</a>

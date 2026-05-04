@@ -79,7 +79,9 @@ function checkExpiryStatus($expiryDate, $warningDays = 30)
  */
 function currentUserRole()
 {
-    session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     return $_SESSION['role'] ?? null;
 }
 

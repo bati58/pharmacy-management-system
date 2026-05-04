@@ -20,9 +20,14 @@ include '../includes/sidebar.php';
                 <p class="text-slate-500 font-medium">Manage and monitor your pharmaceutical stock.</p>
             </div>
             <?php if ($_SESSION['role'] == 'manager' || $_SESSION['role'] == 'store_keeper'): ?>
-                <button id="add-drug-btn" class="btn btn-primary shadow-lg shadow-blue-500/20">
-                    <i class="fas fa-plus"></i> Add New Drug
-                </button>
+                <div class="flex gap-2">
+                    <a href="view-stock-report.php" target="_blank" class="btn !bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center gap-2 shadow-sm">
+                        <i class="fas fa-print"></i> Print Stock Report
+                    </a>
+                    <button id="add-drug-btn" class="btn btn-primary shadow-lg shadow-blue-500/20">
+                        <i class="fas fa-plus"></i> Add New Drug
+                    </button>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -103,14 +108,11 @@ include '../includes/sidebar.php';
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Selling Price</label>
-                    <input type="number" step="0.01" id="drugPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo $_SESSION['role'] !== 'manager' ? 'disabled' : ''; ?>>
-                    <?php if ($_SESSION['role'] !== 'manager'): ?>
-                        <p class="text-[10px] text-slate-400">Only managers can update pricing.</p>
-                    <?php endif; ?>
+                    <input type="number" step="0.01" id="drugPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo !in_array($_SESSION['role'], ['manager', 'store_keeper']) ? 'disabled' : ''; ?>>
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cost Price</label>
-                    <input type="number" step="0.01" id="drugCostPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo $_SESSION['role'] !== 'manager' ? 'disabled' : ''; ?>>
+                    <input type="number" step="0.01" id="drugCostPrice" placeholder="0.00" class="!bg-slate-50" required <?php echo !in_array($_SESSION['role'], ['manager', 'store_keeper']) ? 'disabled' : ''; ?>>
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Expiry Date</label>

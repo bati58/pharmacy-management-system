@@ -113,7 +113,7 @@ class AuthController
             '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
         $scriptDir = dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '/pharmacy-management-system/backend/index.php'));
         $resetLink = $baseUrl . $scriptDir . '/frontend/pages/auth/reset-password.php?token=' . $token . '&email=' . urlencode($email);
-        $subject = "Reset Your BatiFlow Password";
+        $subject = "Reset Your PharmaFlow System Password";
         $message = "
             <html><body style='font-family:Arial,sans-serif;color:#111827;line-height:1.5;'>
                 <h2 style='margin:0 0 12px;'>Password Reset Request</h2>
@@ -128,7 +128,7 @@ class AuthController
                 <p>This link expires in <strong>1 hour</strong>.</p>
                 <p>If you did not request a password reset, please ignore this email.</p>
                 <hr style='border:none;border-top:1px solid #e5e7eb;margin:20px 0;'>
-                <p style='font-size:12px;color:#6b7280;'>BatiFlow Pharmacy Management System</p>
+                <p style='font-size:12px;color:#6b7280;'>PharmaFlow System</p>
             </body></html>
         ";
 

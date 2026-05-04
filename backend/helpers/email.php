@@ -4,12 +4,12 @@
  * Email helper — uses PHPMailer when Composer deps are installed, otherwise PHP mail().
  */
 
-$GLOBALS['_batiflow_email_error'] = '';
-$GLOBALS['_batiflow_composer_autoload'] = __DIR__ . '/../../vendor/autoload.php';
-$GLOBALS['_batiflow_phpmailer'] = is_file($GLOBALS['_batiflow_composer_autoload']);
+$GLOBALS['_pharmaflow_email_error'] = '';
+$GLOBALS['_pharmaflow_composer_autoload'] = __DIR__ . '/../../vendor/autoload.php';
+$GLOBALS['_pharmaflow_phpmailer'] = is_file($GLOBALS['_pharmaflow_composer_autoload']);
 
-if ($GLOBALS['_batiflow_phpmailer']) {
-    require_once $GLOBALS['_batiflow_composer_autoload'];
+if ($GLOBALS['_pharmaflow_phpmailer']) {
+    require_once $GLOBALS['_pharmaflow_composer_autoload'];
 }
 
 $localEmailConfigFile = __DIR__ . '/../config/email.local.php';
@@ -21,13 +21,13 @@ if (is_file($localEmailConfigFile)) {
     }
 }
 
-$smtpHost = getenv('BATIFLOW_SMTP_HOST') ?: ($localEmailConfig['host'] ?? 'smtp.gmail.com');
-$smtpPort = (int)(getenv('BATIFLOW_SMTP_PORT') ?: ($localEmailConfig['port'] ?? 587));
-$smtpEncryption = strtolower((string)(getenv('BATIFLOW_SMTP_ENCRYPTION') ?: ($localEmailConfig['encryption'] ?? 'tls')));
-$smtpUser = getenv('BATIFLOW_SMTP_USER') ?: ($localEmailConfig['username'] ?? '');
-$smtpPass = getenv('BATIFLOW_SMTP_PASS') ?: ($localEmailConfig['password'] ?? '');
-$smtpFrom = getenv('BATIFLOW_SMTP_FROM') ?: ($localEmailConfig['from_email'] ?? ($smtpUser ?: 'noreply@batiflow.com'));
-$smtpFromName = getenv('BATIFLOW_SMTP_FROM_NAME') ?: ($localEmailConfig['from_name'] ?? 'BatiFlow Pharma');
+$smtpHost = getenv('PHARMAFLOW_SMTP_HOST') ?: ($localEmailConfig['host'] ?? 'smtp.gmail.com');
+$smtpPort = (int)(getenv('PHARMAFLOW_SMTP_PORT') ?: ($localEmailConfig['port'] ?? 587));
+$smtpEncryption = strtolower((string)(getenv('PHARMAFLOW_SMTP_ENCRYPTION') ?: ($localEmailConfig['encryption'] ?? 'tls')));
+$smtpUser = getenv('PHARMAFLOW_SMTP_USER') ?: ($localEmailConfig['username'] ?? '');
+$smtpPass = getenv('PHARMAFLOW_SMTP_PASS') ?: ($localEmailConfig['password'] ?? '');
+$smtpFrom = getenv('PHARMAFLOW_SMTP_FROM') ?: ($localEmailConfig['from_email'] ?? ($smtpUser ?: 'noreply@pharmaflow.com'));
+$smtpFromName = getenv('PHARMAFLOW_SMTP_FROM_NAME') ?: ($localEmailConfig['from_name'] ?? 'PharmaFlow System');
 
 $smtpUser = trim((string)$smtpUser);
 $smtpFrom = trim((string)$smtpFrom);
@@ -53,10 +53,10 @@ function logEmailError($message)
 function sendEmail($to, $subject, $message, $from = null)
 {
     global $smtpHost, $smtpPort, $smtpEncryption, $smtpUser, $smtpPass, $smtpFrom, $smtpFromName;
-    $GLOBALS['_batiflow_email_error'] = '';
+    $GLOBALS['_pharmaflow_email_error'] = '';
 
     if (
-        !empty($GLOBALS['_batiflow_phpmailer']) &&
+        !empty($GLOBALS['_pharmaflow_phpmailer']) &&
         class_exists(\PHPMailer\PHPMailer\PHPMailer::class) &&
         !empty($smtpUser) &&
         !empty($smtpPass)
@@ -82,41 +82,41 @@ function sendEmail($to, $subject, $message, $from = null)
             $mail->send();
             return true;
         } catch (\Throwable $e) {
-            $GLOBALS['_batiflow_email_error'] = 'SMTP send failed: ' . $e->getMessage();
+            $GLOBALS['_pharmaflow_email_error'] = 'SMTP send failed: ' . $e->getMessage();
             error_log('PHPMailer: ' . $e->getMessage());
-            logEmailError($GLOBALS['_batiflow_email_error']);
+            logEmailError($GLOBALS['_pharmaflow_email_error']);
             return false;
         }
     }
 
-    if (empty($GLOBALS['_batiflow_phpmailer'])) {
-        $GLOBALS['_batiflow_email_error'] = 'PHPMailer is not installed. Run: composer require phpmailer/phpmailer';
-        logEmailError($GLOBALS['_batiflow_email_error']);
+    if (empty($GLOBALS['_pharmaflow_phpmailer'])) {
+        $GLOBALS['_pharmaflow_email_error'] = 'PHPMailer is not installed. Run: composer require phpmailer/phpmailer';
+        logEmailError($GLOBALS['_pharmaflow_email_error']);
         return false;
     }
     if (empty($smtpUser) || empty($smtpPass)) {
-        $GLOBALS['_batiflow_email_error'] = 'SMTP credentials are missing. Configure backend/config/email.local.php';
-        logEmailError($GLOBALS['_batiflow_email_error']);
+        $GLOBALS['_pharmaflow_email_error'] = 'SMTP credentials are missing. Configure backend/config/email.local.php';
+        logEmailError($GLOBALS['_pharmaflow_email_error']);
         return false;
     }
 
     $headers = "MIME-Version: 1.0\r\nContent-type:text/html;charset=UTF-8\r\nFrom: " . ($from ?? $smtpFrom) . "\r\n";
     $ok = @mail($to, $subject, $message, $headers);
     if (!$ok) {
-        $GLOBALS['_batiflow_email_error'] = 'PHP mail() failed.';
-        logEmailError($GLOBALS['_batiflow_email_error']);
+        $GLOBALS['_pharmaflow_email_error'] = 'PHP mail() failed.';
+        logEmailError($GLOBALS['_pharmaflow_email_error']);
     }
     return $ok;
 }
 
 function getLastEmailError()
 {
-    return (string)($GLOBALS['_batiflow_email_error'] ?? '');
+    return (string)($GLOBALS['_pharmaflow_email_error'] ?? '');
 }
 
 function sendPasswordResetEmail($to, $resetLink)
 {
-    $subject = "Reset Your BatiFlow Password";
+    $subject = "Reset Your PharmaFlow System Password";
     $message = "
     <html><body>
         <h2>Password Reset Request</h2>
@@ -127,7 +127,7 @@ function sendPasswordResetEmail($to, $resetLink)
 
 function sendLowStockAlert($managerEmail, $lowStockDrugs)
 {
-    $subject = "Low Stock Alert - BatiFlow Pharma";
+    $subject = "Low Stock Alert - PharmaFlow System";
     $drugsList = "";
     foreach ($lowStockDrugs as $drug) {
         $drugsList .= "<li>" . htmlspecialchars($drug['name']) . " — " . (int)$drug['stock'] . " left</li>";
@@ -138,7 +138,7 @@ function sendLowStockAlert($managerEmail, $lowStockDrugs)
 
 function sendExpiryAlert($managerEmail, $expiringDrugs)
 {
-    $subject = "Expiry Alert - BatiFlow Pharma";
+    $subject = "Expiry Alert - PharmaFlow System";
     $drugsList = "";
     foreach ($expiringDrugs as $drug) {
         $drugsList .= "<li>" . htmlspecialchars($drug['name']) . " — " . htmlspecialchars($drug['expiry_date']) . "</li>";

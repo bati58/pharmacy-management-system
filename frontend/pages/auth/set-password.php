@@ -39,6 +39,7 @@ if (empty($token)) {
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
+            overflow-y: auto;
         }
 
         .login-bg {
@@ -103,24 +104,24 @@ if (empty($token)) {
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
 
-    <div class="card w-full max-w-[440px] rounded-2xl overflow-hidden">
+    <div class="card w-full max-w-[400px] rounded-2xl overflow-hidden shadow-2xl">
         <!-- Header -->
-        <div class="bg-slate-900 p-8 text-center relative overflow-hidden">
+        <div class="bg-slate-900 p-7 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-full opacity-10">
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 0 L100 0 L100 100 Z" fill="white"></path>
                 </svg>
             </div>
             <div class="relative z-10">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
-                    <i class="fas fa-user-shield text-2xl"></i>
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
+                    <i class="fas fa-user-shield text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold text-white tracking-tight">Activate Account</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow Smart Pharmacy</p>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Activate Account</h2>
+                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow Smart Pharmacy</p>
             </div>
         </div>
 
-        <div class="p-8 sm:p-10">
+        <div class="p-8">
             <?php if (!$isValidToken): ?>
                 <!-- Invalid Token State -->
                 <div class="flex flex-col items-center text-center py-4">

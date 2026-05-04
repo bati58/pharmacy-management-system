@@ -35,6 +35,7 @@ if (empty($token) || empty($email)) {
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
+            overflow-y: auto;
         }
 
         .login-bg {
@@ -90,14 +91,14 @@ if (empty($token) || empty($email)) {
 
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
-    <div class="card w-full max-w-md rounded-2xl overflow-hidden">
+    <div class="card w-full max-w-[400px] rounded-2xl overflow-hidden">
         <!-- Header -->
-        <div class="bg-slate-900 p-8 text-center">
-            <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
-                <i class="fas fa-lock text-2xl"></i>
+        <div class="bg-slate-900 p-7 text-center">
+            <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
+                <i class="fas fa-lock text-xl"></i>
             </div>
-            <h2 class="text-3xl font-extrabold text-white tracking-tight">Reset Password</h2>
-            <p class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">PharmaFlow System</p>
+            <h2 class="text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
+            <p class="text-blue-400 text-[10px] font-bold uppercase tracking-widest mt-1">PharmaFlow System</p>
         </div>
 
         <!-- Body -->

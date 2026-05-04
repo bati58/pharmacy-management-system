@@ -1,8 +1,8 @@
 <!-- Top bar (visible on all pages) -->
 <div class="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 px-4 md:px-6 py-3 flex justify-between items-center no-print">
     <div class="flex items-center gap-4">
-        <!-- Sidebar Toggle for Mobile -->
-        <button id="navMobileMenuBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg md:hidden transition-all">
+        <!-- Sidebar Toggle for Mobile/Tablet -->
+        <button id="navMobileMenuBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg lg:hidden transition-all">
             <i class="fas fa-bars text-xl"></i>
         </button>
 

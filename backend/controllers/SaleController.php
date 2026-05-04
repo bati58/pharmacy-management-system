@@ -151,7 +151,7 @@ class SaleController
                     $userModel = new User($pdo);
                     $users = $userModel->getAll();
                     
-                    $msg = "Low stock alert: {$drug['name']} (Batch: {$drug['batch']}) has only {$drug['stock']} units left.";
+                    $msg = "Low stock alert: {$drug['name']} (Batch: {$drug['batch']}) has only {$drug['dispensary_stock']} units left in the dispensary.";
                     foreach ($users as $user) {
                         if (in_array($user['role'], ['manager', 'store_keeper']) && (int)$user['branch_id'] === (int)$branchId) {
                             $notifModel->create($user['id'], 'low_stock', $msg);

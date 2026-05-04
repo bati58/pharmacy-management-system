@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sale Receipt - BatiFlow</title>
+    <title>Sale Receipt - PharmaFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -34,7 +34,7 @@ if (!isset($_SESSION['user_id'])) {
 
         <div id="receiptContent" class="print-container bg-white w-full max-w-2xl shadow-xl rounded-2xl p-8 md:p-12 border border-slate-100">
             <div class="text-center mb-10">
-                <h1 class="text-3xl font-black text-blue-600 tracking-tighter mb-1">BatiFlow</h1>
+                <h1 class="text-3xl font-black text-blue-600 tracking-tighter mb-1">PharmaFlow</h1>
                 <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Pharmacy Management System</p>
                 <div class="h-1 w-12 bg-blue-600 mx-auto mt-4 rounded-full"></div>
             </div>

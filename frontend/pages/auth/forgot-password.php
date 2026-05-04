@@ -19,7 +19,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background: #0f172a;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .login-bg {
@@ -76,26 +76,26 @@
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="login-bg"></div>
 
-    <div class="login-card w-full max-w-[440px] rounded-2xl overflow-hidden">
+    <div class="login-card w-full max-w-[400px] rounded-2xl overflow-hidden shadow-2xl">
         <!-- Header -->
-        <div class="bg-slate-900 p-8 text-center relative overflow-hidden">
+        <div class="bg-slate-900 p-7 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-full opacity-10">
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 0 L100 0 L100 100 Z" fill="white"></path>
                 </svg>
             </div>
             <div class="relative z-10">
-                <div class="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
-                    <i class="fas fa-unlock-alt text-2xl"></i>
+                <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-xl shadow-blue-900/50">
+                    <i class="fas fa-unlock-alt text-xl"></i>
                 </div>
-                <h2 class="text-3xl font-extrabold text-white tracking-tight">Reset Password</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow System</p>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
+                <p class="text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow System</p>
             </div>
         </div>
 
         <!-- Form Section -->
-        <div class="p-8 sm:p-10">
-            <p class="text-slate-500 text-sm mb-6 text-center">Enter your email address and we'll send you a secure link to reset your password.</p>
+        <div class="p-8">
+            <p class="text-slate-500 text-xs mb-6 text-center leading-relaxed">Enter your email address and we'll send you a secure link to reset your password.</p>
 
             <!-- Alert messages -->
             <div id="resetAlert" class="hidden items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4">
@@ -105,30 +105,30 @@
 
             <form id="resetForm" class="space-y-5">
                 <div class="input-group">
-                    <label class="block text-slate-700 text-sm font-bold mb-2 transition-colors">Email Address</label>
+                    <label class="block text-slate-700 text-xs font-bold mb-2 transition-colors uppercase tracking-wider">Email Address</label>
                     <div class="relative">
                         <i class="fas fa-envelope icon absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
                         <input type="email" id="email"
-                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm text-slate-900"
                             placeholder="you@example.com" required>
                     </div>
                 </div>
 
                 <button type="submit" id="resetBtn"
-                    class="btn-primary w-full text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2">
+                    class="btn-primary w-full text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 text-sm">
                     <span>Send Reset Link</span>
-                    <i class="fas fa-paper-plane text-xs opacity-70"></i>
+                    <i class="fas fa-paper-plane text-[10px] opacity-70"></i>
                 </button>
             </form>
 
             <div class="mt-6 text-center">
-                <a href="login.php" class="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2">
-                    <i class="fas fa-arrow-left text-xs"></i> Back to Sign In
+                <a href="login.php" class="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center justify-center gap-2">
+                    <i class="fas fa-arrow-left text-[10px]"></i> Back to Sign In
                 </a>
             </div>
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
-                <p class="text-slate-500 text-xs font-medium">
+                <p class="text-slate-400 text-[10px] font-medium">
                     &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
