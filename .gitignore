@@ -1,0 +1,80 @@
+# Composer dependencies
+/vendor/
+/backend/vendor/
+composer.phar
+
+# Environment files and local config
+.env
+.env.*
+!.env.example
+*.local.php
+/backend/config/email.local.php
+/backend/config/*.local.php
+/backend/config/database.php
+config.local.php
+credentials.php
+
+# Logs and runtime files
+/backend/logs/
+*.log
+*.pid
+*.seed
+
+# Temporary/cache directories
+/scratch/
+/tmp/
+/temp/
+/cache/
+/backend/tmp/
+/backend/cache/
+.phpunit.result.cache
+.php-cs-fixer.cache
+.php_cs.cache
+
+# User uploads and generated files
+/uploads/
+/storage/
+/frontend/uploads/
+/backend/uploads/
+
+# Database dumps and backups
+/database/backups/
+/database/dumps/
+/database/*.dump
+/database/*.bak
+/database/*.backup
+/database/*_dump.sql
+/database/*-dump.sql
+/database/*.backup.sql
+/database/seed.sql
+*.sql.gz
+*.sql.zip
+*.dump
+*.bak
+*.backup
+*.db
+*.sqlite
+*.sqlite3
+
+# Frontend package artifacts
+node_modules/
+dist/
+build/
+.vite/
+.parcel-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor and OS files
+.vscode/
+.idea/
+.cursor/
+.history/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
