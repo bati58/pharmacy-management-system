@@ -29,7 +29,7 @@ if (empty($token)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Account - BatiFlow Pharma</title>
+    <title>Activate Account - PharmaFlow System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -94,7 +94,7 @@ if (empty($token)) {
                     <i class="fas fa-user-shield text-2xl"></i>
                 </div>
                 <h2 class="text-3xl font-extrabold text-white tracking-tight">Activate Account</h2>
-                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">BatiFlow Smart Pharma</p>
+                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">PharmaFlow Smart Pharmacy</p>
             </div>
         </div>
 
@@ -114,7 +114,7 @@ if (empty($token)) {
                 </div>
             <?php else: ?>
                 <!-- Set Password Form -->
-                <p class="text-slate-500 text-sm mb-6 text-center">Create a strong password to activate your BatiFlow account.</p>
+                <p class="text-slate-500 text-sm mb-6 text-center">Create a strong password to activate your PharmaFlow account.</p>
 
                 <!-- Alert messages -->
                 <div id="setPassAlert" class="hidden items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium mb-4">
@@ -153,7 +153,7 @@ if (empty($token)) {
 
             <div class="mt-8 pt-6 border-t border-slate-100 text-center">
                 <p class="text-slate-500 text-xs font-medium">
-                    &copy; 2026 BatiFlow Pharma Systems. All rights reserved.
+                    &copy; 2026 PharmaFlow Systems. All rights reserved.
                 </p>
             </div>
         </div>

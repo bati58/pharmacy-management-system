@@ -25,7 +25,7 @@ if (empty($token) || empty($email)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - BatiFlow Pharma</title>
+    <title>Reset Password - PharmaFlow System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -65,7 +65,7 @@ if (empty($token) || empty($email)) {
                 <i class="fas fa-lock text-2xl"></i>
             </div>
             <h2 class="text-3xl font-extrabold text-white tracking-tight">Reset Password</h2>
-            <p class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">BatiFlow Pharma</p>
+            <p class="text-blue-400 text-xs font-bold uppercase tracking-widest mt-1">PharmaFlow System</p>
         </div>
 
         <!-- Body -->
