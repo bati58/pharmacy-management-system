@@ -18,7 +18,7 @@
     <div class="flex items-center space-x-3">
         <!-- Quick Actions or Info -->
         <div class="hidden md:flex flex-col items-end mr-2">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Logged in as</span>
+            <!-- <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Logged in as</span> -->
             <span class="text-sm font-semibold text-slate-700"><?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?></span>
         </div>
         
