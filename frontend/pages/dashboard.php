@@ -51,28 +51,28 @@ if ($shouldRun && in_array($_SESSION['role'], ['manager', 'store_keeper'])) {
             </div>
             <div class="card kpi-card">
                 <div>
-                    <h3 class="kpi-title">Total Drugs</h3>
+                    <h3 class="kpi-title" id="kpi-drugs-title">Total Drugs</h3>
                     <p class="kpi-value" id="kpi-drugs">-</p>
                 </div>
-                <div class="mt-4 flex items-center text-xs font-bold text-green-600">
+                <div class="mt-4 flex items-center text-xs font-bold text-green-600" id="kpi-drugs-subtext">
                     <i class="fas fa-capsules mr-1"></i> <span>In stock</span>
                 </div>
             </div>
             <div class="card kpi-card">
                 <div>
-                    <h3 class="kpi-title">Today's Sales</h3>
+                    <h3 class="kpi-title" id="kpi-sales-title">Today's Sales</h3>
                     <p class="kpi-value" id="kpi-sales">-</p>
                 </div>
-                <div class="mt-4 flex items-center text-xs font-bold text-purple-600">
+                <div class="mt-4 flex items-center text-xs font-bold text-purple-600" id="kpi-sales-subtext">
                     <i class="fas fa-shopping-cart mr-1"></i> <span>Processed</span>
                 </div>
             </div>
             <div class="card kpi-card">
                 <div>
-                    <h3 class="kpi-title">Revenue</h3>
+                    <h3 class="kpi-title" id="kpi-revenue-title">Revenue</h3>
                     <p class="kpi-value" id="kpi-revenue">-</p>
                 </div>
-                <div class="mt-4 flex items-center text-xs font-bold text-emerald-600">
+                <div class="mt-4 flex items-center text-xs font-bold text-emerald-600" id="kpi-revenue-subtext">
                     <i class="fas fa-dollar-sign mr-1"></i> <span>Total earnings</span>
                 </div>
             </div>
@@ -80,7 +80,7 @@ if ($shouldRun && in_array($_SESSION['role'], ['manager', 'store_keeper'])) {
 
         <!-- Charts and Alerts -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-up" style="animation-delay: 0.2s;">
-            <div class="card lg:col-span-1">
+            <div class="card lg:col-span-1" id="salesTrendCard">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-bold text-slate-800">Sales Trend</h3>
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">30 Days</span>
@@ -109,7 +109,7 @@ if ($shouldRun && in_array($_SESSION['role'], ['manager', 'store_keeper'])) {
         </div>
 
         <!-- Recent Sales Table -->
-        <div class="card animate-slide-up" style="animation-delay: 0.3s;">
+        <div class="card animate-slide-up" id="recentSalesCard" style="animation-delay: 0.3s;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="font-bold text-slate-800">Recent Sales Transactions</h3>
                 <a href="sales.php" class="btn btn-primary !py-2 !px-4 text-xs">View All Sales</a>

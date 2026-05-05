@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Drug.php';
+require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
 
@@ -19,12 +20,48 @@ class DrugController
     public function index()
     {
         $search = $_GET['search'] ?? null;
+        $requestedLocation = $_GET['location'] ?? null;
+        $location = $requestedLocation === 'all' || $requestedLocation === '' || $requestedLocation === null
+            ? null
+            : Inventory::normalizeLocation($requestedLocation);
+
+        if ($requestedLocation !== null && $requestedLocation !== '' && $requestedLocation !== 'all' && $location === null) {
+            sendError('Location must be store, dispensary, or all', 400);
+            return;
+        }
+
         if (($_SESSION['role'] ?? '') === 'manager') {
             $branchId = $_GET['branch_id'] ?? null;
+        } elseif (($_SESSION['role'] ?? '') === 'pharmacist') {
+            $branchId = $_SESSION['branch_id'] ?? null;
+            $location = 'dispensary';
         } else {
             $branchId = $_SESSION['branch_id'] ?? null;
+            $location = 'store';
         }
-        $drugs = $this->drugModel->getAll($branchId, $search);
+
+        $drugs = $this->drugModel->getAll($branchId, $search, $location);
+        $drugs = array_map(function ($drug) use ($location) {
+            $drug['stock'] = (int)($drug['stock'] ?? 0);
+            $drug['dispensary_stock'] = (int)($drug['dispensary_stock'] ?? 0);
+
+            if ($location === 'store') {
+                $drug['location'] = 'store';
+                $drug['location_quantity'] = $drug['stock'];
+            } elseif ($location === 'dispensary') {
+                $drug['location'] = 'dispensary';
+                $drug['location_quantity'] = $drug['dispensary_stock'];
+                if (($_SESSION['role'] ?? '') === 'pharmacist') {
+                    $drug['stock'] = 0;
+                }
+            } else {
+                $drug['location'] = 'all';
+                $drug['location_quantity'] = $drug['stock'] + $drug['dispensary_stock'];
+            }
+
+            return $drug;
+        }, $drugs);
+
         sendSuccess($drugs);
     }
 
@@ -41,6 +78,11 @@ class DrugController
                 return;
             }
         }
+        if (($_SESSION['role'] ?? '') === 'pharmacist') {
+            $drug['stock'] = 0;
+            $drug['location'] = 'dispensary';
+            $drug['location_quantity'] = (int)($drug['dispensary_stock'] ?? 0);
+        }
         sendSuccess($drug);
     }
 
@@ -53,7 +95,7 @@ class DrugController
         $manufacturer = $data['manufacturer'] ?? '';
         $supplier = $data['supplier'] ?? '';
         $batch = $data['batch'] ?? '';
-        $stock = $data['stock'] ?? 0;
+        $stock = (int)($data['stock'] ?? 0);
         $price = $data['price'] ?? 0;
         $costPrice = $data['cost_price'] ?? 0;
         $requiresPrescription = $data['requires_prescription'] ?? 0;
@@ -62,6 +104,17 @@ class DrugController
 
         if (empty($name) || empty($batch) || empty($expiry) || $price <= 0) {
             sendError('Name, batch, expiry date and price are required', 400);
+            return;
+        }
+        if ($stock < 0) {
+            sendError('Initial store stock cannot be negative', 400);
+            return;
+        }
+        if (($_SESSION['role'] ?? '') === 'store_keeper') {
+            $branchId = $_SESSION['branch_id'] ?? null;
+        }
+        if (!$branchId) {
+            sendError('Branch assignment is required', 400);
             return;
         }
 

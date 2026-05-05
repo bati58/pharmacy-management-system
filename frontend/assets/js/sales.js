@@ -115,7 +115,7 @@ async function loadDrugsForSale() {
             return;
         }
 
-        const drugs = await API.getDrugs(branchId);
+        const drugs = await API.getDrugs(branchId, '', 'dispensary');
         const select = document.getElementById('drugSelect');
         if (!select) return;
         select.innerHTML = '<option value="">Select drug</option>';
@@ -156,6 +156,10 @@ function addToCart() {
     }
     const existing = currentSaleCart.find(item => item.drug_id == drugId);
     if (existing) {
+        if (existing.quantity + quantity > drug.dispensary_stock) {
+            showToast(`Only ${drug.dispensary_stock} units available on shelf`, 'error');
+            return;
+        }
         existing.quantity += quantity;
     } else {
         currentSaleCart.push({

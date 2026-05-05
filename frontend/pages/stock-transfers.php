@@ -15,9 +15,11 @@ include '../includes/sidebar.php';
                 <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Stock Transfers</h2>
                 <p class="text-slate-500 font-medium">Monitor and manage internal stock movements between locations.</p>
             </div>
-            <button onclick="showTransferModal()" class="btn btn-primary shadow-lg shadow-blue-500/20">
-                <i class="fas fa-exchange-alt"></i> New Stock Transfer
-            </button>
+            <?php if ($_SESSION['role'] === 'store_keeper'): ?>
+                <button onclick="showTransferModal()" class="btn btn-primary shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-exchange-alt"></i> New Stock Transfer
+                </button>
+            <?php endif; ?>
         </div>
 
         <div class="card animate-slide-up" style="animation-delay: 0.1s;">
@@ -99,7 +101,7 @@ include '../includes/sidebar.php';
                         <tr class="border-b">
                             <td class="px-4 py-2">${escapeHtml(t.drug_name)}</td>
                             <td class="px-4 py-2">${t.quantity}</td>
-                            <td class="px-4 py-2">${t.from_location} → ${t.to_location}</td>
+                            <td class="px-4 py-2">${t.source_location || t.from_location} &rarr; ${t.destination_location || t.to_location}</td>
                             <td class="px-4 py-2">${escapeHtml(t.branch_name)}</td>
                             <td class="px-4 py-2">${escapeHtml(t.created_by_name)}</td>
                             <td class="px-4 py-2">${formatDateTime(t.transfer_date)}</td>
@@ -118,17 +120,33 @@ include '../includes/sidebar.php';
 
     async function loadDrugsForTransfer() {
         try {
-            const drugs = await API.getDrugs();
+            const drugs = await API.getDrugs(null, '', 'store');
             const select = document.getElementById('transferDrug');
             select.innerHTML = '<option value="">Select Drug</option>';
             if (drugs.data) {
                 drugs.data.forEach(drug => {
-                    select.innerHTML += `<option value="${drug.id}" data-stock="${drug.stock}">${escapeHtml(drug.name)} (Stock: ${drug.stock})</option>`;
+                    select.innerHTML += `<option value="${drug.id}" data-store="${drug.stock}" data-dispensary="${drug.dispensary_stock}">${escapeHtml(drug.name)} (Store: ${drug.stock}, Dispensary: ${drug.dispensary_stock})</option>`;
                 });
             }
+            updateTransferDrugLabels();
         } catch (err) {
             console.error(err);
         }
+    }
+
+    function updateTransferDrugLabels() {
+        const source = document.getElementById('transferFrom')?.value || 'store';
+        const select = document.getElementById('transferDrug');
+        if (!select) return;
+
+        Array.from(select.options).forEach(option => {
+            if (!option.value) return;
+            const storeQty = option.dataset.store || '0';
+            const dispensaryQty = option.dataset.dispensary || '0';
+            const baseName = option.textContent.split(' (')[0];
+            const available = source === 'dispensary' ? dispensaryQty : storeQty;
+            option.textContent = `${baseName} (${source === 'dispensary' ? 'Dispensary' : 'Store'}: ${available})`;
+        });
     }
 
     function showTransferModal() {
@@ -160,11 +178,11 @@ include '../includes/sidebar.php';
             const result = await API.createTransfer({
                 drug_id: drugId,
                 quantity: quantity,
-                from_location: fromLocation,
-                to_location: toLocation
+                source_location: fromLocation,
+                destination_location: toLocation
             });
             if (result.success) {
-                showToast('Transfer created successfully');
+                showToast('Transfer completed and inventory updated');
                 closeTransferModal();
                 loadTransfers();
             } else {
@@ -175,6 +193,7 @@ include '../includes/sidebar.php';
         }
     }
 
+    document.getElementById('transferFrom')?.addEventListener('change', updateTransferDrugLabels);
     loadTransfers();
 </script>
 <?php include '../includes/footer.php'; ?>

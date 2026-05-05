@@ -150,8 +150,10 @@ async function loadAlerts() {
         if (lowStockList) {
             lowStockList.innerHTML = '';
             (lowStock.data || []).forEach(drug => {
+                const quantity = drug.location_quantity ?? drug.stock;
+                const location = drug.location && drug.location !== 'all' ? ` (${drug.location})` : '';
                 lowStockList.insertAdjacentHTML('beforeend',
-                    `<div class="text-sm border-b py-1">${escapeHtml(drug.name)} — <span class="font-medium">${drug.stock}</span> left</div>`);
+                    `<div class="text-sm border-b py-1">${escapeHtml(drug.name)}${location} &mdash; <span class="font-medium">${quantity}</span> left</div>`);
             });
             if (!(lowStock.data || []).length) {
                 lowStockList.innerHTML = '<p class="text-gray-500 text-sm">No low-stock items.</p>';

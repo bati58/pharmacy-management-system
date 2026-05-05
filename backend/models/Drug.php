@@ -1,20 +1,41 @@
 <?php
+require_once __DIR__ . '/Inventory.php';
+
 class Drug
 {
     private $db;
+    private $inventoryModel;
 
     public function __construct($pdo)
     {
         $this->db = $pdo;
+        $this->inventoryModel = new Inventory($pdo);
     }
 
-    public function getAll($branchId = null, $search = null)
+    public function getAll($branchId = null, $search = null, $location = null)
     {
-        $sql = "SELECT d.*, b.name as branch_name FROM drugs d JOIN branches b ON d.branch_id = b.id";
+        $location = Inventory::normalizeLocation($location);
+        $sql = "
+            SELECT
+                d.*,
+                b.name as branch_name,
+                COALESCE(inv_store.quantity, 0) as stock,
+                COALESCE(inv_dispensary.quantity, 0) as dispensary_stock
+            FROM drugs d
+            JOIN branches b ON d.branch_id = b.id
+            LEFT JOIN inventory inv_store
+                ON inv_store.drug_id = d.id
+                AND inv_store.branch_id = d.branch_id
+                AND inv_store.location = 'store'
+            LEFT JOIN inventory inv_dispensary
+                ON inv_dispensary.drug_id = d.id
+                AND inv_dispensary.branch_id = d.branch_id
+                AND inv_dispensary.location = 'dispensary'
+        ";
         $params = [];
         $conditions = [];
 
-        if ($branchId) {
+        if ($branchId !== null && $branchId !== '') {
             $conditions[] = "d.branch_id = ?";
             $params[] = $branchId;
         }
@@ -35,19 +56,54 @@ class Drug
 
     public function findById($id)
     {
-        $stmt = $this->db->prepare("SELECT * FROM drugs WHERE id = ?");
+        $stmt = $this->db->prepare("
+            SELECT
+                d.*,
+                COALESCE(inv_store.quantity, 0) as stock,
+                COALESCE(inv_dispensary.quantity, 0) as dispensary_stock
+            FROM drugs d
+            LEFT JOIN inventory inv_store
+                ON inv_store.drug_id = d.id
+                AND inv_store.branch_id = d.branch_id
+                AND inv_store.location = 'store'
+            LEFT JOIN inventory inv_dispensary
+                ON inv_dispensary.drug_id = d.id
+                AND inv_dispensary.branch_id = d.branch_id
+                AND inv_dispensary.location = 'dispensary'
+            WHERE d.id = ?
+        ");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
     public function create($name, $category, $manufacturer, $supplier, $batch, $stock, $price, $expiry, $branchId, $costPrice = 0, $requiresPrescription = 0, $dispensaryStock = 0)
     {
-        $stmt = $this->db->prepare("
-            INSERT INTO drugs (name, category, manufacturer, supplier, batch, stock, dispensary_stock, price, expiry_date, branch_id, cost_price, requires_prescription) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        $stmt->execute([$name, $category, $manufacturer ?: null, $supplier ?: null, $batch, $stock, $dispensaryStock, $price, $expiry, $branchId, $costPrice, $requiresPrescription]);
-        return $this->db->lastInsertId();
+        $startedTransaction = !$this->db->inTransaction();
+        if ($startedTransaction) {
+            $this->db->beginTransaction();
+        }
+
+        try {
+            $stmt = $this->db->prepare("
+                INSERT INTO drugs (name, category, manufacturer, supplier, batch, price, expiry_date, branch_id, cost_price, requires_prescription)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$name, $category, $manufacturer ?: null, $supplier ?: null, $batch, $price, $expiry, $branchId, $costPrice, $requiresPrescription]);
+            $drugId = $this->db->lastInsertId();
+
+            $this->inventoryModel->ensureDrugRows($drugId, $branchId, (int)$stock, (int)$dispensaryStock);
+
+            if ($startedTransaction) {
+                $this->db->commit();
+            }
+
+            return $drugId;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $e;
+        }
     }
 
     public function update($id, $name, $category, $manufacturer, $supplier, $batch, $price, $expiry, $costPrice = null, $requiresPrescription = null)
@@ -99,29 +155,89 @@ class Drug
 
     public function updateStock($id, $newStock = null, $change = null, $target = 'stock')
     {
-        $column = $target === 'dispensary' ? 'dispensary_stock' : 'stock';
-        
+        $drug = $this->findById($id);
+        if (!$drug) {
+            return false;
+        }
+
+        $location = Inventory::normalizeLocation($target);
+        if ($location === null) {
+            return false;
+        }
+
         if ($newStock !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET $column = ? WHERE id = ?");
-            return $stmt->execute([$newStock, $id]);
+            return $this->inventoryModel->setQuantity($id, $drug['branch_id'], $location, (int)$newStock);
         } elseif ($change !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET $column = $column + ? WHERE id = ?");
-            return $stmt->execute([$change, $id]);
+            return $this->inventoryModel->adjustQuantity($id, $drug['branch_id'], $location, (int)$change);
         }
         return false;
     }
 
-    public function getLowStock($threshold = 10)
+    public function getLocationStock($id, $location, $forUpdate = false)
     {
-        $stmt = $this->db->prepare("
-            SELECT d.*, b.name as branch_name 
-            FROM drugs d 
-            JOIN branches b ON d.branch_id = b.id 
-            WHERE d.stock <= ? 
-            ORDER BY d.stock ASC
-        ");
-        $stmt->execute([$threshold]);
-        return $stmt->fetchAll();
+        $drug = $this->findById($id);
+        if (!$drug) {
+            return null;
+        }
+        return $this->inventoryModel->getQuantity($id, $drug['branch_id'], $location, $forUpdate);
+    }
+
+    public function getLowStock($threshold = 10, $location = null)
+    {
+        $location = Inventory::normalizeLocation($location);
+        $sql = "
+            SELECT
+                d.*,
+                b.name as branch_name,
+                COALESCE(inv_store.quantity, 0) as stock,
+                COALESCE(inv_dispensary.quantity, 0) as dispensary_stock
+            FROM drugs d
+            JOIN branches b ON d.branch_id = b.id
+            LEFT JOIN inventory inv_store
+                ON inv_store.drug_id = d.id
+                AND inv_store.branch_id = d.branch_id
+                AND inv_store.location = 'store'
+            LEFT JOIN inventory inv_dispensary
+                ON inv_dispensary.drug_id = d.id
+                AND inv_dispensary.branch_id = d.branch_id
+                AND inv_dispensary.location = 'dispensary'
+        ";
+        $params = [];
+
+        if ($location === 'store') {
+            $sql .= " WHERE COALESCE(inv_store.quantity, 0) <= ? ORDER BY COALESCE(inv_store.quantity, 0) ASC";
+            $params[] = $threshold;
+        } elseif ($location === 'dispensary') {
+            $sql .= " WHERE COALESCE(inv_dispensary.quantity, 0) <= ? ORDER BY COALESCE(inv_dispensary.quantity, 0) ASC";
+            $params[] = $threshold;
+        } else {
+            $sql .= "
+                WHERE COALESCE(inv_store.quantity, 0) <= ?
+                   OR COALESCE(inv_dispensary.quantity, 0) <= ?
+                ORDER BY LEAST(COALESCE(inv_store.quantity, 0), COALESCE(inv_dispensary.quantity, 0)) ASC
+            ";
+            $params[] = $threshold;
+            $params[] = $threshold;
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+        return array_map(function ($row) use ($location) {
+            $row['stock'] = (int)($row['stock'] ?? 0);
+            $row['dispensary_stock'] = (int)($row['dispensary_stock'] ?? 0);
+            if ($location === 'store') {
+                $row['location'] = 'store';
+                $row['location_quantity'] = $row['stock'];
+            } elseif ($location === 'dispensary') {
+                $row['location'] = 'dispensary';
+                $row['location_quantity'] = $row['dispensary_stock'];
+            } else {
+                $row['location'] = 'all';
+                $row['location_quantity'] = min($row['stock'], $row['dispensary_stock']);
+            }
+            return $row;
+        }, $rows);
     }
 
     public function getExpiringSoon($days = 30)

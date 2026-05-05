@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Drug.php';
+require_once __DIR__ . '/../models/Inventory.php';
 require_once __DIR__ . '/../models/StockMovement.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
@@ -7,12 +8,14 @@ require_once __DIR__ . '/../helpers/response.php';
 class InventoryController
 {
     private $drugModel;
+    private $inventoryModel;
     private $stockMovementModel;
 
     public function __construct()
     {
         global $pdo;
         $this->drugModel = new Drug($pdo);
+        $this->inventoryModel = new Inventory($pdo);
         $this->stockMovementModel = new StockMovement($pdo);
         AuthMiddleware::check();
     }
@@ -22,11 +25,20 @@ class InventoryController
         AuthMiddleware::requireRole(['manager', 'store_keeper']);
 
         $data = json_decode(file_get_contents('php://input'), true);
-        $quantityChange = $data['quantity_change'] ?? 0;
+        $quantityChange = (int)($data['quantity_change'] ?? 0);
         $reason = $data['reason'] ?? 'manual';
+        $location = Inventory::normalizeLocation($data['location'] ?? 'store');
 
         if ($quantityChange == 0) {
             sendError('Quantity change must not be zero', 400);
+            return;
+        }
+        if ($location === null) {
+            sendError('Location must be store or dispensary', 400);
+            return;
+        }
+        if (($_SESSION['role'] ?? '') === 'store_keeper' && $location !== 'store') {
+            sendError('Store keepers can only adjust store inventory. Use a transfer to move stock to the dispensary.', 403);
             return;
         }
 
@@ -43,24 +55,42 @@ class InventoryController
             }
         }
 
-        $newStock = $drug['stock'] + $quantityChange;
-        if ($newStock < 0) {
-            sendError('Insufficient stock', 400);
-            return;
-        }
+        global $pdo;
+        try {
+            $pdo->beginTransaction();
 
-        $updated = $this->drugModel->updateStock($id, $newStock);
-        if ($updated) {
-            $this->stockMovementModel->create(
+            $updated = $this->inventoryModel->adjustQuantity($id, $drug['branch_id'], $location, $quantityChange);
+            if (!$updated) {
+                $pdo->rollBack();
+                sendError('Insufficient stock', 400);
+                return;
+            }
+
+            $movementCreated = $this->stockMovementModel->create(
                 $id,
                 (int)$quantityChange,
                 (string)$reason,
-                (int)($_SESSION['user_id'] ?? 0)
+                (int)($_SESSION['user_id'] ?? 0),
+                (int)$drug['branch_id'],
+                $location
             );
-            sendSuccess(['new_stock' => $newStock], 'Stock updated');
-        } else {
-            sendError('Failed to update stock', 500);
+            if (!$movementCreated) {
+                $pdo->rollBack();
+                sendError('Failed to record stock movement', 500);
+                return;
+            }
+
+            $newStock = $this->inventoryModel->getQuantity($id, $drug['branch_id'], $location);
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            sendError('Failed to update stock: ' . $e->getMessage(), 500);
+            return;
         }
+
+        sendSuccess(['new_stock' => $newStock, 'location' => $location], 'Stock updated');
     }
 
     public function lowStockAlerts()
@@ -68,7 +98,13 @@ class InventoryController
         AuthMiddleware::requireRole(['manager', 'pharmacist', 'store_keeper']);
 
         $threshold = (int)($_GET['threshold'] ?? 10);
-        $drugs = $this->drugModel->getLowStock($threshold);
+        $location = Inventory::normalizeLocation($_GET['location'] ?? null);
+        if (($_SESSION['role'] ?? '') === 'pharmacist') {
+            $location = 'dispensary';
+        } elseif (($_SESSION['role'] ?? '') === 'store_keeper') {
+            $location = 'store';
+        }
+        $drugs = $this->drugModel->getLowStock($threshold, $location);
 
         if (($_SESSION['role'] ?? '') !== 'manager') {
             $bid = (int)($_SESSION['branch_id'] ?? 0);
@@ -76,6 +112,25 @@ class InventoryController
                 return (int)$d['branch_id'] === $bid;
             }));
         }
+
+        $drugs = array_map(function ($drug) use ($location) {
+            $drug['stock'] = (int)($drug['stock'] ?? 0);
+            $drug['dispensary_stock'] = (int)($drug['dispensary_stock'] ?? 0);
+            if ($location === 'dispensary') {
+                $drug['location'] = 'dispensary';
+                $drug['location_quantity'] = $drug['dispensary_stock'];
+                if (($_SESSION['role'] ?? '') === 'pharmacist') {
+                    $drug['stock'] = 0;
+                }
+            } elseif ($location === 'store') {
+                $drug['location'] = 'store';
+                $drug['location_quantity'] = $drug['stock'];
+            } else {
+                $drug['location'] = 'all';
+                $drug['location_quantity'] = min($drug['stock'], $drug['dispensary_stock']);
+            }
+            return $drug;
+        }, $drugs);
 
         sendSuccess($drugs);
     }

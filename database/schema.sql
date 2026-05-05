@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `transfers`;
 DROP TABLE IF EXISTS `sale_items`;
 DROP TABLE IF EXISTS `sales`;
+DROP TABLE IF EXISTS `inventory`;
 DROP TABLE IF EXISTS `drugs`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `branches`;
@@ -56,8 +57,6 @@ CREATE TABLE `drugs` (
     `manufacturer` VARCHAR(150) DEFAULT NULL,
     `supplier` VARCHAR(150) DEFAULT NULL,
     `batch` VARCHAR(50) NOT NULL,
-    `stock` INT(11) NOT NULL DEFAULT 0,
-    `dispensary_stock` INT(11) NOT NULL DEFAULT 0,
     `price` DECIMAL(10,2) NOT NULL COMMENT 'Selling price',
     `cost_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Purchase price for profit analysis',
     `requires_prescription` TINYINT(1) NOT NULL DEFAULT 0,
@@ -67,13 +66,33 @@ CREATE TABLE `drugs` (
     PRIMARY KEY (`id`),
     KEY `idx_drugs_batch` (`batch`),
     KEY `idx_drugs_expiry` (`expiry_date`),
-    KEY `idx_drugs_stock` (`stock`),
     KEY `idx_drugs_name` (`name`),
+    KEY `idx_drugs_branch` (`branch_id`),
     FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- 4. Sales table
+-- 4. Location-based Inventory table
+-- ======================================================
+CREATE TABLE `inventory` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `drug_id` INT(11) NOT NULL,
+    `branch_id` INT(11) NOT NULL,
+    `location` ENUM('store', 'dispensary') NOT NULL,
+    `quantity` INT(11) NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_inventory_drug_branch_location` (`drug_id`, `branch_id`, `location`),
+    KEY `idx_inventory_branch_location` (`branch_id`, `location`),
+    KEY `idx_inventory_quantity` (`quantity`),
+    CONSTRAINT `chk_inventory_quantity_non_negative` CHECK (`quantity` >= 0),
+    FOREIGN KEY (`drug_id`) REFERENCES `drugs`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ======================================================
+-- 5. Sales table
 -- ======================================================
 CREATE TABLE `sales` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -96,7 +115,7 @@ CREATE TABLE `sales` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- 5. Sale Items table
+-- 6. Sale Items table
 -- ======================================================
 CREATE TABLE `sale_items` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -112,14 +131,14 @@ CREATE TABLE `sale_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- 6. Stock Transfers table
+-- 7. Stock Transfers table
 -- ======================================================
 CREATE TABLE `transfers` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `drug_id` INT(11) NOT NULL,
     `quantity` INT(11) NOT NULL,
-    `from_location` ENUM('store', 'dispensary') NOT NULL,
-    `to_location` ENUM('store', 'dispensary') NOT NULL,
+    `source_location` ENUM('store', 'dispensary') NOT NULL,
+    `destination_location` ENUM('store', 'dispensary') NOT NULL,
     `branch_id` INT(11) NOT NULL,
     `created_by` INT(11) NOT NULL,
     `status` ENUM('pending', 'completed', 'cancelled') DEFAULT 'completed',
@@ -135,7 +154,7 @@ CREATE TABLE `transfers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- 7. Notifications table
+-- 8. Notifications table
 -- ======================================================
 CREATE TABLE `notifications` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -152,7 +171,7 @@ CREATE TABLE `notifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- 8. Password Resets table (for reset tokens)
+-- 9. Password Resets table (for reset tokens)
 -- ======================================================
 CREATE TABLE `password_resets` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -189,12 +208,16 @@ CREATE TABLE `invitations` (
 CREATE TABLE `stock_movements` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `drug_id` INT(11) NOT NULL,
+    `branch_id` INT(11) NOT NULL,
+    `location` ENUM('store', 'dispensary') DEFAULT NULL,
     `quantity_change` INT(11) NOT NULL,
     `reason` VARCHAR(100) DEFAULT NULL,
     `user_id` INT(11) NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_stock_movements_drug` (`drug_id`),
+    KEY `idx_stock_movements_branch_location` (`branch_id`, `location`),
     FOREIGN KEY (`drug_id`) REFERENCES `drugs`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,7 +1,12 @@
 let currentBranchFilter = '';
 let currentSearch = '';
+let currentLocationFilter = (window.APP_ROLE || '') === 'manager' ? 'all' : 'store';
 
 document.addEventListener('DOMContentLoaded', function () {
+    const locationFilter = document.getElementById('locationFilter');
+    if (locationFilter) {
+        locationFilter.value = currentLocationFilter;
+    }
     loadDrugs();
     loadBranchFilter();
     setupInventoryEventListeners();
@@ -37,10 +42,11 @@ async function loadBranchFilter() {
 
 async function loadDrugs() {
     try {
-        const drugs = await API.getDrugs(currentBranchFilter, currentSearch);
+        const drugs = await API.getDrugs(currentBranchFilter, currentSearch, currentLocationFilter);
         const tbody = document.getElementById('drugsTable');
         if (!tbody) return;
 
+        updateInventoryHeaders();
         tbody.innerHTML = '';
         if (!drugs.data || drugs.data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="12" class="text-center py-4">No drugs found</td></tr>';
@@ -56,14 +62,14 @@ async function loadDrugs() {
                         <i class="fas fa-trash"></i>
                    </button>`
                 : '';
+            const stockCells = getStockCells(drug);
             const row = `
                 <tr class="border-b hover:bg-gray-50">
                     <td class="px-4 py-2">${escapeHtml(drug.name)}</td>
                     <td class="px-4 py-2">${escapeHtml(drug.category || '-')}</td>
                     <td class="px-4 py-2 text-sm">${escapeHtml(ms)}</td>
                     <td class="px-4 py-2">${escapeHtml(drug.batch)}</td>
-                    <td class="px-4 py-2 font-bold text-slate-800" title="Backroom Store Stock">${drug.stock}</td>
-                    <td class="px-4 py-2 font-bold text-blue-600" title="Front Shelf Dispensary Stock">${drug.dispensary_stock}</td>
+                    ${stockCells}
                     <td class="px-4 py-2">${formatCurrency(drug.cost_price || 0)}</td>
                     <td class="px-4 py-2">${formatCurrency(drug.price)}</td>
                     <td class="px-4 py-2">
@@ -98,6 +104,42 @@ async function loadDrugs() {
     }
 }
 
+function updateInventoryHeaders() {
+    const headerA = document.getElementById('stockHeaderA');
+    const headerB = document.getElementById('stockHeaderB');
+    if (!headerA || !headerB) return;
+
+    if (currentLocationFilter === 'store') {
+        headerA.innerText = 'Location';
+        headerB.innerText = 'Qty';
+    } else if (currentLocationFilter === 'dispensary') {
+        headerA.innerText = 'Location';
+        headerB.innerText = 'Qty';
+    } else {
+        headerA.innerText = 'Store';
+        headerB.innerText = 'Dispensary';
+    }
+}
+
+function getStockCells(drug) {
+    if (currentLocationFilter === 'store') {
+        return `
+            <td class="px-4 py-2 text-slate-600">Store</td>
+            <td class="px-4 py-2 font-bold text-slate-800" title="Backroom Store Stock">${drug.stock}</td>
+        `;
+    }
+    if (currentLocationFilter === 'dispensary') {
+        return `
+            <td class="px-4 py-2 text-blue-600">Dispensary</td>
+            <td class="px-4 py-2 font-bold text-blue-600" title="Front Shelf Dispensary Stock">${drug.dispensary_stock}</td>
+        `;
+    }
+    return `
+        <td class="px-4 py-2 font-bold text-slate-800" title="Backroom Store Stock">${drug.stock}</td>
+        <td class="px-4 py-2 font-bold text-blue-600" title="Front Shelf Dispensary Stock">${drug.dispensary_stock}</td>
+    `;
+}
+
 function setupInventoryEventListeners() {
     const searchInput = document.getElementById('searchDrug');
     if (searchInput) {
@@ -111,6 +153,14 @@ function setupInventoryEventListeners() {
     if (branchFilter) {
         branchFilter.addEventListener('change', (e) => {
             currentBranchFilter = e.target.value;
+            loadDrugs();
+        });
+    }
+
+    const locationFilter = document.getElementById('locationFilter');
+    if (locationFilter) {
+        locationFilter.addEventListener('change', (e) => {
+            currentLocationFilter = e.target.value || 'all';
             loadDrugs();
         });
     }
@@ -263,8 +313,14 @@ async function deleteDrug(id) {
 }
 
 async function updateStock(id) {
+    const location = currentLocationFilter;
+    if (!['store', 'dispensary'].includes(location)) {
+        showToast('Choose Store or Dispensary before adjusting stock', 'error');
+        return;
+    }
+
     const quantity = await showPromptDialog({
-        title: 'Adjust Stock',
+        title: `Adjust ${location === 'store' ? 'Store' : 'Dispensary'} Stock`,
         message: 'Enter the quantity change. Use a <strong>positive number</strong> to add stock, or a <strong>negative number</strong> to remove stock.',
         placeholder: 'e.g. +50 or -10',
         inputType: 'number',
@@ -285,7 +341,7 @@ async function updateStock(id) {
     });
     if (reason === null) return;
     try {
-        await API.updateStock(id, change, reason || 'manual');
+        await API.updateStock(id, change, reason || 'manual', location);
         showToast('Stock updated successfully');
         loadDrugs();
     } catch (error) {

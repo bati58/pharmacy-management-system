@@ -33,12 +33,22 @@ $expiringCount = 0;
 
 // ========== 1. CHECK LOW STOCK ==========
 $lowStockThreshold = 10; // units
-$lowStockDrugs = $drugModel->getLowStock($lowStockThreshold);
+$lowStockDrugs = array_merge(
+    $drugModel->getLowStock($lowStockThreshold, 'store'),
+    $drugModel->getLowStock($lowStockThreshold, 'dispensary')
+);
 
 if (!empty($lowStockDrugs)) {
     $lowStockCount = count($lowStockDrugs);
     foreach ($lowStockDrugs as $drug) {
-        $message = "{$drug['name']} (Batch: {$drug['batch']}) has only {$drug['stock']} units remaining at {$drug['branch_name']}.";
+        $location = isset($drug['location']) ? $drug['location'] : null;
+        if (!$location) {
+            $location = ((int)($drug['dispensary_stock'] ?? 0) <= $lowStockThreshold) ? 'dispensary' : 'store';
+        }
+        $quantity = $location === 'dispensary' ? (int)$drug['dispensary_stock'] : (int)$drug['stock'];
+        $drug['location'] = $location;
+        $drug['location_quantity'] = $quantity;
+        $message = "{$drug['name']} (Batch: {$drug['batch']}) has only {$quantity} units remaining in {$location} at {$drug['branch_name']}.";
 
         // Notify store keepers and managers
         foreach ($allUsers as $user) {

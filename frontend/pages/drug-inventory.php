@@ -43,6 +43,18 @@ include '../includes/sidebar.php';
                         <option value="">All Branches</option>
                     </select>
                 </div>
+                <div class="relative w-full md:w-56">
+                    <i class="fas fa-warehouse absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select id="locationFilter" class="pl-10 !bg-slate-50 border-slate-200">
+                        <?php if ($_SESSION['role'] === 'manager'): ?>
+                            <option value="all">All Locations</option>
+                            <option value="store">Store</option>
+                            <option value="dispensary">Dispensary</option>
+                        <?php else: ?>
+                            <option value="store">Store</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
 
             <div class="table-container">
@@ -53,8 +65,8 @@ include '../includes/sidebar.php';
                             <th>Category</th>
                             <th>Mfr / Supplier</th>
                             <th>Batch</th>
-                            <th>Store</th>
-                            <th>Shelf</th>
+                            <th id="stockHeaderA">Store</th>
+                            <th id="stockHeaderB">Dispensary</th>
                             <th>Cost</th>
                             <th>Price</th>
                             <th>Rx</th>
@@ -103,7 +115,7 @@ include '../includes/sidebar.php';
                     <input type="text" id="drugBatch" placeholder="Batch ID" class="!bg-slate-50" required>
                 </div>
                 <div class="space-y-1">
-                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Stock Quantity</label>
+                    <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Initial Store Quantity</label>
                     <input type="number" id="drugStock" placeholder="0" class="!bg-slate-50">
                 </div>
                 <div class="space-y-1">

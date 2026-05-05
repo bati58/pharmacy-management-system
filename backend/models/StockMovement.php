@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/Inventory.php';
+
 class StockMovement
 {
     private $db;
@@ -8,13 +10,24 @@ class StockMovement
         $this->db = $pdo;
     }
 
-    public function create($drugId, $quantityChange, $reason, $userId)
+    public function create($drugId, $quantityChange, $reason, $userId, $branchId = null, $location = null)
     {
+        if ($branchId === null) {
+            $stmt = $this->db->prepare("SELECT branch_id FROM drugs WHERE id = ?");
+            $stmt->execute([(int)$drugId]);
+            $drug = $stmt->fetch();
+            if (!$drug) {
+                return false;
+            }
+            $branchId = (int)$drug['branch_id'];
+        }
+
+        $location = $location !== null ? Inventory::normalizeLocation($location) : null;
         $stmt = $this->db->prepare("
-            INSERT INTO stock_movements (drug_id, quantity_change, reason, user_id, created_at)
-            VALUES (?, ?, ?, ?, NOW())
+            INSERT INTO stock_movements (drug_id, branch_id, location, quantity_change, reason, user_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
         ");
-        return $stmt->execute([$drugId, $quantityChange, $reason, $userId]);
+        return $stmt->execute([(int)$drugId, (int)$branchId, $location, (int)$quantityChange, $reason, (int)$userId]);
     }
 
     public function getAll($branchId = null, $reason = null)
@@ -24,12 +37,12 @@ class StockMovement
             FROM stock_movements sm
             JOIN drugs d ON sm.drug_id = d.id
             JOIN users u ON sm.user_id = u.id
-            JOIN branches b ON d.branch_id = b.id
+            JOIN branches b ON sm.branch_id = b.id
             WHERE 1=1
         ";
         $params = [];
         if ($branchId) {
-            $sql .= " AND d.branch_id = ?";
+            $sql .= " AND sm.branch_id = ?";
             $params[] = $branchId;
         }
         if ($reason) {

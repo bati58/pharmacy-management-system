@@ -15,7 +15,7 @@ async function loadTransfers() {
                 <tr>
                     <td>${escapeHtml(transfer.drug_name)}</td>
                     <td>${transfer.quantity}</td>
-                    <td>${transfer.from_location} → ${transfer.to_location}</td>
+                    <td>${transfer.source_location || transfer.from_location} &rarr; ${transfer.destination_location || transfer.to_location}</td>
                     <td>${escapeHtml(transfer.branch_name)}</td>
                     <td>${escapeHtml(transfer.created_by_name)}</td>
                     <td>${formatDateTime(transfer.transfer_date)}</td>
@@ -34,12 +34,12 @@ async function setupTransferForm() {
     if (!form) return;
 
     // Populate drug dropdown
-    const drugs = await API.getDrugs();
+    const drugs = await API.getDrugs(null, '', 'store');
     const drugSelect = document.getElementById('transfer-drug');
     if (drugSelect) {
         drugSelect.innerHTML = '<option value="">Select drug</option>';
         (drugs.data || []).forEach(drug => {
-            drugSelect.innerHTML += `<option value="${drug.id}" data-stock="${drug.stock}">${drug.name} (Stock: ${drug.stock})</option>`;
+            drugSelect.innerHTML += `<option value="${drug.id}" data-store="${drug.stock}" data-dispensary="${drug.dispensary_stock}">${drug.name} (Store: ${drug.stock}, Dispensary: ${drug.dispensary_stock})</option>`;
         });
     }
 
@@ -59,10 +59,10 @@ async function setupTransferForm() {
             await API.createTransfer({
                 drug_id: drugId,
                 quantity: quantity,
-                from_location: fromLocation,
-                to_location: toLocation
+                source_location: fromLocation,
+                destination_location: toLocation
             });
-            showToast('Transfer created successfully');
+            showToast('Transfer completed and inventory updated');
             form.reset();
             loadTransfers();
         } catch (error) {

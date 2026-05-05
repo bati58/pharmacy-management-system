@@ -75,11 +75,12 @@ const API = {
     inviteUser: (data) => apiRequest('/users/invite', 'POST', data),   // ✅ Added
 
     // Drugs
-    getDrugs: (branchId = null, search = '') => {
+    getDrugs: (branchId = null, search = '', location = '') => {
         let url = '/drugs';
         const params = new URLSearchParams();
         if (branchId) params.append('branch_id', branchId);
         if (search) params.append('search', search);
+        if (location) params.append('location', location);
         if (params.toString()) url += '?' + params.toString();
         return apiRequest(url);
     },
@@ -89,7 +90,7 @@ const API = {
     deleteDrug: (id) => apiRequest(`/drugs/${id}`, 'DELETE'),
 
     // Inventory
-    updateStock: (id, quantityChange, reason) => apiRequest(`/inventory/${id}/stock`, 'PUT', { quantity_change: quantityChange, reason }),
+    updateStock: (id, quantityChange, reason, location = 'store') => apiRequest(`/inventory/${id}/stock`, 'PUT', { quantity_change: quantityChange, reason, location }),
     getLowStock: () => apiRequest('/inventory/low-stock'),
     getExpiringSoon: () => apiRequest('/inventory/expiring-soon'),
 

@@ -11,7 +11,13 @@ class Transfer
     public function getAll($branchId = null)
     {
         $sql = "
-            SELECT t.*, d.name as drug_name, u.name as created_by_name, b.name as branch_name
+            SELECT
+                t.*,
+                t.source_location as from_location,
+                t.destination_location as to_location,
+                d.name as drug_name,
+                u.name as created_by_name,
+                b.name as branch_name
             FROM transfers t 
             JOIN drugs d ON t.drug_id = d.id 
             JOIN users u ON t.created_by = u.id
@@ -28,13 +34,27 @@ class Transfer
         return $stmt->fetchAll();
     }
 
-    public function create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $createdBy)
+    public function findById($id)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO transfers (drug_id, quantity, from_location, to_location, branch_id, created_by, status, transfer_date) 
-            VALUES (?, ?, ?, ?, ?, ?, 'completed', NOW())
+            SELECT
+                t.*,
+                t.source_location as from_location,
+                t.destination_location as to_location
+            FROM transfers t
+            WHERE t.id = ?
         ");
-        $stmt->execute([$drugId, $quantity, $fromLocation, $toLocation, $branchId, $createdBy]);
+        $stmt->execute([(int)$id]);
+        return $stmt->fetch();
+    }
+
+    public function create($drugId, $quantity, $sourceLocation, $destinationLocation, $branchId, $createdBy, $status = 'completed')
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO transfers (drug_id, quantity, source_location, destination_location, branch_id, created_by, status, transfer_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+        ");
+        $stmt->execute([$drugId, $quantity, $sourceLocation, $destinationLocation, $branchId, $createdBy, $status]);
         return $this->db->lastInsertId();
     }
 

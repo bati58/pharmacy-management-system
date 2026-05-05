@@ -130,7 +130,9 @@ function sendLowStockAlert($managerEmail, $lowStockDrugs)
     $subject = "Low Stock Alert - PharmaFlow System";
     $drugsList = "";
     foreach ($lowStockDrugs as $drug) {
-        $drugsList .= "<li>" . htmlspecialchars($drug['name']) . " — " . (int)$drug['stock'] . " left</li>";
+        $quantity = (int)($drug['location_quantity'] ?? $drug['stock'] ?? 0);
+        $location = !empty($drug['location']) && $drug['location'] !== 'all' ? " in " . htmlspecialchars($drug['location']) : "";
+        $drugsList .= "<li>" . htmlspecialchars($drug['name']) . $location . " &mdash; " . $quantity . " left</li>";
     }
     $message = "<html><body><h2>Low Stock</h2><ul>$drugsList</ul></body></html>";
     return sendEmail($managerEmail, $subject, $message);
