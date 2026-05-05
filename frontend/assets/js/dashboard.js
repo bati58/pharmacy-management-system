@@ -17,6 +17,9 @@ async function loadDashboardData() {
         let totalBranches = 0;
         let totalDrugs = 0;
         let report = { data: [] };
+        const userBranch = window.APP_BRANCH_ID || (JSON.parse(localStorage.getItem('user') || '{}').branch_id) || null;
+        const branchArg = role === 'manager' ? null : userBranch;
+        const inventoryLocation = role === 'pharmacist' ? 'dispensary' : (role === 'store_keeper' ? 'store' : '');
 
         if (role === 'manager') {
             try {
@@ -29,10 +32,43 @@ async function loadDashboardData() {
             totalBranches = 1;
         }
 
-        const userBranch = window.APP_BRANCH_ID || (JSON.parse(localStorage.getItem('user') || '{}').branch_id) || null;
-        const branchArg = role === 'manager' ? null : userBranch;
-        const drugs = await API.getDrugs(branchArg ?? undefined, '');
+        const drugs = await API.getDrugs(branchArg ?? undefined, '', inventoryLocation);
         totalDrugs = drugs.data ? drugs.data.length : 0;
+
+        const elDynamic = document.getElementById('kpi-dynamic-value');
+        const elD = document.getElementById('kpi-drugs');
+        const elS = document.getElementById('kpi-sales');
+        const elR = document.getElementById('kpi-revenue');
+
+        if (role === 'store_keeper') {
+            const storeUnits = (drugs.data || []).reduce((sum, drug) => sum + Number(drug.stock || drug.location_quantity || 0), 0);
+            let lowStockCount = 0;
+            try {
+                const lowStock = await API.getLowStock();
+                lowStockCount = (lowStock.data || []).length;
+            } catch (e) {
+                console.warn('Low stock KPI skipped', e);
+            }
+
+            setText('kpi-drugs-title', 'Store Drugs');
+            setText('kpi-sales-title', 'Store Units');
+            setText('kpi-revenue-title', 'Low Stock');
+            setHtml('kpi-drugs-subtext', '<i class="fas fa-warehouse mr-1"></i> <span>In store</span>');
+            setHtml('kpi-sales-subtext', '<i class="fas fa-boxes-stacked mr-1"></i> <span>Available stock</span>');
+            setHtml('kpi-revenue-subtext', '<i class="fas fa-exclamation-triangle mr-1"></i> <span>Store alerts</span>');
+
+            if (elDynamic) elDynamic.innerText = totalBranches;
+            if (elD) elD.innerText = totalDrugs;
+            if (elS) elS.innerText = storeUnits;
+            if (elR) elR.innerText = lowStockCount;
+
+            const salesTrendCard = document.getElementById('salesTrendCard');
+            if (salesTrendCard) salesTrendCard.style.display = 'none';
+            return;
+        }
+
+        const salesTrendCard = document.getElementById('salesTrendCard');
+        if (salesTrendCard) salesTrendCard.style.display = '';
 
         try {
             report = await API.getSalesReport('daily', branchArg ?? undefined, null, null);
@@ -48,11 +84,6 @@ async function loadDashboardData() {
             totalRevenue = report.data.reduce((sum, day) => sum + parseFloat(day.total_revenue || 0), 0);
             totalProfit = report.data.reduce((sum, day) => sum + parseFloat(day.total_profit || 0), 0);
         }
-
-        const elDynamic = document.getElementById('kpi-dynamic-value');
-        const elD = document.getElementById('kpi-drugs');
-        const elS = document.getElementById('kpi-sales');
-        const elR = document.getElementById('kpi-revenue');
         
         if (elDynamic) {
             elDynamic.innerText = role === 'manager' ? formatCurrency(totalProfit) : totalBranches;
@@ -65,6 +96,16 @@ async function loadDashboardData() {
     } catch (error) {
         console.error('Dashboard data error:', error);
     }
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = value;
+}
+
+function setHtml(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = value;
 }
 
 function renderSalesChart(salesData) {
@@ -113,12 +154,12 @@ function renderSalesChart(salesData) {
 async function loadRecentSales() {
     const role = dashboardRole();
     if (role === 'store_keeper') {
-        const tbody = document.getElementById('recentSalesTable');
-        if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-gray-500 py-2 text-sm">Recent sales are available to pharmacists and managers.</td></tr>';
-        }
+        const recentSalesCard = document.getElementById('recentSalesCard');
+        if (recentSalesCard) recentSalesCard.style.display = 'none';
         return;
     }
+    const recentSalesCard = document.getElementById('recentSalesCard');
+    if (recentSalesCard) recentSalesCard.style.display = '';
     try {
         const sales = await API.getSales();
         const tbody = document.getElementById('recentSalesTable');
