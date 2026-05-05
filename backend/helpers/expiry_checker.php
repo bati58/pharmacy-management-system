@@ -92,5 +92,4 @@ $deleted = $notificationModel->deleteOld(30); // keep only last 30 days
 $logMessage = "Expiry checker executed. Low stock: $lowStockCount, Expiring soon: $expiringCount, Old notifications deleted: " . ($deleted ? 'yes' : 'none');
 logActivity('Expiry Checker', $logMessage);
 
-// Output for cron log (optional)
-echo date('Y-m-d H:i:s') . " - " . $logMessage . PHP_EOL;
+
