@@ -17,36 +17,36 @@ include '../includes/sidebar.php';
     </div>
 
     <!-- Filters -->
-    <div class="card p-4 md:p-6 mb-8 bg-white/50 backdrop-blur-sm border-slate-200/60">
-        <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-4">
-            <div class="flex-1 min-w-[160px]">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Time Period</label>
-                <select id="reportPeriod" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
-                    <option value="daily">Daily Analysis</option>
-                    <option value="weekly" selected>Weekly Review</option>
-                    <option value="monthly">Monthly Summary</option>
-                </select>
-            </div>
-            <div class="flex-1 min-w-[160px]">
-                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Branch filter</label>
-                <select id="reportBranch" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
-                    <option value="">All Branches</option>
-                </select>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-3 flex-1 min-w-[240px]">
-                <div class="flex-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">From</label>
+    <div class="card p-4 md:p-6 mb-8 bg-white/50 backdrop-blur-sm border-slate-200/60 overflow-hidden">
+        <div class="flex flex-col xl:flex-row items-end gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 w-full">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Time Period</label>
+                    <select id="reportPeriod" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
+                        <option value="daily">Daily Analysis</option>
+                        <option value="weekly" selected>Weekly Review</option>
+                        <option value="monthly">Monthly Summary</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Branch filter</label>
+                    <select id="reportBranch" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">From Date</label>
                     <input type="date" id="startDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
-                <div class="flex-1">
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">To</label>
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">To Date</label>
                     <input type="date" id="endDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
-                <div class="flex items-end">
-                    <button type="button" onclick="loadReports()" class="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all">
-                        <i class="fas fa-sync-alt mr-1"></i> Update
-                    </button>
-                </div>
+            </div>
+            <div class="w-full xl:w-auto">
+                <button type="button" onclick="loadReports()" class="w-full xl:px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all whitespace-nowrap">
+                    <i class="fas fa-sync-alt mr-2"></i> Update Report
+                </button>
             </div>
         </div>
     </div>
