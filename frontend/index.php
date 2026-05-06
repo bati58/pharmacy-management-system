@@ -2,7 +2,7 @@
 
 /**
  * Frontend Entry Point
- * Redirects to dashboard if user is logged in, otherwise to login page
+ * Redirects to dashboard if user is logged in, otherwise to authentication/login page
  */
 session_start();
 
