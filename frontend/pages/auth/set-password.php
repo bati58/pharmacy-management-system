@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $token = $_GET['token'] ?? '';
 $email = $_GET['email'] ?? '';
 if (empty($token) || empty($email)) {
@@ -10,7 +10,7 @@ if (empty($token) || empty($email)) {
 <html>
 
 <head>
-    <title>Set Password - BatiFlow</title>
+    <title>Set Password - PharmaFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>

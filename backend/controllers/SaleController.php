@@ -3,6 +3,7 @@ require_once __DIR__ . '/../models/Sale.php';
 require_once __DIR__ . '/../models/Drug.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/alert.php';
 
 class SaleController
 {
@@ -22,12 +23,16 @@ class SaleController
     public function index()
     {
         $branchId = $_GET['branch_id'] ?? $_SESSION['branch_id'];
-        
+        $pharmacistId = null;
+
         if ($_SESSION['role'] === 'pharmacist') {
+            // Pharmacists see ONLY their own sales (SRS §3.3)
             $branchId = $_SESSION['branch_id'];
+            $pharmacistId = $_SESSION['user_id'];
         }
-        
-        $sales = $this->saleModel->getAll($branchId);
+
+        $period = $_GET['period'] ?? 'all';
+        $sales = $this->saleModel->getAll($branchId, $pharmacistId, $period);
         sendSuccess($sales);
     }
 
@@ -43,11 +48,8 @@ class SaleController
 
     public function create()
     {
-        // Only pharmacist can create sales (manager can also but typically not)
-        if ($_SESSION['role'] !== 'pharmacist' && $_SESSION['role'] !== 'manager') {
-            sendError('Only pharmacists can process sales', 403);
-            return;
-        }
+        // Only pharmacist can create sales (SRS §3.3)
+        AuthMiddleware::requireRole(['pharmacist']);
 
         $data = json_decode(file_get_contents('php://input'), true);
         $customerName = $data['customer_name'] ?? 'Walk-in customer';
@@ -103,7 +105,15 @@ class SaleController
         // Add sale items and deduct stock
         foreach ($saleItems as $item) {
             $this->saleModel->addItem($saleId, $item['drug_id'], $item['quantity'], $item['price']);
-            $this->drugModel->updateStock($item['drug_id'], null, -$item['quantity'], $_SESSION['user_id'], 'sale'); // decrease stock
+            
+            // Get new stock level after deduction
+            $drug = $this->drugModel->findById($item['drug_id']);
+            $newStock = $drug['stock'] - $item['quantity'];
+            
+            $this->drugModel->updateStock($item['drug_id'], $newStock, null, $_SESSION['user_id'], 'sale');
+            
+            // Automated Low Stock Alert (SRS §3.2)
+            checkAndNotifyLowStock($item['drug_id'], $newStock);
         }
 
         sendSuccess(['sale_id' => $saleId, 'invoice_no' => $invoiceNo], 'Sale completed successfully');

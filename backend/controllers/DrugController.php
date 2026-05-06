@@ -40,7 +40,7 @@ class DrugController
 
     public function create()
     {
-        AuthMiddleware::requireRole(['manager', 'store_keeper']);
+        AuthMiddleware::requireRole(['store_keeper']);
         $data = json_decode(file_get_contents('php://input'), true);
         $name = $data['name'] ?? '';
         $category = $data['category'] ?? '';

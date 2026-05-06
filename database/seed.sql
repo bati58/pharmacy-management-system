@@ -13,15 +13,15 @@ INSERT INTO `branches` (`name`, `address`, `phone`) VALUES
 -- Insert manager user (password: Admin@123)
 -- Hash generated using password_hash('Admin@123', PASSWORD_DEFAULT)
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('Bati jano', 'batijano58@gmail.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
+('Pharma Manager', 'manager@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
 
 -- Insert sample pharmacist
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('moonba2215', 'pharmacist@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 1, 'active');
+('Demo Pharmacist', 'pharmacist@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 1, 'active');
 
 -- Insert sample store keeper
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('batifan430', 'storekeeper@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 1, 'active');
+('Demo Storekeeper', 'storekeeper@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 1, 'active');
 
 -- Insert sample drugs (with new SRS fields: Cost Price, Manufacturer, Supplier)
 INSERT INTO `drugs` (`name`, `category`, `batch`, `stock`, `price`, `cost_price`, `manufacturer`, `supplier`, `expiry_date`, `branch_id`) VALUES
@@ -34,8 +34,8 @@ INSERT INTO `drugs` (`name`, `category`, `batch`, `stock`, `price`, `cost_price`
 
 -- Insert sample sales (with total_cost and discount_amount)
 INSERT INTO `sales` (`invoice_no`, `customer_name`, `total_amount`, `total_cost`, `discount_amount`, `payment_method`, `pharmacist_id`, `branch_id`, `sale_date`) VALUES
-('INV-MNUIBHOG', 'batidev', 3.50, 1.80, 0.00, 'Cash', 2, 1, '2026-04-11 15:45:00'),
-('INV-MNOBFQBU', 'bati', 22.00, 11.00, 2.00, 'Cash', 2, 1, '2026-04-07 07:46:00'),
+('INV-MNUIBHOG', 'Walk-in Customer', 3.50, 1.80, 0.00, 'Cash', 2, 1, '2026-04-11 15:45:00'),
+('INV-MNOBFQBU', 'Demo Customer', 22.00, 11.00, 2.00, 'Cash', 2, 1, '2026-04-07 07:46:00'),
 ('INV-ABC001', 'John Doe', 42.50, 25.00, 0.00, 'Cash', 2, 1, '2026-04-07 07:36:00'),
 ('INV-ABC002', 'Jane Smith', 17.97, 10.00, 1.50, 'Card', 2, 1, '2026-04-07 07:36:00'),
 ('INV-ABC003', 'Alice Johnson', 35.75, 20.00, 5.00, 'Mobile Money', 2, 1, '2026-04-07 07:36:00');

@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="BatiFlow Smart Pharma - Professional Pharmacy Management System for efficient inventory, sales, and branch management.">
-    <title>BatiFlow Smart Pharma | Enterprise Pharmacy Management</title>
+    <meta name="description" content="PharmaFlow - Professional Pharmacy Management System for efficient inventory, sales, and branch management.">
+    <title>PharmaFlow | Enterprise Pharmacy Management</title>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

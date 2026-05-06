@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'store_keeper'])) {
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'store_keeper', 'pharmacist'])) {
     header('Location: dashboard.php');
     exit;
 }
@@ -15,9 +15,11 @@ include '../includes/sidebar.php';
             <p class="text-slate-500 mt-1 font-medium">Coordinate medication transfers between stores and dispensaries.</p>
         </div>
         <div class="flex items-center gap-3">
+            <?php if ($_SESSION['role'] === 'store_keeper'): ?>
             <button onclick="showTransferModal()" class="btn-premium btn-premium-primary shadow-indigo-200">
                 <i class="fas fa-exchange-alt"></i> New Stock Transfer
             </button>
+            <?php endif; ?>
         </div>
     </div>
 

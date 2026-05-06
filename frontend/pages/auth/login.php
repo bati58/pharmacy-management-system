@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 // If already logged in, redirect to dashboard
 if (isset($_SESSION['user_id'])) {
@@ -12,7 +12,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - BatiFlow Pharma</title>
+    <title>Login - PharmaFlow</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -68,7 +68,7 @@ if (isset($_SESSION['user_id'])) {
                 <i class="fas fa-hand-holding-medical text-white text-2xl"></i>
             </div>
             <h2 class="text-4xl font-black text-slate-800 tracking-tight">Welcome Back</h2>
-            <p class="text-slate-400 font-medium mt-1">BatiFlow Pharma Ecosystem</p>
+            <p class="text-slate-400 font-medium mt-1">PharmaFlow Ecosystem</p>
         </div>
 
         <form id="loginForm" class="space-y-6 relative">
@@ -101,7 +101,7 @@ if (isset($_SESSION['user_id'])) {
         </form>
 
         <div class="mt-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-            &copy; 2026 BatiFlow Pharma Systems. Enterprise Edition.
+            &copy; 2026 PharmaFlow Systems. Enterprise Edition.
         </div>
     </div>
 

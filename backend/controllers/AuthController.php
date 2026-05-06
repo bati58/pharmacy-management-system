@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../models/User.php';
@@ -105,13 +105,13 @@ class AuthController
 
             // Content
             $mail->isHTML(true);
-            $mail->Subject = 'Reset Your BatiFlow Password';
+            $mail->Subject = 'Reset Your PharmaFlow Password';
             $mail->Body    = "
                 <h3>Password Reset Request</h3>
                 <p>We received a request to reset your password. Click the link below to create a new password:</p>
                 <p><a href='{$resetLink}'>{$resetLink}</a></p>
                 <p>If you didn't request this, you can safely ignore this email.</p>
-                <p>Regards,<br>BatiFlow Team</p>
+                <p>Regards,<br>PharmaFlow Team</p>
             ";
 
             $mail->send();

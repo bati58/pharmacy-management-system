@@ -19,6 +19,7 @@ class ReportController
 
     public function salesReport()
     {
+        AuthMiddleware::requireRole(['manager']);
         $period = $_GET['period'] ?? 'daily'; // daily, weekly, monthly, custom
         $branchId = $_GET['branch_id'] ?? null;
         $startDate = $_GET['start_date'] ?? null;

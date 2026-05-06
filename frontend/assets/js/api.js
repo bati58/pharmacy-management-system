@@ -111,7 +111,14 @@ const API = {
     updateTransferStatus: (id, status) => apiRequest(`/transfers/${id}/status`, 'PUT', { status }),
 
     // Sales
-    getSales: () => apiRequest('/sales'),
+    getSales: (branchId = null, period = 'all') => {
+        let url = '/sales';
+        const params = new URLSearchParams();
+        if (branchId) params.append('branch_id', branchId);
+        if (period) params.append('period', period);
+        if (params.toString()) url += '?' + params.toString();
+        return apiRequest(url);
+    },
     getSale: (id) => apiRequest(`/sales/${id}`),
     createSale: (data) => apiRequest('/sales', 'POST', data),
 

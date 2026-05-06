@@ -8,7 +8,7 @@ class Sale
         $this->db = $pdo;
     }
 
-    public function getAll($branchId = null)
+    public function getAll($branchId = null, $pharmacistId = null, $period = 'all')
     {
         $sql = "
             SELECT s.*, u.name as pharmacist_name, b.name as branch_name,
@@ -16,12 +16,27 @@ class Sale
             FROM sales s 
             JOIN users u ON s.pharmacist_id = u.id
             LEFT JOIN branches b ON s.branch_id = b.id
+            WHERE 1=1
         ";
         $params = [];
         if ($branchId) {
-            $sql .= " WHERE s.branch_id = ?";
+            $sql .= " AND s.branch_id = ?";
             $params[] = $branchId;
         }
+        if ($pharmacistId) {
+            $sql .= " AND s.pharmacist_id = ?";
+            $params[] = $pharmacistId;
+        }
+
+        // Apply period filters (SRS §3.3)
+        if ($period === 'today') {
+            $sql .= " AND DATE(s.sale_date) = CURDATE()";
+        } elseif ($period === 'weekly') {
+            $sql .= " AND YEARWEEK(s.sale_date, 1) = YEARWEEK(CURDATE(), 1)";
+        } elseif ($period === 'monthly') {
+            $sql .= " AND MONTH(s.sale_date) = MONTH(CURDATE()) AND YEAR(s.sale_date) = YEAR(CURDATE())";
+        }
+
         $sql .= " ORDER BY s.sale_date DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loadDrugs();
     loadBranchFilter();
     setupInventoryEventListeners();
+    // Load stock report summary for store keepers (SRS §3.2)
+    loadStoreKeeperStats();
 });
 
 // Load branches into filter dropdown
@@ -43,6 +45,9 @@ async function loadDrugs() {
 
             const stockStatus = drug.stock <= 10 ? 'bg-rose-100 text-rose-600' : (drug.stock <= 50 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600');
 
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const isStoreKeeper = user.role === 'store_keeper';
+
             const row = `
                 <tr class="group hover:bg-slate-50 transition-colors">
                     <td>
@@ -76,15 +81,19 @@ async function loadDrugs() {
                     <td><span class="text-xs font-bold text-slate-500">${escapeHtml(drug.branch_name)}</span></td>
                     <td class="text-right">
                         <div class="flex justify-end gap-2">
+                            ${isStoreKeeper ? `
                             <button onclick="updateStock(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center" title="Update Stock">
                                 <i class="fas fa-boxes text-xs"></i>
                             </button>
+                            ` : ''}
                             <button onclick="editDrug(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center" title="Edit">
                                 <i class="fas fa-edit text-xs"></i>
                             </button>
+                            ${isStoreKeeper ? `
                             <button onclick="deleteDrug(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center" title="Delete">
                                 <i class="fas fa-trash-alt text-xs"></i>
                             </button>
+                            ` : ''}
                         </div>
                     </td>
                 </tr>
@@ -102,6 +111,30 @@ async function loadDrugs() {
         const tbody = document.getElementById('drugsTable');
         if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-600">Error loading drugs. Check console.</td></tr>';
         showToast('Error loading drugs', 'error');
+    }
+}
+
+/**
+ * Load stock report summary stats for the Store Keeper panel (SRS §3.2).
+ * Only runs when the panel elements exist in the DOM.
+ */
+async function loadStoreKeeperStats() {
+    const lowStockEl = document.getElementById('sk-low-stock-count');
+    const expiringEl = document.getElementById('sk-expiring-count');
+    const totalEl    = document.getElementById('sk-total-drugs');
+    if (!lowStockEl && !expiringEl && !totalEl) return; // panel not present for this role
+
+    try {
+        const [lowStock, expiring, allDrugs] = await Promise.all([
+            API.getLowStock(),
+            API.getExpiringSoon(),
+            API.getDrugs()
+        ]);
+        if (lowStockEl) lowStockEl.textContent = (lowStock.data || []).length;
+        if (expiringEl) expiringEl.textContent = (expiring.data || []).length;
+        if (totalEl)    totalEl.textContent    = (allDrugs.data || []).length;
+    } catch (err) {
+        console.error('Failed to load store keeper stats:', err);
     }
 }
 

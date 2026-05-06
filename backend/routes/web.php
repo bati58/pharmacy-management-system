@@ -9,6 +9,7 @@ require_once __DIR__ . '/../controllers/TransferController.php';
 require_once __DIR__ . '/../controllers/SaleController.php';
 require_once __DIR__ . '/../controllers/ReportController.php';
 require_once __DIR__ . '/../controllers/NotificationController.php';
+require_once __DIR__ . '/../controllers/BackupController.php';
 
 $routes = [
     'POST /auth/login' => ['AuthController', 'login'],
@@ -56,6 +57,7 @@ $routes = [
     'GET /notifications' => ['NotificationController', 'index'],
     'PUT /notifications/{id}/read' => ['NotificationController', 'markAsRead'],
     'PUT /notifications/read-all' => ['NotificationController', 'markAllRead'],
+    'GET /system/backup' => ['BackupController', 'download'],
 ];
 
 function route($requestUri, $requestMethod)

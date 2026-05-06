@@ -103,6 +103,30 @@ include '../includes/sidebar.php';
                 </form>
             </div>
         </div>
+
+        <?php if ($_SESSION['role'] === 'manager'): ?>
+        <div class="col-span-full border-t border-slate-100 my-4"></div>
+
+        <!-- System Column -->
+        <div class="md:col-span-1">
+            <h3 class="text-lg font-bold text-slate-800 mb-2">System Maintenance</h3>
+            <p class="text-sm text-slate-500">Perform administrative tasks to ensure the system is running smoothly.</p>
+        </div>
+
+        <div class="md:col-span-2">
+            <div class="card p-8 border-dashed border-2 border-indigo-100 bg-indigo-50/30">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                        <h4 class="font-bold text-slate-800">Database Backup</h4>
+                        <p class="text-xs text-slate-500 mt-1">Download a full SQL export of the system data for safety.</p>
+                    </div>
+                    <button onclick="downloadBackup()" class="btn-premium btn-premium-primary whitespace-nowrap">
+                        <i class="fas fa-download mr-2"></i> Generate Backup
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -168,6 +192,16 @@ include '../includes/sidebar.php';
             showToast('Failed to change password', 'error');
         }
     });
+
+    async function downloadBackup() {
+        try {
+            showToast('Preparing backup, please wait...');
+            // We use direct link for file download
+            window.location.href = '../../backend/index.php/system/backup';
+        } catch (err) {
+            showToast('Failed to start download', 'error');
+        }
+    }
 </script>
 
 <?php include '../includes/footer.php'; ?>

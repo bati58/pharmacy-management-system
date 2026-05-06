@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * Application constants
@@ -25,7 +25,7 @@ define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'pdf']);
 
 // ========== SESSION ==========
 define('SESSION_TIMEOUT', 7200);          // 2 hours (in seconds)
-define('SESSION_NAME', 'batiflow_session');
+define('SESSION_NAME', 'PharmaFlow_session');
 
 // ========== PAGINATION ==========
 define('ITEMS_PER_PAGE', 20);
@@ -50,7 +50,7 @@ if (file_exists(__DIR__ . '/config.local.php')) {
     define('SMTP_PASS', 'your-app-password');    // Replace locally, do not commit
     define('SMTP_SECURE', 'ssl');                     // 'tls' or 'ssl'
     define('FROM_EMAIL', 'your-email@gmail.com');
-    define('FROM_NAME', 'BatiFlow Pharma System');
+    define('FROM_NAME', 'PharmaFlow System');
 }
 
 // ========== SYSTEM PATHS ==========

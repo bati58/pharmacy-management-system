@@ -15,13 +15,46 @@ include '../includes/sidebar.php';
             <p class="text-slate-500 mt-1 font-medium">Manage and monitor your pharmaceutical stock across all branches.</p>
         </div>
         <div class="flex items-center gap-3">
-            <?php if ($_SESSION['role'] == 'manager' || $_SESSION['role'] == 'store_keeper'): ?>
+            <?php if ($_SESSION['role'] == 'store_keeper'): ?>
                 <button id="add-drug-btn" onclick="showDrugModal()" class="btn-premium btn-premium-primary shadow-indigo-200">
                     <i class="fas fa-plus"></i> Add New Drug
                 </button>
             <?php endif; ?>
         </div>
     </div>
+
+    <?php if ($_SESSION['role'] === 'store_keeper'): ?>
+    <!-- Stock Report Summary (SRS §3.2: Generate stock reports) -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="card p-5 flex items-center gap-4 border-l-4 border-amber-400">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-exclamation-triangle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Low Stock Items</p>
+                <p class="text-2xl font-black text-slate-800" id="sk-low-stock-count">—</p>
+            </div>
+        </div>
+        <div class="card p-5 flex items-center gap-4 border-l-4 border-rose-400">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-calendar-times text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Expiring in 30 Days</p>
+                <p class="text-2xl font-black text-slate-800" id="sk-expiring-count">—</p>
+            </div>
+        </div>
+        <div class="card p-5 flex items-center gap-4 border-l-4 border-indigo-400">
+            <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-boxes text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Drug Lines</p>
+                <p class="text-2xl font-black text-slate-800" id="sk-total-drugs">—</p>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Filters -->
     <div class="card p-4 mb-8 flex flex-col md:flex-row gap-4 items-center bg-white/50 backdrop-blur-sm border-slate-200/60">

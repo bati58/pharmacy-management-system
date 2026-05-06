@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'pharmacist'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'pharmacist') {
     header('Location: dashboard.php');
     exit;
 }
@@ -115,6 +115,10 @@ include '../includes/sidebar.php';
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">Prescription #</label>
                                     <input type="text" id="prescriptionRef" placeholder="Ref ID" class="w-full px-4 py-3 bg-white border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium">
+                                </div>
+                                <div class="flex items-center gap-2 px-1 mt-1">
+                                    <input type="checkbox" id="prescriptionValidated" class="w-4 h-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                    <label for="prescriptionValidated" class="text-[10px] font-bold text-slate-500 uppercase tracking-wider cursor-pointer">Prescription Validated</label>
                                 </div>
                             </div>
                             

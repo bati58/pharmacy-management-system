@@ -96,6 +96,7 @@ include '../includes/sidebar.php';
                 <button id="tabRevenueBranch" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Branch</button>
                 <button id="tabRevenuePharmacist" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Staff</button>
                 <button id="tabTopDrugs" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Top Items</button>
+                <button id="tabSlowDrugs" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Slow Moving</button>
             </div>
         </div>
         
@@ -141,6 +142,7 @@ include '../includes/sidebar.php';
         document.getElementById('tabRevenueBranch')?.addEventListener('click', () => switchTab('revenueBranch'));
         document.getElementById('tabRevenuePharmacist')?.addEventListener('click', () => switchTab('revenuePharmacist'));
         document.getElementById('tabTopDrugs')?.addEventListener('click', () => switchTab('topDrugs'));
+        document.getElementById('tabSlowDrugs')?.addEventListener('click', () => switchTab('slowDrugs'));
     }
 
     function switchTab(tab) {
@@ -149,17 +151,18 @@ include '../includes/sidebar.php';
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        
-        let activeBtnId = '';
-        if (tab === 'revenueTrend') activeBtnId = 'tabRevenueTrend';
-        else if (tab === 'profitTrend') activeBtnId = 'tabProfitTrend';
-        else if (tab === 'revenueBranch') activeBtnId = 'tabRevenueBranch';
-        else if (tab === 'revenuePharmacist') activeBtnId = 'tabRevenuePharmacist';
-        else if (tab === 'topDrugs') activeBtnId = 'tabTopDrugs';
-        
-        const activeBtn = document.getElementById(activeBtnId);
+
+        const tabMap = {
+            revenueTrend: 'tabRevenueTrend',
+            profitTrend: 'tabProfitTrend',
+            revenueBranch: 'tabRevenueBranch',
+            revenuePharmacist: 'tabRevenuePharmacist',
+            topDrugs: 'tabTopDrugs',
+            slowDrugs: 'tabSlowDrugs'
+        };
+        const activeBtn = document.getElementById(tabMap[tab]);
         if (activeBtn) activeBtn.classList.add('active');
-        
+
         // If we have cached data, render immediately; else reload
         if (cachedData) {
             renderChart(currentTab, cachedData);
@@ -176,18 +179,20 @@ include '../includes/sidebar.php';
 
         try {
             // Fetch all data in parallel
-            const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs] = await Promise.all([
+            const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs, slowDrugs] = await Promise.all([
                 API.getSalesReport(period, branchId, startDate, endDate),
                 API.getRevenueByBranch(),
                 API.getRevenueByPharmacist(),
-                API.getTopDrugs(10)
+                API.getTopDrugs(10),
+                API.getSlowMovingDrugs(10)
             ]);
 
             cachedData = {
                 salesReport,
                 revenueByBranch,
                 revenueByPharmacist,
-                topDrugs
+                topDrugs,
+                slowDrugs
             };
 
             // Update KPI cards
@@ -273,6 +278,18 @@ include '../includes/sidebar.php';
                     const top5 = data.topDrugs.data.slice(0, 5);
                     labels = top5.map(item => item.name);
                     values = top5.map(item => parseFloat(item.total_quantity));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
+                }
+                break;
+            case 'slowDrugs':
+                chartType = 'bar';
+                labelText = 'Units Sold (Slow)';
+                if (data.slowDrugs && data.slowDrugs.data && data.slowDrugs.data.length) {
+                    const slow5 = data.slowDrugs.data.slice(0, 10);
+                    labels = slow5.map(item => item.name);
+                    values = slow5.map(item => parseFloat(item.total_sold || 0));
                 } else {
                     labels = ['No Data'];
                     values = [0];

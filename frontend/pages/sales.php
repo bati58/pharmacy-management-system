@@ -14,10 +14,18 @@ include '../includes/sidebar.php';
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Sales History</h2>
             <p class="text-slate-500 mt-1 font-medium">Track and review all transactions across your branches.</p>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+            <select id="salesPeriod" onchange="loadSalesTable()" class="w-full sm:w-40 py-2.5 bg-white border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-600">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="weekly">This Week</option>
+                <option value="monthly">This Month</option>
+            </select>
+            <?php if ($_SESSION['role'] === 'pharmacist'): ?>
             <a href="new-sale.php" class="btn-premium btn-premium-primary shadow-indigo-200">
                 <i class="fas fa-plus"></i> Process New Sale
             </a>
+            <?php endif; ?>
         </div>
     </div>
 

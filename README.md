@@ -1,6 +1,6 @@
-# BatiFlow Smart Pharma – Pharmacy Management System
+# PharmaFlow – Pharmacy Management System
 
-BatiFlow Smart Pharma is a robust, role-based Pharmacy Management System meticulously designed to simplify and digitize the daily operations of modern pharmacies. Built on a solid technology stack using **PHP (no framework)**, **MySQL**, and **Vanilla HTML/CSS/JavaScript**, the system provides a fast, secure, and intuitive web interface. 
+PharmaFlow is a robust, role-based Pharmacy Management System meticulously designed to simplify and digitize the daily operations of modern pharmacies. Built on a solid technology stack using **PHP (no framework)**, **MySQL**, and **Vanilla HTML/CSS/JavaScript**, the system provides a fast, secure, and intuitive web interface. 
 
 It handles complex workflows such as multi-branch inventory management, user invitations, point-of-sale processing, stock transfers, and automated notification alerts seamlessly.
 
@@ -114,13 +114,13 @@ The Store Keeper manages the backend logistics, procurement, and stock transfers
 4. **Default Login Credentials**
    The `seed.sql` script creates three default users to help you explore the system right away.
    - **Manager:** 
-     - Email: `batijano58@gmail.com`
+     - Email: `admin@pharmaflow.system`
      - Password: `Admin@123`
    - **Pharmacist:** 
-     - Email: `pharmacist@batiflow.com`
+     - Email: `pharmacist@PharmaFlow.com`
      - Password: `Admin@123`
    - **Store Keeper:** 
-     - Email: `storekeeper@batiflow.com`
+     - Email: `storekeeper@PharmaFlow.com`
      - Password: `Admin@123`
 
 5. **Automated Background Jobs (Optional but Recommended)**

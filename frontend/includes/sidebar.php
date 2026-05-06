@@ -10,7 +10,7 @@ $name = $_SESSION['name'] ?? 'User';
                 <i class="fas fa-prescription-bottle-alt text-white text-xl"></i>
             </div>
             <div>
-                <h2 class="text-white text-lg font-bold leading-tight">BatiFlow</h2>
+                <h2 class="text-white text-lg font-bold leading-tight">PharmaFlow</h2>
                 <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Smart Pharma</p>
             </div>
             <button class="ml-auto text-slate-400 hover:text-white md:hidden" id="closeSidebarBtn">
@@ -21,7 +21,6 @@ $name = $_SESSION['name'] ?? 'User';
 
     <!-- Navigation (Scrollable) -->
     <nav class="flex-1 overflow-y-auto px-3 py-6 custom-scrollbar">
-        <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] px-4 mb-2">Main Menu</div>
         <a href="dashboard.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
             <i class="fas fa-th-large text-lg"></i> <span class="text-sm">Dashboard</span>
         </a>
@@ -37,28 +36,33 @@ $name = $_SESSION['name'] ?? 'User';
         </div>
 
         <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] px-4 mt-6 mb-2">Inventory & Sales</div>
-        <!-- Store Keeper & Manager -->
+        <!-- Drug Inventory: Store Keeper & Manager only -->
         <div class="role-storekeeper role-manager">
             <a href="drug-inventory.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'drug-inventory.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
                 <i class="fas fa-capsules text-lg"></i> <span class="text-sm">Drug Inventory</span>
             </a>
+        </div>
+        <!-- Stock Transfers: Store Keeper, Manager & Pharmacist (read-only for pharmacist) -->
+        <div class="role-storekeeper role-manager role-pharmacist">
             <a href="stock-transfers.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'stock-transfers.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
                 <i class="fas fa-sync text-lg"></i> <span class="text-sm">Stock Transfers</span>
             </a>
         </div>
 
-        <!-- Pharmacist & Manager -->
+        <!-- Sales History: Pharmacist & Manager -->
         <div class="role-pharmacist role-manager">
             <a href="sales.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'sales.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
                 <i class="fas fa-file-invoice-dollar text-lg"></i> <span class="text-sm">Sales History</span>
             </a>
+        </div>
+        <!-- New Sale: Pharmacist only (SRS §3.3) -->
+        <div class="role-pharmacist">
             <a href="new-sale.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'new-sale.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
                 <i class="fas fa-cart-plus text-lg"></i> <span class="text-sm">New Sale</span>
             </a>
         </div>
 
-        <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] px-4 mt-6 mb-2">Analytics</div>
-        <!-- Manager only -->
+        <!-- Reports: Manager only (no section header needed) -->
         <div class="role-manager">
             <a href="reports.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
                 <i class="fas fa-chart-bar text-lg"></i> <span class="text-sm">Reports</span>
@@ -66,6 +70,10 @@ $name = $_SESSION['name'] ?? 'User';
         </div>
         
         <!-- All roles -->
+        <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] px-4 mt-6 mb-2">Account</div>
+        <a href="settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
+            <i class="fas fa-user-cog text-lg"></i> <span class="text-sm">Settings</span>
+        </a>
         <a href="notifications.php" class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
             <div class="flex items-center gap-3">
                 <i class="fas fa-bell text-lg"></i>
@@ -103,7 +111,7 @@ $name = $_SESSION['name'] ?? 'User';
         const role = '<?php echo $role; ?>';
         if (role === 'manager') {
             document.querySelectorAll('.role-manager').forEach(el => el.style.display = 'flex');
-            document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');
+            // Manager sees Inventory and Transfers for oversight, but doesn't see pharmacist-only New Sale
             document.querySelectorAll('.role-storekeeper').forEach(el => el.style.display = 'flex');
         } else if (role === 'pharmacist') {
             document.querySelectorAll('.role-pharmacist').forEach(el => el.style.display = 'flex');

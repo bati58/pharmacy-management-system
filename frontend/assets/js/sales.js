@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function loadSalesTable() {
     try {
-        const sales = await API.getSales();
+        const period = document.getElementById('salesPeriod')?.value || 'all';
+        const sales = await API.getSales(null, period);
         const tbody = document.getElementById('sales-table-body');
         if (!tbody) return;
         tbody.innerHTML = '';
@@ -71,7 +72,11 @@ async function loadDrugsForSale() {
         select.innerHTML = '<option value="">Select drug</option>';
         currentDrugsList = drugs.data || [];
         currentDrugsList.forEach(drug => {
-            select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}">${escapeHtml(drug.name)} - $${drug.price} (Stock: ${drug.stock})</option>`;
+            const isExpired = new Date(drug.expiry_date) < new Date();
+            const expiryLabel = isExpired ? '[EXPIRED]' : `Exp: ${formatDate(drug.expiry_date)}`;
+            select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}" ${isExpired ? 'disabled' : ''}>
+                ${escapeHtml(drug.name)} - ${formatCurrency(drug.price)} (${expiryLabel}) - Stock: ${drug.stock}
+            </option>`;
         });
     } catch (err) {
         console.error('Error loading drugs for sale:', err);
@@ -91,6 +96,12 @@ function addToCart() {
     if (!drug) return;
     if (quantity > drug.stock) {
         showToast(`Only ${drug.stock} units available`, 'error');
+        return;
+    }
+    
+    // Check for expired drug (SRS §3.3)
+    if (new Date(drug.expiry_date) < new Date()) {
+        showToast(`Cannot sell expired medication: ${drug.name}`, 'error');
         return;
     }
     const existing = currentSaleCart.find(item => item.drug_id == drugId);

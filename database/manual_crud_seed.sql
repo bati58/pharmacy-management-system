@@ -24,22 +24,22 @@ ON DUPLICATE KEY UPDATE name=VALUES(name);
 -- Password for all users: Admin@123
 -- ======================================================
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-(101, 'Sarah Jenkins', 's.jenkins@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 101, 'active'),
-(102, 'David Chen', 'd.chen@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 101, 'active'),
-(103, 'Michael Ross', 'm.ross@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 101, 'active'),
+(101, 'Sarah Jenkins', 's.jenkins@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 101, 'active'),
+(102, 'David Chen', 'd.chen@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 101, 'active'),
+(103, 'Michael Ross', 'm.ross@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 101, 'active'),
 
-(104, 'Emily Watson', 'e.watson@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 102, 'active'),
-(105, 'Robert Lang', 'r.lang@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 102, 'inactive'),
+(104, 'Emily Watson', 'e.watson@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 102, 'active'),
+(105, 'Robert Lang', 'r.lang@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 102, 'inactive'),
 
-(106, 'Amanda Cole', 'a.cole@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 103, 'active'),
-(107, 'James Smith', 'j.smith@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 103, 'active'),
-(108, 'Linda Garcia', 'l.garcia@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 103, 'active'),
+(106, 'Amanda Cole', 'a.cole@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 103, 'active'),
+(107, 'James Smith', 'j.smith@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 103, 'active'),
+(108, 'Linda Garcia', 'l.garcia@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 103, 'active'),
 
-(109, 'William Taylor', 'w.taylor@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 104, 'active'),
-(110, 'Jessica Lee', 'j.lee@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 104, 'active'),
+(109, 'William Taylor', 'w.taylor@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 104, 'active'),
+(110, 'Jessica Lee', 'j.lee@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 104, 'active'),
 
-(111, 'Thomas Moore', 't.moore@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 105, 'active'),
-(112, 'Sandra White', 's.white@batiflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 105, 'active')
+(111, 'Thomas Moore', 't.moore@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 105, 'active'),
+(112, 'Sandra White', 's.white@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 105, 'active')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 -- ======================================================

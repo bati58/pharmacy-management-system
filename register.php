@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Registration page for invited users
  */
@@ -8,7 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Registration - BatiFlow Pharma</title>
+    <title>Complete Registration - PharmaFlow</title>
     <link rel="stylesheet" href="frontend/assets/css/style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -74,7 +74,7 @@
                     <i class="fas fa-prescription-bottle-medical text-3xl text-white"></i>
                 </div>
                 <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">Complete Your Account</h1>
-                <p class="text-slate-500 font-medium" id="inviteSubtitle">Join the BatiFlow Pharma team</p>
+                <p class="text-slate-500 font-medium" id="inviteSubtitle">Join the PharmaFlow team</p>
             </div>
 
             <div id="errorState" class="hidden text-center py-8">
@@ -135,7 +135,7 @@
         </div>
         
         <p class="text-center text-slate-400 text-sm mt-8 font-medium">
-            &copy; 2026 BatiFlow Pharma. All rights reserved.
+            &copy; 2026 PharmaFlow. All rights reserved.
         </p>
     </div>
 

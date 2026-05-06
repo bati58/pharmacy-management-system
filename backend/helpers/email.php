@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../config/constants.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -61,11 +61,11 @@ function sendInvitationEmail($to, $role, $token)
 {
     $registerLink = BASE_URL . "/register.php?token=" . $token;
     $roleName = ucwords(str_replace('_', ' ', $role));
-    $subject = "You're Invited: Join BatiFlow Pharma as a $roleName";
+    $subject = "You're Invited: Join PharmaFlow as a $roleName";
     
     $message = "
     <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
-        <h2 style='color: #4f46e5;'>Welcome to BatiFlow Pharma!</h2>
+        <h2 style='color: #4f46e5;'>Welcome to PharmaFlow!</h2>
         <p>Hello,</p>
         <p>You have been invited to join our Pharmacy Management System as a <strong>$roleName</strong>.</p>
         <p>To complete your registration and set up your account, please click the button below:</p>
@@ -75,7 +75,7 @@ function sendInvitationEmail($to, $role, $token)
         <p style='font-size: 14px; color: #666;'>This link will expire in 48 hours.</p>
         <p style='font-size: 12px; color: #999;'>If you cannot click the button, copy and paste this link into your browser:<br>$registerLink</p>
         <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
-        <p style='font-size: 12px; color: #999;'>BatiFlow Pharma System &copy; " . date('Y') . "</p>
+        <p style='font-size: 12px; color: #999;'>PharmaFlow System &copy; " . date('Y') . "</p>
     </div>
     ";
     
@@ -87,7 +87,7 @@ function sendInvitationEmail($to, $role, $token)
  */
 function sendPasswordResetEmail($to, $resetLink)
 {
-    $subject = "Reset Your BatiFlow Password";
+    $subject = "Reset Your PharmaFlow Password";
     $message = "
     <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
         <h2 style='color: #4f46e5;'>Password Reset Request</h2>
@@ -98,7 +98,7 @@ function sendPasswordResetEmail($to, $resetLink)
         <p>This link expires in 1 hour.</p>
         <p>If you didn't request this, you can safely ignore this email.</p>
         <br>
-        <p>BatiFlow Pharma Team</p>
+        <p>PharmaFlow Team</p>
     </div>
     ";
     return sendEmail($to, $subject, $message);
@@ -123,7 +123,7 @@ function sendExpiryAlert($to, $drugs)
     $message .= "</ul>
         <p>Please take necessary actions.</p>
         <br>
-        <p>BatiFlow Pharma Team</p>
+        <p>PharmaFlow Team</p>
     </div>
     ";
     return sendEmail($to, $subject, $message);
@@ -148,7 +148,7 @@ function sendLowStockAlert($to, $drugs)
     $message .= "</ul>
         <p>Please restock these items soon.</p>
         <br>
-        <p>BatiFlow Pharma Team</p>
+        <p>PharmaFlow Team</p>
     </div>
     ";
     return sendEmail($to, $subject, $message);

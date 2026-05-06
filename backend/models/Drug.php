@@ -19,7 +19,8 @@ class Drug
             $params[] = $branchId;
         }
         if ($search) {
-            $conditions[] = "(d.name LIKE ? OR d.batch LIKE ?)";
+            $conditions[] = "(d.name LIKE ? OR d.batch LIKE ? OR d.category LIKE ?)";
+            $params[] = "%$search%";
             $params[] = "%$search%";
             $params[] = "%$search%";
         }
