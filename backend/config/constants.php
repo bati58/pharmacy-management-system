@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Application constants
@@ -64,6 +64,7 @@ if ($projectPath === '/') $projectPath = '';
 
 define('BASE_URL', $protocol . "://" . $host . $projectPath);
 define('API_BASE_URL', BASE_URL . '/backend');
+define('DB_NAME', 'pms_db');
 
 // ========== ERROR LOGGING ==========
 define('LOG_ERRORS', true);
