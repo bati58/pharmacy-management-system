@@ -9,7 +9,7 @@ include '../includes/sidebar.php';
 ?>
 <?php include '../includes/navbar.php'; ?>
 <div class="animate-fade-in">
-    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 no-print">
         <div>
             <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Sales History</h2>
             <p class="text-slate-500 mt-1 font-medium">Track and review all transactions across your branches.</p>
@@ -32,7 +32,7 @@ include '../includes/sidebar.php';
     <!-- Main Content Grid -->
     <div class="flex flex-col lg:flex-row gap-8 items-start">
         <!-- Sales Table Column -->
-        <div class="flex-1 w-full overflow-hidden">
+        <div class="flex-1 w-full overflow-hidden no-print">
             <div class="card overflow-hidden">
                 <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2">
