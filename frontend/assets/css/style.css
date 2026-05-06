@@ -1,4 +1,4 @@
-﻿/* ======================================================
+/* ======================================================
    PharmaFlow - Premium Design System
    Modern, Responsive, and High-Performance
    ====================================================== */
@@ -316,58 +316,82 @@ tr:hover td {
 
 /* Print Styles */
 @media print {
-    .sidebar, 
-    header, 
-    .mobile-menu-btn,
-    .flex-1.w-full.overflow-hidden, /* Hide the table column */
-    .btn-premium,
-    #confirmModal,
-    #toast-container,
-    .main-content > div:first-child > div:first-child { /* Hide page headers */
-        display: none !important;
+    @page {
+        margin: 0.5cm;
+        size: auto;
     }
 
-    body {
-        background: white !important;
-        margin: 0;
-        padding: 0;
+    /* Hide everything by default */
+    body * {
+        visibility: hidden;
     }
 
-    .main-content {
-        margin-left: 0 !important;
-        padding: 0 !important;
-        background: white !important;
+    /* Show only the invoice panel and its children */
+    #saleDetailsPanel, 
+    #saleDetailsPanel * {
+        visibility: visible;
     }
 
+    /* Position the panel at the very top left */
     #saleDetailsPanel {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
         display: block !important;
-        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
+    }
+
+    /* Hide UI-only elements inside the panel */
+    #saleDetailsPanel button,
+    #saleDetailsPanel .absolute.-top-10, /* Hide the decoration bubble */
+    #saleDetailsPanel .border-t.flex.gap-3, /* Hide the buttons container */
+    #printBtn,
+    #pdfBtn {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Adjust the card styling for print */
+    #saleDetailsPanel .card {
+        border: 1px solid #e2e8f0 !important;
+        padding: 2rem !important;
         width: 100% !important;
         box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
     }
 
-    .card {
-        box-shadow: none !important;
-        border: none !important;
-    }
-
-    #detailContent {
-        margin-top: 20px;
-    }
-
-    /* Keep the total card readable in BW */
+    /* Ensure colors are visible (Total Amount card) */
     .bg-indigo-600 {
-        background-color: #f1f5f9 !important;
-        color: #0f172a !important;
+        background-color: #f1f5f9 !important; /* Light gray instead of dark indigo for better printing */
+        color: #1e293b !important;
         border: 1px solid #e2e8f0 !important;
-        box-shadow: none !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
-    
+
     .bg-indigo-600 * {
-        color: #0f172a !important;
+        color: #1e293b !important;
+    }
+
+    /* Force text colors for readability */
+    .text-slate-800, .text-slate-900 { color: #000 !important; }
+    .text-slate-500, .text-slate-400 { color: #666 !important; }
+    .text-indigo-600 { color: #4f46e5 !important; }
+
+    /* Remove animations that might interfere with layout */
+    .animate-fade-in, .animate-slide-in-right {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* Utility class to hide any element from print */
+    .no-print {
+        display: none !important;
     }
 }
 

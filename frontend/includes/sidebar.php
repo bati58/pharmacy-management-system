@@ -2,7 +2,7 @@
 $role = $_SESSION['role'] ?? '';
 $name = $_SESSION['name'] ?? 'User';
 ?>
-<div class="sidebar flex flex-col h-screen fixed left-0 top-0 z-50 w-[260px]" id="sidebar">
+<div class="sidebar flex flex-col h-screen fixed left-0 top-0 z-50 w-[260px] no-print" id="sidebar">
     <!-- Brand -->
     <div class="p-6 border-b border-slate-800/50 flex-shrink-0">
         <div class="flex items-center gap-3">
