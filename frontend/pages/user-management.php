@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
     header('Location: dashboard.php');
@@ -76,7 +76,6 @@ include '../includes/sidebar.php';
                 <select id="inviteRole" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-600">
                     <option value="pharmacist">Pharmacist</option>
                     <option value="store_keeper">Store Keeper</option>
-                    <option value="manager">Manager</option>
                 </select>
             </div>
             <div>
@@ -113,7 +112,6 @@ include '../includes/sidebar.php';
                 <select id="editRole" class="w-full px-4 py-3 bg-slate-50 border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium text-slate-600">
                     <option value="pharmacist">Pharmacist</option>
                     <option value="store_keeper">Store Keeper</option>
-                    <option value="manager">Manager</option>
                 </select>
             </div>
             <div>

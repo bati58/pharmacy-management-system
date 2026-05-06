@@ -1,17 +1,29 @@
-# Composer dependencies
+# Local Configuration (SENSITIVE - Do not remove)
+*.local.php
+/backend/config/*.local.php
+/backend/config/email.local.php
+credentials.php
+
+# Composer & Dependencies
 /vendor/
 /backend/vendor/
 composer.phar
 
-# Environment files and local config
-.env
-.env.*
-!.env.example
-*.local.php
-/backend/config/email.local.php
-/backend/config/*.local.php
-config.local.php
-credentials.php
+# Logs and runtime
+/backend/logs/*.log
+/logs/*.log
+*.log
+/scratch/
+
+# Database Security & Backups
+/database/backups/
+/database/*.sql.gz
+/database/*.bak
+pharmaflow_backup_*.sql
+
+# System Setup (Optional: keep for team, ignore for production)
+# reset_database.php
+
 
 # Logs and runtime files
 /backend/logs/

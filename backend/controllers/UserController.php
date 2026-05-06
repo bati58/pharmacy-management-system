@@ -73,8 +73,8 @@ class UserController
             sendError('Email and role are required', 400);
             return;
         }
-        if (!in_array($role, ['manager', 'pharmacist', 'store_keeper'])) {
-            sendError('Invalid role', 400);
+        if (!in_array($role, ['pharmacist', 'store_keeper'])) {
+            sendError('Invalid role. You cannot invite new Managers.', 400);
             return;
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
