@@ -23,9 +23,6 @@
                     <i class="fas fa-bell"></i>
                     <span id="headerNotifCount" class="absolute top-1.5 right-1.5 min-w-[1rem] h-4 px-1 bg-rose-500 text-white text-[9px] font-bold rounded-full border-[1.5px] border-white flex items-center justify-center hidden">0</span>
                 </button>
-                <button onclick="location.href='settings.php'" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200">
-                    <i class="fas fa-cog"></i>
-                </button>
             </div>
             
             <div class="flex items-center gap-3">
