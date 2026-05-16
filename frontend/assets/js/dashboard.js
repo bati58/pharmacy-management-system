@@ -24,7 +24,7 @@ async function loadDashboardData() {
         const branches = branchesRes.data || [];
         const drugs = drugsRes.data || [];
 
-        // Calculate KPIs
+        // To Calculate KPIs
         const totalBranches = isManager ? branches.length : 1; // Non-managers see their 1 branch
         const totalDrugs = drugs.length;
         let totalSales = 0;
