@@ -6,7 +6,7 @@
  */
 session_start();
 
-// Check if user is authenticated
+// To Check if user is authenticated
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
     // Redirect to dashboard
     header('Location: pages/dashboard.php');
