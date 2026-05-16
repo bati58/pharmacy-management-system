@@ -15,7 +15,7 @@ It handles complex workflows such as multi-branch inventory management, user inv
 ![success](frontend/assets/success.png)
 
 ### Manager Dashboard & Analytics
-![dashboard](frontend/assets/dashboard.png)
+
 
 ---
 
