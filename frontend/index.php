@@ -2,9 +2,9 @@
 
 /**
  * Frontend Entry Point
- * Redirects to dashboard if user is logged in, otherwise to login page
+ * Redirects to dashboard if user is logged in, otherwise to auth/login page
  */
-require_once __DIR__ . '/includes/init_session.php';
+session_start();
 
 // Check if user is authenticated
 if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {

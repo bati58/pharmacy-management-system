@@ -40,11 +40,12 @@ if (!empty($lowStockDrugs)) {
     foreach ($lowStockDrugs as $drug) {
         $message = "{$drug['name']} (Batch: {$drug['batch']}) has only {$drug['stock']} units remaining at {$drug['branch_name']}.";
 
-        // Notify store keepers and managers
+        // Notify managers (system-wide) and branch-specific staff
         foreach ($allUsers as $user) {
-            if (in_array($user['role'], ['manager', 'store_keeper']) && $user['status'] === 'active') {
-                // Avoid duplicate notifications for same drug (optional: check last 24 hours)
-                $notificationModel->create($user['id'], 'low_stock', $message);
+            if ($user['status'] === 'active') {
+                if ($user['role'] === 'manager' || (in_array($user['role'], ['store_keeper', 'pharmacist']) && $user['branch_id'] == $drug['branch_id'])) {
+                    $notificationModel->create($user['id'], 'low_stock', $message);
+                }
             }
         }
 
@@ -68,10 +69,12 @@ if (!empty($expiringDrugs)) {
         $expiryDate = formatDate($drug['expiry_date']);
         $message = "{$drug['name']} (Batch: {$drug['batch']}) expires on {$expiryDate} at {$drug['branch_name']}.";
 
-        // Notify managers and store keepers
+        // Notify managers (system-wide) and branch-specific staff
         foreach ($allUsers as $user) {
-            if (in_array($user['role'], ['manager', 'store_keeper']) && $user['status'] === 'active') {
-                $notificationModel->create($user['id'], 'expiry', $message);
+            if ($user['status'] === 'active') {
+                if ($user['role'] === 'manager' || (in_array($user['role'], ['store_keeper', 'pharmacist']) && $user['branch_id'] == $drug['branch_id'])) {
+                    $notificationModel->create($user['id'], 'expiry', $message);
+                }
             }
         }
 
@@ -92,4 +95,5 @@ $deleted = $notificationModel->deleteOld(30); // keep only last 30 days
 $logMessage = "Expiry checker executed. Low stock: $lowStockCount, Expiring soon: $expiringCount, Old notifications deleted: " . ($deleted ? 'yes' : 'none');
 logActivity('Expiry Checker', $logMessage);
 
-
+// Output for cron log (optional)
+echo date('Y-m-d H:i:s') . " - " . $logMessage . PHP_EOL;

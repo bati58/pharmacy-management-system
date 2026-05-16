@@ -1,4 +1,5 @@
-    </div> <!-- close .main-content -->
+    </div> <!-- close flex-1 p-8 -->
+</div> <!-- close main-content -->
 
     <script>
         // Load unread notification count for badge using the global API object
@@ -6,9 +7,12 @@
             try {
                 const res = await API.getNotifications(true);
                 const count = res.data ? res.data.length : 0;
+                const badges = [
+                    document.getElementById('headerNotifCount'),
+                    document.getElementById('sidebarNotifCount')
+                ];
                 
-                const updateBadge = (id) => {
-                    const badge = document.getElementById(id);
+                badges.forEach(badge => {
                     if (badge) {
                         if (count > 0) {
                             badge.textContent = count;
@@ -17,10 +21,7 @@
                             badge.classList.add('hidden');
                         }
                     }
-                };
-
-                updateBadge('notifCount');
-                updateBadge('navNotifBadge');
+                });
             } catch (e) {
                 console.error('Failed to update notification badge:', e);
             }

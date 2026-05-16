@@ -1,16 +1,11 @@
-CREATE DATABASE IF NOT EXISTS `pharmacy_db`;
-USE `pharmacy_db`;
+-- ======================================================
+-- Pharmacy Management System - Database Schema
+-- MySQL / MariaDB
+-- ======================================================
 
-DROP TABLE IF EXISTS `stock_movements`;
-DROP TABLE IF EXISTS `invitations`;
-DROP TABLE IF EXISTS `password_resets`;
-DROP TABLE IF EXISTS `notifications`;
-DROP TABLE IF EXISTS `transfers`;
-DROP TABLE IF EXISTS `sale_items`;
-DROP TABLE IF EXISTS `sales`;
-DROP TABLE IF EXISTS `drugs`;
-DROP TABLE IF EXISTS `users`;
-DROP TABLE IF EXISTS `branches`;
+-- Create database (optional - you can create manually)
+CREATE DATABASE IF NOT EXISTS `pms_db`;
+USE `pms_db`;
 
 -- ======================================================
 -- 1. Branches table
@@ -31,18 +26,15 @@ CREATE TABLE `users` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
     `email` VARCHAR(100) NOT NULL UNIQUE,
-    `password` VARCHAR(255) DEFAULT NULL,
+    `password` VARCHAR(255) NOT NULL,
     `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
     `branch_id` INT(11) DEFAULT NULL,
-    `status` ENUM('pending', 'active', 'inactive') NOT NULL DEFAULT 'pending',
-    `invite_token` VARCHAR(64) DEFAULT NULL,
-    `token_expiry` DATETIME DEFAULT NULL,
+    `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_users_email` (`email`),
     KEY `idx_users_role` (`role`),
     KEY `idx_users_status` (`status`),
-    UNIQUE KEY `idx_users_invite_token` (`invite_token`),
     FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -53,14 +45,12 @@ CREATE TABLE `drugs` (
     `id` INT(11) NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(100) NOT NULL,
     `category` VARCHAR(50) DEFAULT NULL,
-    `manufacturer` VARCHAR(150) DEFAULT NULL,
-    `supplier` VARCHAR(150) DEFAULT NULL,
     `batch` VARCHAR(50) NOT NULL,
     `stock` INT(11) NOT NULL DEFAULT 0,
-    `dispensary_stock` INT(11) NOT NULL DEFAULT 0,
-    `price` DECIMAL(10,2) NOT NULL COMMENT 'Selling price',
-    `cost_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Purchase price for profit analysis',
-    `requires_prescription` TINYINT(1) NOT NULL DEFAULT 0,
+    `price` DECIMAL(10,2) NOT NULL,
+    `cost_price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    `manufacturer` VARCHAR(100) DEFAULT NULL,
+    `supplier` VARCHAR(100) DEFAULT NULL,
     `expiry_date` DATE NOT NULL,
     `branch_id` INT(11) NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -80,9 +70,10 @@ CREATE TABLE `sales` (
     `invoice_no` VARCHAR(20) NOT NULL UNIQUE,
     `customer_name` VARCHAR(100) DEFAULT 'Walk-in customer',
     `total_amount` DECIMAL(10,2) NOT NULL,
-    `discount_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    `discount_amount` DECIMAL(10,2) DEFAULT 0.00,
+    `total_cost` DECIMAL(10,2) DEFAULT 0.00,
+    `prescription_ref` VARCHAR(100) DEFAULT NULL,
     `payment_method` ENUM('Cash', 'Card', 'Mobile Money') NOT NULL,
-    `prescription_reference` VARCHAR(100) DEFAULT NULL,
     `pharmacist_id` INT(11) NOT NULL,
     `branch_id` INT(11) NOT NULL,
     `sale_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -166,24 +157,6 @@ CREATE TABLE `password_resets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ======================================================
--- Invitations (manager invites staff to set password)
--- ======================================================
-CREATE TABLE `invitations` (
-    `id` INT(11) NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(100) NOT NULL,
-    `token` VARCHAR(64) NOT NULL,
-    `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
-    `branch_id` INT(11) DEFAULT NULL,
-    `used` TINYINT(1) NOT NULL DEFAULT 0,
-    `expires_at` DATETIME NOT NULL,
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_invitations_token` (`token`),
-    KEY `idx_invitations_email` (`email`),
-    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ======================================================
 -- Optional: Stock Movements log (for audit trail)
 -- ======================================================
 CREATE TABLE `stock_movements` (
@@ -197,4 +170,25 @@ CREATE TABLE `stock_movements` (
     KEY `idx_stock_movements_drug` (`drug_id`),
     FOREIGN KEY (`drug_id`) REFERENCES `drugs`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ======================================================
+-- 9. Invitations table (for new user invites)
+-- ======================================================
+CREATE TABLE `invitations` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `token` VARCHAR(255) NOT NULL,
+    `role` ENUM('manager', 'pharmacist', 'store_keeper') NOT NULL,
+    `status` ENUM('pending', 'accepted', 'expired') NOT NULL DEFAULT 'pending',
+    `created_by` INT(11) DEFAULT NULL,
+    `used` TINYINT(1) NOT NULL DEFAULT 0,
+    `branch_id` INT(11) DEFAULT NULL,
+    `expires_at` DATETIME NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_invitations_email` (`email`),
+    KEY `idx_invitations_token` (`token`),
+    FOREIGN KEY (`branch_id`) REFERENCES `branches`(`id`) ON DELETE SET NULL,
+    FOREIGN KEY (`created_by`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

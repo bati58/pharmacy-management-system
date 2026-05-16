@@ -15,6 +15,25 @@ class AuthMiddleware
             echo json_encode(['success' => false, 'message' => 'Unauthorized. Please login.']);
             exit();
         }
+
+        // Sync session with latest DB state (handles dynamic branch/role updates)
+        global $pdo;
+        if ($pdo) {
+            $stmt = $pdo->prepare("SELECT role, branch_id, status FROM users WHERE id = ?");
+            $stmt->execute([$_SESSION['user_id']]);
+            $user = $stmt->fetch();
+            if ($user) {
+                if ($user['status'] !== 'active') {
+                    session_destroy();
+                    http_response_code(403);
+                    echo json_encode(['success' => false, 'message' => 'Account inactive or disabled.']);
+                    exit();
+                }
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['branch_id'] = $user['branch_id'];
+            }
+        }
+
         return true;
     }
 

@@ -1,148 +1,155 @@
-<?php
+﻿<?php
+require_once __DIR__ . '/../config/constants.php';
 
-/**
- * Email helper — uses PHPMailer when Composer deps are installed, otherwise PHP mail().
- */
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
-$GLOBALS['_pharmaflow_email_error'] = '';
-$GLOBALS['_pharmaflow_composer_autoload'] = __DIR__ . '/../../vendor/autoload.php';
-$GLOBALS['_pharmaflow_phpmailer'] = is_file($GLOBALS['_pharmaflow_composer_autoload']);
-
-if ($GLOBALS['_pharmaflow_phpmailer']) {
-    require_once $GLOBALS['_pharmaflow_composer_autoload'];
-}
-
-$localEmailConfigFile = __DIR__ . '/../config/email.local.php';
-$localEmailConfig = [];
-if (is_file($localEmailConfigFile)) {
-    $loaded = require $localEmailConfigFile;
-    if (is_array($loaded)) {
-        $localEmailConfig = $loaded;
-    }
-}
-
-$smtpHost = getenv('PHARMAFLOW_SMTP_HOST') ?: ($localEmailConfig['host'] ?? 'smtp.gmail.com');
-$smtpPort = (int)(getenv('PHARMAFLOW_SMTP_PORT') ?: ($localEmailConfig['port'] ?? 587));
-$smtpEncryption = strtolower((string)(getenv('PHARMAFLOW_SMTP_ENCRYPTION') ?: ($localEmailConfig['encryption'] ?? 'tls')));
-$smtpUser = getenv('PHARMAFLOW_SMTP_USER') ?: ($localEmailConfig['username'] ?? '');
-$smtpPass = getenv('PHARMAFLOW_SMTP_PASS') ?: ($localEmailConfig['password'] ?? '');
-$smtpFrom = getenv('PHARMAFLOW_SMTP_FROM') ?: ($localEmailConfig['from_email'] ?? ($smtpUser ?: 'noreply@pharmaflow.com'));
-$smtpFromName = getenv('PHARMAFLOW_SMTP_FROM_NAME') ?: ($localEmailConfig['from_name'] ?? 'PharmaFlow System');
-
-$smtpUser = trim((string)$smtpUser);
-$smtpFrom = trim((string)$smtpFrom);
-$smtpFromName = trim((string)$smtpFromName);
-$smtpPassRaw = trim((string)$smtpPass);
-// Gmail app passwords are often copied with spaces (e.g., "abcd efgh ..."); normalize them.
-$smtpPass = str_replace(' ', '', $smtpPassRaw);
-
-function logEmailError($message)
-{
-    $logFile = __DIR__ . '/../logs/email.log';
-    $line = '[' . date('Y-m-d H:i:s') . '] ' . $message . PHP_EOL;
-    @file_put_contents($logFile, $line, FILE_APPEND);
+// Composer autoload for PHPMailer
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
 }
 
 /**
- * @param string $to
- * @param string $subject
- * @param string $message HTML body
- * @param string|null $from
+ * Send email using PHPMailer (SMTP)
+ * @param string $to Recipient email
+ * @param string $subject Email subject
+ * @param string $message HTML message body
+ * @param string|null $from Optional sender email (overrides default)
  * @return bool
  */
 function sendEmail($to, $subject, $message, $from = null)
 {
-    global $smtpHost, $smtpPort, $smtpEncryption, $smtpUser, $smtpPass, $smtpFrom, $smtpFromName;
-    $GLOBALS['_pharmaflow_email_error'] = '';
-
-    if (
-        !empty($GLOBALS['_pharmaflow_phpmailer']) &&
-        class_exists(\PHPMailer\PHPMailer\PHPMailer::class) &&
-        !empty($smtpUser) &&
-        !empty($smtpPass)
-    ) {
-        $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        try {
-            $mail->SMTPDebug = \PHPMailer\PHPMailer\SMTP::DEBUG_OFF;
-            $mail->isSMTP();
-            $mail->Host       = $smtpHost;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $smtpUser;
-            $mail->Password   = $smtpPass;
-            $mail->SMTPSecure = $smtpEncryption === 'ssl'
-                ? \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_SMTPS
-                : \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = $smtpPort > 0 ? $smtpPort : 587;
-            $mail->setFrom($from ?? $smtpFrom, $smtpFromName);
-            $mail->addAddress($to);
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body    = $message;
-            $mail->AltBody = strip_tags($message);
-            $mail->send();
-            return true;
-        } catch (\Throwable $e) {
-            $GLOBALS['_pharmaflow_email_error'] = 'SMTP send failed: ' . $e->getMessage();
-            error_log('PHPMailer: ' . $e->getMessage());
-            logEmailError($GLOBALS['_pharmaflow_email_error']);
-            return false;
-        }
-    }
-
-    if (empty($GLOBALS['_pharmaflow_phpmailer'])) {
-        $GLOBALS['_pharmaflow_email_error'] = 'PHPMailer is not installed. Run: composer require phpmailer/phpmailer';
-        logEmailError($GLOBALS['_pharmaflow_email_error']);
-        return false;
-    }
-    if (empty($smtpUser) || empty($smtpPass)) {
-        $GLOBALS['_pharmaflow_email_error'] = 'SMTP credentials are missing. Configure backend/config/email.local.php';
-        logEmailError($GLOBALS['_pharmaflow_email_error']);
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        error_log("PHPMailer not found. Please run 'composer install'.");
         return false;
     }
 
-    $headers = "MIME-Version: 1.0\r\nContent-type:text/html;charset=UTF-8\r\nFrom: " . ($from ?? $smtpFrom) . "\r\n";
-    $ok = @mail($to, $subject, $message, $headers);
-    if (!$ok) {
-        $GLOBALS['_pharmaflow_email_error'] = 'PHP mail() failed.';
-        logEmailError($GLOBALS['_pharmaflow_email_error']);
+    $mail = new PHPMailer(true);
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = SMTP_HOST;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = SMTP_USER;
+        $mail->Password   = SMTP_PASS;
+        $mail->SMTPSecure = (SMTP_SECURE === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = SMTP_PORT;
+
+        // Recipients
+        $mail->setFrom($from ?? FROM_EMAIL, FROM_NAME);
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body    = $message;
+        $mail->AltBody = strip_tags($message);
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email could not be sent. Error: {$mail->ErrorInfo}");
+        return false;
     }
-    return $ok;
 }
 
-function getLastEmailError()
+/**
+ * Send invitation email to a new user
+ */
+function sendInvitationEmail($to, $role, $token)
 {
-    return (string)($GLOBALS['_pharmaflow_email_error'] ?? '');
-}
-
-function sendPasswordResetEmail($to, $resetLink)
-{
-    $subject = "Reset Your PharmaFlow System Password";
+    $registerLink = BASE_URL . "/register.php?token=" . $token;
+    $roleName = ucwords(str_replace('_', ' ', $role));
+    $subject = "You're Invited: Join PharmaFlow as a $roleName";
+    
     $message = "
-    <html><body>
-        <h2>Password Reset Request</h2>
-        <p><a href='" . htmlspecialchars($resetLink, ENT_QUOTES, 'UTF-8') . "'>Reset password</a></p>
-    </body></html>";
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #4f46e5;'>Welcome to PharmaFlow!</h2>
+        <p>Hello,</p>
+        <p>You have been invited to join our Pharmacy Management System as a <strong>$roleName</strong>.</p>
+        <p>To complete your registration and set up your account, please click the button below:</p>
+        <div style='text-align: center; margin: 30px 0;'>
+            <a href='$registerLink' style='background-color: #4f46e5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Accept Invitation</a>
+        </div>
+        <p style='font-size: 14px; color: #666;'>This link will expire in 48 hours.</p>
+        <p style='font-size: 12px; color: #999;'>If you cannot click the button, copy and paste this link into your browser:<br>$registerLink</p>
+        <hr style='border: 0; border-top: 1px solid #eee; margin: 20px 0;'>
+        <p style='font-size: 12px; color: #999;'>PharmaFlow System &copy; " . date('Y') . "</p>
+    </div>
+    ";
+    
     return sendEmail($to, $subject, $message);
 }
 
-function sendLowStockAlert($managerEmail, $lowStockDrugs)
+/**
+ * Send password reset email
+ */
+function sendPasswordResetEmail($to, $resetLink)
 {
-    $subject = "Low Stock Alert - PharmaFlow System";
-    $drugsList = "";
-    foreach ($lowStockDrugs as $drug) {
-        $drugsList .= "<li>" . htmlspecialchars($drug['name']) . " — " . (int)$drug['stock'] . " left</li>";
-    }
-    $message = "<html><body><h2>Low Stock</h2><ul>$drugsList</ul></body></html>";
-    return sendEmail($managerEmail, $subject, $message);
+    $subject = "Reset Your PharmaFlow Password";
+    $message = "
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #4f46e5;'>Password Reset Request</h2>
+        <p>Click the link below to reset your password:</p>
+        <div style='text-align: center; margin: 30px 0;'>
+            <a href='$resetLink' style='background-color: #4f46e5; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Reset Password</a>
+        </div>
+        <p>This link expires in 1 hour.</p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+        <br>
+        <p>PharmaFlow Team</p>
+    </div>
+    ";
+    return sendEmail($to, $subject, $message);
 }
 
-function sendExpiryAlert($managerEmail, $expiringDrugs)
+/**
+ * Send expiry alert email
+ */
+function sendExpiryAlert($to, $drugs)
 {
-    $subject = "Expiry Alert - PharmaFlow System";
-    $drugsList = "";
-    foreach ($expiringDrugs as $drug) {
-        $drugsList .= "<li>" . htmlspecialchars($drug['name']) . " — " . htmlspecialchars($drug['expiry_date']) . "</li>";
+    $subject = "Alert: Expiring Drugs in Inventory";
+    $message = "
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #e53e3e;'>Expiring Drugs Alert</h2>
+        <p>The following drugs are expiring soon:</p>
+        <ul>";
+    
+    foreach ($drugs as $drug) {
+        $message .= "<li><strong>{$drug['name']}</strong> (Batch: {$drug['batch']}) - Expires on " . date('M d, Y', strtotime($drug['expiry_date'])) . " at {$drug['branch_name']}</li>";
     }
-    $message = "<html><body><h2>Expiry</h2><ul>$drugsList</ul></body></html>";
-    return sendEmail($managerEmail, $subject, $message);
+
+    $message .= "</ul>
+        <p>Please take necessary actions.</p>
+        <br>
+        <p>PharmaFlow Team</p>
+    </div>
+    ";
+    return sendEmail($to, $subject, $message);
+}
+
+/**
+ * Send low stock alert email
+ */
+function sendLowStockAlert($to, $drugs)
+{
+    $subject = "Alert: Low Stock in Inventory";
+    $message = "
+    <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+        <h2 style='color: #dd6b20;'>Low Stock Alert</h2>
+        <p>The following drugs are running low on stock:</p>
+        <ul>";
+    
+    foreach ($drugs as $drug) {
+        $message .= "<li><strong>{$drug['name']}</strong> (Batch: {$drug['batch']}) - Only {$drug['stock']} units left at {$drug['branch_name']}</li>";
+    }
+
+    $message .= "</ul>
+        <p>Please restock these items soon.</p>
+        <br>
+        <p>PharmaFlow Team</p>
+    </div>
+    ";
+    return sendEmail($to, $subject, $message);
 }

@@ -16,12 +16,12 @@ async function loadReports() {
     const endDate = document.getElementById('endDate').value;
 
     try {
-        // Fetch all data in parallel
+        // Fetch all data in parallel with individual catches so 403s for non-managers don't break the page
         const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs] = await Promise.all([
-            API.getSalesReport(period, branchId, startDate, endDate),
-            API.getRevenueByBranch(),
-            API.getRevenueByPharmacist(),
-            API.getTopDrugs(10)
+            API.getSalesReport(period, branchId, startDate, endDate).catch(() => ({data: []})),
+            API.getRevenueByBranch().catch(() => ({data: []})),
+            API.getRevenueByPharmacist().catch(() => ({data: []})),
+            API.getTopDrugs(10).catch(() => ({data: []}))
         ]);
 
         // Calculate KPI totals
@@ -54,8 +54,10 @@ function renderRevenueChart(data) {
     if (!ctx) return;
     if (revenueChart) revenueChart.destroy();
 
-    const labels = data && data.length ? data.map(item => item.period) : ['No Data'];
-    const values = data && data.length ? data.map(item => parseFloat(item.total_revenue)) : [0];
+    // Reverse to show chronological order
+    const reversedData = data && data.length ? [...data].reverse() : [];
+    const labels = reversedData.length ? reversedData.map(item => item.period) : ['No Data'];
+    const values = reversedData.length ? reversedData.map(item => parseFloat(item.total_revenue)) : [0];
 
     revenueChart = new Chart(ctx, {
         type: 'line',

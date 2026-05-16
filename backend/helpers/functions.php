@@ -79,9 +79,7 @@ function checkExpiryStatus($expiryDate, $warningDays = 30)
  */
 function currentUserRole()
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    session_start();
     return $_SESSION['role'] ?? null;
 }
 
@@ -119,11 +117,7 @@ function isStoreKeeper()
  */
 function logActivity($action, $details = '')
 {
-    $logDir = __DIR__ . '/../logs';
-    if (!is_dir($logDir)) {
-        @mkdir($logDir, 0755, true);
-    }
-    $logFile = $logDir . '/activity.log';
+    $logFile = __DIR__ . '/../logs/activity.log';
     $timestamp = date('Y-m-d H:i:s');
     $user = $_SESSION['name'] ?? 'Guest';
     $logEntry = "[$timestamp] User: $user | Action: $action | Details: $details" . PHP_EOL;
