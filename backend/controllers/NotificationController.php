@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/alert.php';
 
 class NotificationController
 {
@@ -16,9 +17,13 @@ class NotificationController
 
     public function index()
     {
-        $userId = $_SESSION['user_id'];
-        $unreadOnly = $_GET['unread_only'] ?? false;
-        $notifications = $this->notificationModel->getByUser($userId, $unreadOnly);
+        // Automatically check for expiring drugs whenever notifications are fetched (SRS §3.4)
+        if ($_SESSION['role'] === 'manager' || $_SESSION['role'] === 'store_keeper') {
+            checkAndNotifyExpiringDrugs();
+        }
+        
+        $unreadOnly = isset($_GET['unread_only']) && $_GET['unread_only'] === 'true';
+        $notifications = $this->notificationModel->getByUser($_SESSION['user_id'], $unreadOnly);
         sendSuccess($notifications);
     }
 

@@ -46,7 +46,7 @@ function checkSessionTimeout()
                 exit();
             } else {
                 // For frontend pages, redirect to login
-                header('Location: /pharmacy-management-system/frontend/pages/auth/login.html');
+                header('Location: ' . BASE_URL . '/frontend/pages/auth/login.php');
                 exit();
             }
         }

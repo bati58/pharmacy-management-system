@@ -11,11 +11,12 @@ class Transfer
     public function getAll($branchId = null)
     {
         $sql = "
-            SELECT t.*, d.name as drug_name, u.name as created_by_name, b.name as branch_name
+            SELECT t.*, d.name as drug_name, u.name as created_by_name,
+                   b.name as branch_name
             FROM transfers t 
             JOIN drugs d ON t.drug_id = d.id 
             JOIN users u ON t.created_by = u.id
-            JOIN branches b ON t.branch_id = b.id
+            LEFT JOIN branches b ON t.branch_id = b.id
         ";
         $params = [];
         if ($branchId) {
@@ -26,6 +27,13 @@ class Transfer
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    public function findById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM transfers WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch();
     }
 
     public function create($drugId, $quantity, $fromLocation, $toLocation, $branchId, $createdBy)

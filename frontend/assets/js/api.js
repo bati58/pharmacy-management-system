@@ -1,17 +1,28 @@
-// Resolve API base from current URL (/your-folder/frontend/... → /your-folder/backend/index.php)
-(function resolveApiBase() {
-    if (typeof window.API_BASE_URL === 'string' && window.API_BASE_URL.length) {
-        return;
+// Dynamically detect project root
+const getProjectRoot = () => {
+    const path = window.location.pathname;
+    const parts = path.split('/');
+    
+    // Check for standard subfolders first
+    const frontendIndex = parts.indexOf('frontend');
+    if (frontendIndex !== -1) {
+        return parts.slice(0, frontendIndex).join('/') || '';
     }
-    const p = window.location.pathname;
-    const i = p.indexOf('/frontend/');
-    if (i > 0) {
-        window.API_BASE_URL = p.slice(0, i) + '/backend/index.php';
-    } else {
-        window.API_BASE_URL = '/pharmacy-management-system/backend/index.php';
+    
+    const backendIndex = parts.indexOf('backend');
+    if (backendIndex !== -1) {
+        return parts.slice(0, backendIndex).join('/') || '';
     }
-})();
-const API_BASE_URL = window.API_BASE_URL;
+    
+    // If we are in the root (like register.php), the root is everything before the last filename
+    // and we ensure it doesn't return an empty string if it's the domain root
+    const root = parts.slice(0, parts.length - 1).join('/');
+    return root || '';
+};
+
+const PROJECT_ROOT = getProjectRoot();
+const API_BASE_URL = PROJECT_ROOT + '/backend/index.php';
+console.log('API Base URL detected:', API_BASE_URL);
 
 async function apiRequest(endpoint, method = 'GET', data = null) {
     const url = API_BASE_URL + endpoint;
@@ -23,23 +34,23 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data);
     }
+    
     try {
         const response = await fetch(url, options);
-        const contentType = response.headers.get('content-type') || '';
+        const text = await response.text(); // Get raw text first
+        
         let result;
-        if (contentType.includes('application/json')) {
-            result = await response.json();
-        } else {
-            const text = await response.text();
-            throw new Error('Server returned non-JSON response. Check backend error logs.');
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Failed to parse JSON. Raw response:', text);
+            throw new Error('Server returned invalid response. Check console for details.');
         }
+
         if (!response.ok) {
             if (response.status === 401 && result.message === 'Unauthorized. Please login.') {
                 localStorage.removeItem('user');
-                const p = window.location.pathname;
-                const idx = p.indexOf('/frontend/');
-                const base = idx > 0 ? p.slice(0, idx) : '/pharmacy-management-system';
-                window.location.href = base + '/frontend/pages/auth/login.php';
+                window.location.href = PROJECT_ROOT + '/frontend/pages/auth/login.php';
             }
             throw new Error(result.message || 'Request failed');
         }
@@ -54,10 +65,11 @@ const API = {
     // Auth
     login: (email, password) => apiRequest('/auth/login', 'POST', { email, password }),
     logout: () => apiRequest('/auth/logout', 'POST'),
-    register: (data) => apiRequest('/auth/register', 'POST', data),
     resetPassword: (email) => apiRequest('/auth/reset-password', 'POST', { email }),
-    confirmReset: (data) => apiRequest('/auth/confirm-reset', 'POST', data),
     activateInvitation: (data) => apiRequest('/auth/activate-invitation', 'POST', data),
+    validateInvitation: (token) => apiRequest(`/auth/validate-invitation?token=${token}`, 'GET'),
+    updateProfile: (data) => apiRequest('/auth/update-profile', 'POST', data),
+    changePassword: (data) => apiRequest('/auth/change-password', 'POST', data),
 
     // Branches
     getBranches: () => apiRequest('/branches'),
@@ -99,7 +111,14 @@ const API = {
     updateTransferStatus: (id, status) => apiRequest(`/transfers/${id}/status`, 'PUT', { status }),
 
     // Sales
-    getSales: () => apiRequest('/sales'),
+    getSales: (branchId = null, period = 'all') => {
+        let url = '/sales';
+        const params = new URLSearchParams();
+        if (branchId) params.append('branch_id', branchId);
+        if (period) params.append('period', period);
+        if (params.toString()) url += '?' + params.toString();
+        return apiRequest(url);
+    },
     getSale: (id) => apiRequest(`/sales/${id}`),
     createSale: (data) => apiRequest('/sales', 'POST', data),
 

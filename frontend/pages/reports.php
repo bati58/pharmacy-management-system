@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/init_session.php';
+session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
     header('Location: dashboard.php');
     exit;
@@ -7,104 +7,101 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
 include '../includes/header.php';
 include '../includes/sidebar.php';
 ?>
-<div class="ml-64 flex-1">
-    <?php include '../includes/navbar.php'; ?>
-    <div class="p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Business Intelligence</h2>
-                <p class="text-slate-500 font-medium">Strategic insights, revenue analysis, and inventory performance.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button onclick="window.print()" class="btn !bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 no-print">
-                    <i class="fas fa-print"></i> Export PDF
-                </button>
-            </div>
+<?php include '../includes/navbar.php'; ?>
+<div class="animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Business Intelligence</h2>
+            <p class="text-slate-500 mt-1 font-medium">Deep dive into your pharmacy performance and sales trends.</p>
         </div>
+    </div>
 
-        <!-- Filters Section -->
-        <div class="card animate-slide-up no-print" style="animation-delay: 0.1s;">
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time Period</label>
-                    <select id="reportPeriod" class="!bg-slate-50 border-slate-200 min-w-[140px]">
-                        <option value="daily">Daily View</option>
-                        <option value="weekly" selected>Weekly View</option>
-                        <option value="monthly">Monthly View</option>
-                        <option value="custom">Custom Range</option>
+    <!-- Filters -->
+    <div class="card p-4 md:p-6 mb-8 bg-white/50 backdrop-blur-sm border-slate-200/60 overflow-hidden">
+        <div class="flex flex-col xl:flex-row items-end gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 w-full">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Time Period</label>
+                    <select id="reportPeriod" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
+                        <option value="daily">Daily Analysis</option>
+                        <option value="weekly" selected>Weekly Review</option>
+                        <option value="monthly">Monthly Summary</option>
                     </select>
                 </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Branch Filter</label>
-                    <select id="reportBranch" class="!bg-slate-50 border-slate-200 min-w-[200px]">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Branch filter</label>
+                    <select id="reportBranch" class="w-full py-2.5 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                         <option value="">All Branches</option>
                     </select>
                 </div>
-                <div class="space-y-1 custom-range hidden">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Start Date</label>
-                    <input type="date" id="startDate" class="!bg-slate-50 border-slate-200">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">From Date</label>
+                    <input type="date" id="startDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
-                <div class="space-y-1 custom-range hidden">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">End Date</label>
-                    <input type="date" id="endDate" class="!bg-slate-50 border-slate-200">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">To Date</label>
+                    <input type="date" id="endDate" class="w-full py-2 bg-slate-50 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-slate-700">
                 </div>
-                <button onclick="loadReports()" class="btn btn-primary px-6 h-[42px]">
-                    <i class="fas fa-sync-alt"></i> Update
+            </div>
+            <div class="w-full xl:w-auto">
+                <button type="button" onclick="loadReports()" class="w-full xl:px-8 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all whitespace-nowrap">
+                    <i class="fas fa-sync-alt mr-2"></i> Update Report
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up" style="animation-delay: 0.2s;">
-            <div class="card bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-0">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-white/20 rounded-lg backdrop-blur-md">
-                        <i class="fas fa-dollar-sign text-white"></i>
-                    </div>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="card p-6 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-100">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
+                    <i class="fas fa-dollar-sign"></i>
                 </div>
-                <h3 class="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Total Revenue</h3>
-                <p id="totalRevenue" class="text-3xl font-black tracking-tight">$0</p>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Gross Revenue</span>
             </div>
-            <div class="card bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-white/20 rounded-lg backdrop-blur-md">
-                        <i class="fas fa-chart-line text-white"></i>
-                    </div>
-                </div>
-                <h3 class="text-white/70 text-xs font-bold uppercase tracking-widest mb-1">Net Profit</h3>
-                <p id="totalProfit" class="text-3xl font-black tracking-tight">$0</p>
-            </div>
-            <div class="card border-0 shadow-xl shadow-slate-200/50">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
-                        <i class="fas fa-receipt"></i>
-                    </div>
-                </div>
-                <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Sales</h3>
-                <p id="totalSalesCount" class="text-3xl font-black text-slate-800 tracking-tight">0</p>
-            </div>
-            <div class="card border-0 shadow-xl shadow-slate-200/50">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
-                        <i class="fas fa-percentage"></i>
-                    </div>
-                </div>
-                <h3 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Avg. Transaction</h3>
-                <p id="avgSale" class="text-3xl font-black text-slate-800 tracking-tight">$0</p>
-            </div>
+            <h3 class="text-3xl font-black mb-1" id="totalRevenue">$0.00</h3>
+            <p class="text-indigo-100/80 text-xs font-medium">Accumulated across selected period</p>
         </div>
 
-        <!-- Analytical Tabs -->
-        <div class="card animate-slide-up" style="animation-delay: 0.3s;">
-            <div class="flex flex-wrap gap-2 mb-8 border-b border-slate-100 pb-4 no-print">
-                <button id="tabRevenueTrend" class="tab-btn active px-4 py-2 text-sm font-bold transition-all rounded-lg">Revenue Trend</button>
-                <button id="tabRevenueBranch" class="tab-btn px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-all rounded-lg">By Branch</button>
-                <button id="tabRevenuePharmacist" class="tab-btn px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-all rounded-lg">By Pharmacist</button>
-                <button id="tabTopDrugs" class="tab-btn px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-all rounded-lg">Fast-Moving</button>
-                <button id="tabSlowDrugs" class="tab-btn px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600 transition-all rounded-lg">Slow-Moving</button>
+        <div class="card p-6 bg-emerald-500 text-white shadow-lg shadow-emerald-100">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Net Profit</span>
             </div>
+            <h3 class="text-3xl font-black mb-1" id="totalProfit">$0.00</h3>
+            <p class="text-emerald-50/80 text-xs font-medium">After deducting wholesale costs</p>
+        </div>
 
-            <div class="relative h-[450px]">
+        <div class="card p-6 bg-white border border-slate-200 text-slate-800">
+            <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-lg">Volume</span>
+            </div>
+            <h3 class="text-3xl font-black mb-1 text-slate-900" id="totalSalesCount">0</h3>
+            <p class="text-slate-400 text-xs font-medium">Total successful transactions</p>
+        </div>
+    </div>
+
+    <!-- Analytics Tabs & Chart -->
+    <div class="card overflow-hidden">
+        <div class="bg-slate-50/80 border-b border-slate-100 overflow-x-auto">
+            <div class="flex p-1 min-w-max">
+                <button id="tabRevenueTrend" class="tab-btn active px-4 py-2.5 text-sm font-bold rounded-xl transition-all whitespace-nowrap">Revenue Trend</button>
+                <button id="tabProfitTrend" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Profitability</button>
+                <button id="tabRevenueBranch" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Branch</button>
+                <button id="tabRevenuePharmacist" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">By Staff</button>
+                <button id="tabTopDrugs" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Top Items</button>
+                <button id="tabSlowDrugs" class="tab-btn px-4 py-2.5 text-sm font-bold text-slate-500 hover:text-indigo-600 rounded-xl transition-all whitespace-nowrap">Slow Moving</button>
+            </div>
+        </div>
+        
+        <div class="p-8">
+            <div class="relative h-[400px]">
                 <canvas id="reportChart"></canvas>
             </div>
         </div>
@@ -112,16 +109,11 @@ include '../includes/sidebar.php';
 </div>
 
 <style>
-    .tab-btn.active {
-        background: #f1f5f9;
-        color: #3b82f6;
-    }
-    @media print {
-        .ml-64 { margin-left: 0 !important; }
-        .sidebar, .navbar { display: none !important; }
-        .card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
-        body { background: white !important; }
-    }
+.tab-btn.active {
+    background: white;
+    color: #4f46e5;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
 </style>
 
 <script src="../assets/js/utils.js"></script>
@@ -129,50 +121,54 @@ include '../includes/sidebar.php';
 <script>
     let currentChart = null;
     let currentTab = 'revenueTrend';
-    let cachedData = null;
+    let cachedData = null; // store latest API response
 
     document.addEventListener('DOMContentLoaded', function() {
         loadBranchesForReport();
-        loadReports();
+        loadReports(); // initial load
         setupEventListeners();
     });
 
     function setupEventListeners() {
-        document.getElementById('reportPeriod')?.addEventListener('change', (e) => {
-            const customRange = document.querySelectorAll('.custom-range');
-            if (e.target.value === 'custom') {
-                customRange.forEach(el => el.classList.remove('hidden'));
-            } else {
-                customRange.forEach(el => el.classList.add('hidden'));
-            }
-            loadReports();
-        });
+        // Filter changes trigger reload
+        document.getElementById('reportPeriod')?.addEventListener('change', () => loadReports());
+        document.getElementById('reportBranch')?.addEventListener('change', () => loadReports());
+        document.getElementById('startDate')?.addEventListener('change', () => loadReports());
+        document.getElementById('endDate')?.addEventListener('change', () => loadReports());
 
         // Tab switching
-        const tabs = {
-            'tabRevenueTrend': 'revenueTrend',
-            'tabRevenueBranch': 'revenueBranch',
-            'tabRevenuePharmacist': 'revenuePharmacist',
-            'tabTopDrugs': 'topDrugs',
-            'tabSlowDrugs': 'slowDrugs'
-        };
-
-        Object.keys(tabs).forEach(id => {
-            document.getElementById(id)?.addEventListener('click', () => switchTab(tabs[id], id));
-        });
+        document.getElementById('tabRevenueTrend')?.addEventListener('click', () => switchTab('revenueTrend'));
+        document.getElementById('tabProfitTrend')?.addEventListener('click', () => switchTab('profitTrend'));
+        document.getElementById('tabRevenueBranch')?.addEventListener('click', () => switchTab('revenueBranch'));
+        document.getElementById('tabRevenuePharmacist')?.addEventListener('click', () => switchTab('revenuePharmacist'));
+        document.getElementById('tabTopDrugs')?.addEventListener('click', () => switchTab('topDrugs'));
+        document.getElementById('tabSlowDrugs')?.addEventListener('click', () => switchTab('slowDrugs'));
     }
 
-    function switchTab(tab, btnId) {
+    function switchTab(tab) {
         currentTab = tab;
+        // Update button styles
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active', 'text-blue-600');
-            btn.classList.add('text-slate-400');
+            btn.classList.remove('active');
         });
-        document.getElementById(btnId).classList.add('active', 'text-blue-600');
-        document.getElementById(btnId).classList.remove('text-slate-400');
 
-        if (cachedData) renderChart(currentTab, cachedData);
-        else loadReports();
+        const tabMap = {
+            revenueTrend: 'tabRevenueTrend',
+            profitTrend: 'tabProfitTrend',
+            revenueBranch: 'tabRevenueBranch',
+            revenuePharmacist: 'tabRevenuePharmacist',
+            topDrugs: 'tabTopDrugs',
+            slowDrugs: 'tabSlowDrugs'
+        };
+        const activeBtn = document.getElementById(tabMap[tab]);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // If we have cached data, render immediately; else reload
+        if (cachedData) {
+            renderChart(currentTab, cachedData);
+        } else {
+            loadReports();
+        }
     }
 
     async function loadReports() {
@@ -182,6 +178,7 @@ include '../includes/sidebar.php';
         const endDate = document.getElementById('endDate')?.value;
 
         try {
+            // Fetch all data in parallel
             const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs, slowDrugs] = await Promise.all([
                 API.getSalesReport(period, branchId, startDate, endDate),
                 API.getRevenueByBranch(),
@@ -190,7 +187,13 @@ include '../includes/sidebar.php';
                 API.getSlowMovingDrugs(10)
             ]);
 
-            cachedData = { salesReport, revenueByBranch, revenueByPharmacist, topDrugs, slowDrugs };
+            cachedData = {
+                salesReport,
+                revenueByBranch,
+                revenueByPharmacist,
+                topDrugs,
+                slowDrugs
+            };
 
             // Update KPI cards
             let totalRevenue = 0;
@@ -198,20 +201,19 @@ include '../includes/sidebar.php';
             let totalSales = 0;
             if (salesReport.data && salesReport.data.length) {
                 totalRevenue = salesReport.data.reduce((sum, item) => sum + parseFloat(item.total_revenue), 0);
-                totalProfit = salesReport.data.reduce((sum, item) => sum + parseFloat(item.total_profit || 0), 0);
+                totalProfit = salesReport.data.reduce((sum, item) => sum + parseFloat(item.total_profit), 0);
                 totalSales = salesReport.data.reduce((sum, item) => sum + item.transaction_count, 0);
             }
-            const avgSale = totalSales > 0 ? totalRevenue / totalSales : 0;
-            
             document.getElementById('totalRevenue').innerText = formatCurrency(totalRevenue);
             document.getElementById('totalProfit').innerText = formatCurrency(totalProfit);
             document.getElementById('totalSalesCount').innerText = totalSales;
-            document.getElementById('avgSale').innerText = formatCurrency(avgSale);
 
+            // Render current tab
             renderChart(currentTab, cachedData);
+
         } catch (err) {
             console.error('Reports error:', err);
-            showToast('Failed to load strategic data', 'error');
+            showToast('Failed to load reports', 'error');
         }
     }
 
@@ -219,88 +221,116 @@ include '../includes/sidebar.php';
         const ctx = document.getElementById('reportChart').getContext('2d');
         if (currentChart) currentChart.destroy();
 
-        let labels = [], values = [], values2 = [], chartType = 'bar', labelText = '', labelText2 = '';
-        const blue = '#3b82f6', teal = '#10b981', slate = '#94a3b8';
+        let labels = [];
+        let values = [];
+        let chartType = 'bar';
+        let labelText = '';
 
         switch (tab) {
             case 'revenueTrend':
                 chartType = 'line';
                 labelText = 'Revenue ($)';
-                labelText2 = 'Profit ($)';
-                if (data.salesReport.data?.length) {
-                    labels = data.salesReport.data.map(item => item.period).reverse();
-                    values = data.salesReport.data.map(item => parseFloat(item.total_revenue)).reverse();
-                    values2 = data.salesReport.data.map(item => parseFloat(item.total_profit || 0)).reverse();
+                if (data.salesReport.data && data.salesReport.data.length) {
+                    labels = data.salesReport.data.map(item => item.period);
+                    values = data.salesReport.data.map(item => parseFloat(item.total_revenue));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
+                }
+                break;
+            case 'profitTrend':
+                chartType = 'line';
+                labelText = 'Profit ($)';
+                if (data.salesReport.data && data.salesReport.data.length) {
+                    labels = data.salesReport.data.map(item => item.period);
+                    values = data.salesReport.data.map(item => parseFloat(item.total_profit));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
                 }
                 break;
             case 'revenueBranch':
-                labelText = 'Revenue by Branch ($)';
-                if (data.revenueByBranch.data?.length) {
+                chartType = 'bar';
+                labelText = 'Revenue ($)';
+                if (data.revenueByBranch.data && data.revenueByBranch.data.length) {
                     labels = data.revenueByBranch.data.map(item => item.branch_name);
                     values = data.revenueByBranch.data.map(item => parseFloat(item.revenue));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
                 }
                 break;
             case 'revenuePharmacist':
-                chartType = 'doughnut';
-                labelText = 'Pharmacist Performance';
-                if (data.revenueByPharmacist.data?.length) {
+                chartType = 'pie';
+                labelText = 'Revenue ($)';
+                if (data.revenueByPharmacist.data && data.revenueByPharmacist.data.length) {
                     labels = data.revenueByPharmacist.data.map(item => item.pharmacist_name);
                     values = data.revenueByPharmacist.data.map(item => parseFloat(item.revenue));
+                } else {
+                    labels = ['No Data'];
+                    values = [1];
                 }
                 break;
             case 'topDrugs':
-                labelText = 'Top Selling Drugs (Units)';
-                if (data.topDrugs.data?.length) {
-                    labels = data.topDrugs.data.map(item => item.name);
-                    values = data.topDrugs.data.map(item => parseFloat(item.total_quantity));
+                chartType = 'bar';
+                labelText = 'Units Sold';
+                if (data.topDrugs.data && data.topDrugs.data.length) {
+                    const top5 = data.topDrugs.data.slice(0, 5);
+                    labels = top5.map(item => item.name);
+                    values = top5.map(item => parseFloat(item.total_quantity));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
                 }
                 break;
             case 'slowDrugs':
-                labelText = 'Slow-Moving Items (Total Sales)';
-                if (data.slowDrugs.data?.length) {
-                    labels = data.slowDrugs.data.map(item => item.name);
-                    values = data.slowDrugs.data.map(item => parseFloat(item.total_sold));
+                chartType = 'bar';
+                labelText = 'Units Sold (Slow)';
+                if (data.slowDrugs && data.slowDrugs.data && data.slowDrugs.data.length) {
+                    const slow5 = data.slowDrugs.data.slice(0, 10);
+                    labels = slow5.map(item => item.name);
+                    values = slow5.map(item => parseFloat(item.total_sold || 0));
+                } else {
+                    labels = ['No Data'];
+                    values = [0];
                 }
                 break;
         }
 
-        const datasets = [{
-            label: labelText,
-            data: values,
-            backgroundColor: chartType === 'doughnut' ? ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] : blue,
-            borderColor: chartType === 'line' ? blue : 'transparent',
-            tension: 0.4,
-            fill: chartType === 'line' ? 'origin' : false,
-            pointBackgroundColor: blue
-        }];
-
-        if (tab === 'revenueTrend') {
-            datasets.push({
-                label: labelText2,
-                data: values2,
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                borderColor: teal,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: teal
+        if (chartType === 'pie') {
+            currentChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec489a', '#06b6d4']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            currentChart = new Chart(ctx, {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: labelText,
+                        data: values,
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#2563eb',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
             });
         }
-
-        currentChart = new Chart(ctx, {
-            type: chartType,
-            data: { labels, datasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, font: { weight: 'bold' } } }
-                },
-                scales: chartType !== 'doughnut' ? {
-                    y: { grid: { display: false }, ticks: { font: { weight: 'bold' } } },
-                    x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
-                } : {}
-            }
-        });
     }
 
     async function loadBranchesForReport() {
@@ -313,7 +343,9 @@ include '../includes/sidebar.php';
                     select.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
                 });
             }
-        } catch (err) { console.error(err); }
+        } catch (err) {
+            console.error(err);
+        }
     }
 </script>
 <?php include '../includes/footer.php'; ?>

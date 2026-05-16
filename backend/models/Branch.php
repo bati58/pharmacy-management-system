@@ -36,6 +36,12 @@ class Branch
 
     public function delete($id)
     {
+        // Force delete related records for class project requirements
+        $this->db->prepare("DELETE FROM sale_items WHERE drug_id IN (SELECT id FROM drugs WHERE branch_id = ?)")->execute([$id]);
+        $this->db->prepare("DELETE FROM stock_movements WHERE drug_id IN (SELECT id FROM drugs WHERE branch_id = ?)")->execute([$id]);
+        $this->db->prepare("DELETE FROM transfers WHERE branch_id = ?")->execute([$id]);
+        $this->db->prepare("DELETE FROM sales WHERE branch_id = ?")->execute([$id]);
+        
         $stmt = $this->db->prepare("DELETE FROM branches WHERE id = ?");
         return $stmt->execute([$id]);
     }

@@ -1,18 +1,25 @@
-<?php
+﻿<?php
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../config/constants.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Notification.php';
 require_once __DIR__ . '/../helpers/response.php';
-// session_start() is already started in backend/index.php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class AuthController
 {
-    private $userModel;
-    private $db; // optional, but useful for direct queries if needed
+    private User $userModel;
+    private PDO $db;
+    private Notification $notificationModel;
 
     public function __construct()
     {
         global $pdo;
         $this->db = $pdo;
         $this->userModel = new User($pdo);
+        $this->notificationModel = new Notification($pdo);
     }
 
     public function login()
@@ -27,16 +34,12 @@ class AuthController
         }
 
         $user = $this->userModel->findByEmail($email);
-        if (!$user || empty($user['password']) || !password_verify($password, $user['password'])) {
+        if (!$user || !password_verify($password, $user['password'])) {
             sendError('Invalid credentials', 401);
             return;
         }
 
         if ($user['status'] !== 'active') {
-            if ($user['status'] === 'pending') {
-                sendError('Your account is pending activation. Please check your invitation email.', 403);
-                return;
-            }
             sendError('Your account is inactive. Contact manager.', 403);
             return;
         }
@@ -45,6 +48,7 @@ class AuthController
         $_SESSION['role'] = $user['role'];
         $_SESSION['branch_id'] = $user['branch_id'];
         $_SESSION['name'] = $user['name'];
+        $_SESSION['email'] = $user['email'];
 
         sendSuccess([
             'role' => $user['role'],
@@ -55,216 +59,272 @@ class AuthController
 
     public function logout()
     {
-        $_SESSION = [];
-        if (ini_get('session.use_cookies')) {
-            $p = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
-        }
         session_destroy();
-
-        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-        $isJson = (strpos($accept, 'application/json') !== false)
-            || ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
-
-        if ($isJson) {
-            header('Content-Type: application/json');
-            echo json_encode(['success' => true, 'message' => 'Logged out', 'data' => null]);
-            exit;
-        }
-
-        header('Location: /pharmacy-management-system/frontend/pages/auth/login.php');
+        header('Location: ' . BASE_URL . '/frontend/pages/auth/login.php');
         exit;
     }
 
     public function resetPassword()
     {
-        require_once __DIR__ . '/../helpers/email.php';
-
         $data = json_decode(file_get_contents('php://input'), true);
-        $email = trim($data['email'] ?? '');
+        $email = $data['email'] ?? '';
 
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            sendError('A valid email is required', 400);
+        if (empty($email)) {
+            sendError('Email is required', 400);
             return;
         }
 
         $user = $this->userModel->findByEmail($email);
-        // Always return success to avoid user enumeration issues, even if email doesn't exist. The reset link will only be sent if the email is valid and exists.
         if (!$user) {
-            sendSuccess(null, 'If this email exists in our system, a reset link has been sent.');
+            sendError('Email not found', 404);
             return;
         }
 
         $token = bin2hex(random_bytes(32));
-        $expiresAt = date('Y-m-d H:i:s', strtotime('+2 hours'));
+        $resetLink = "http://localhost/pharmacy%20system/frontend/pages/auth/reset-password.php?token=$token&email=$email";
+        
+        // Save token to DB using MySQL's NOW() to prevent timezone mismatch between PHP and DB
+        $stmt = $this->db->prepare("INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))");
+        $stmt->execute([$email, $token]);
 
-        // Delete any existing tokens for this email
-        $stmt = $this->db->prepare("DELETE FROM password_resets WHERE email = ?");
-        $stmt->execute([$email]);
+        // Send email via PHPMailer
+        $mail = new PHPMailer(true);
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = SMTP_HOST;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = SMTP_USER;
+            $mail->Password   = SMTP_PASS;
+            $mail->SMTPSecure = SMTP_SECURE === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = SMTP_PORT;
 
-        // Save new token
-        $stmt = $this->db->prepare(
-            "INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)"
-        );
-        $stmt->execute([$email, $token, $expiresAt]);
+            // Recipients
+            $mail->setFrom(FROM_EMAIL, FROM_NAME);
+            $mail->addAddress($email);
 
-        // Build the base URL dynamically from current request
-        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') .
-            '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-        $scriptDir = dirname(dirname($_SERVER['SCRIPT_NAME'] ?? '/pharmacy-management-system/backend/index.php'));
-        $resetLink = $baseUrl . $scriptDir . '/frontend/pages/auth/reset-password.php?token=' . $token . '&email=' . urlencode($email);
-        $subject = "Reset Your PharmaFlow System Password";
-        $message = "
-            <html><body style='font-family:Arial,sans-serif;color:#111827;line-height:1.5;'>
-                <h2 style='margin:0 0 12px;'>Password Reset Request</h2>
-                <p>Hello " . htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') . ",</p>
-                <p>We received a request to reset your password. Click the button below to set a new password.</p>
-                <p style='margin:20px 0;'>
-                    <a href='" . htmlspecialchars($resetLink, ENT_QUOTES, 'UTF-8') . "' 
-                       style='background:#2563eb;color:#fff;text-decoration:none;padding:10px 16px;border-radius:6px;display:inline-block;'>
-                        Reset Password
-                    </a>
-                </p>
-                <p>This link expires in <strong>1 hour</strong>.</p>
-                <p>If you did not request a password reset, please ignore this email.</p>
-                <hr style='border:none;border-top:1px solid #e5e7eb;margin:20px 0;'>
-                <p style='font-size:12px;color:#6b7280;'>PharmaFlow System</p>
-            </body></html>
-        ";
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = 'Reset Your PharmaFlow Password';
+            $mail->Body    = "
+                <h3>Password Reset Request</h3>
+                <p>We received a request to reset your password. Click the link below to create a new password:</p>
+                <p><a href='{$resetLink}'>{$resetLink}</a></p>
+                <p>If you didn't request this, you can safely ignore this email.</p>
+                <p>Regards,<br>PharmaFlow Team</p>
+            ";
 
-        $emailSent = sendEmail($email, $subject, $message);
-
-        if (!$emailSent) {
-            // Log the reset link so admin can share it manually
-            $logFile = __DIR__ . '/../logs/reset.log';
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] $email => $resetLink" . PHP_EOL, FILE_APPEND);
-            $emailError = getLastEmailError();
-            sendSuccess(
-                ['link' => $resetLink],
-                'Reset link created but email delivery failed. Link logged in backend/logs/reset.log. ' . $emailError
-            );
-            return;
+            $mail->send();
+            sendSuccess(null, 'Password reset link sent! Please check your email inbox.');
+        } catch (Exception $e) {
+            // Remove the token if email failed
+            $stmt = $this->db->prepare("DELETE FROM password_resets WHERE token = ?");
+            $stmt->execute([$token]);
+            sendError("Message could not be sent. Mailer Error: {$mail->ErrorInfo}", 500);
         }
-
-        sendSuccess(null, 'A password reset link has been sent to your email. It expires in 1 hour.');
     }
 
-    /**
-     * Confirm password reset — validates token and sets new password
-     */
-    public function confirmReset()
+    public function resetPasswordConfirm()
     {
         $data = json_decode(file_get_contents('php://input'), true);
-        $token = trim($data['token'] ?? '');
-        $email = trim($data['email'] ?? '');
+        $email = $data['email'] ?? '';
+        $token = $data['token'] ?? '';
         $password = $data['password'] ?? '';
 
-        if (empty($token) || empty($email) || empty($password)) {
-            sendError('Token, email and new password are required', 400);
-            return;
-        }
-        if (strlen($password) < 8 || !preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
-            sendError('Password must be at least 8 characters and include letters and numbers', 400);
+        if (empty($email) || empty($token) || empty($password)) {
+            sendError('All fields are required', 400);
             return;
         }
 
-        $stmt = $this->db->prepare("
-            SELECT id, expires_at FROM password_resets
-            WHERE email = ? AND token = ?
-            LIMIT 1
-        ");
+        // Validate token
+        $stmt = $this->db->prepare("SELECT * FROM password_resets WHERE email = ? AND token = ? AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1");
         $stmt->execute([$email, $token]);
-        $record = $stmt->fetch();
+        $reset = $stmt->fetch();
 
-        if (!$record) {
-            sendError('Invalid or expired reset link. Please request a new one.', 400);
-            return;
-        }
-        if (strtotime($record['expires_at']) < time()) {
-            sendError('This reset link has expired. Please request a new one.', 400);
+        if (!$reset) {
+            sendError('Invalid or expired reset token', 400);
             return;
         }
 
-        $user = $this->userModel->findByEmail($email);
-        if (!$user) {
-            sendError('User not found', 404);
-            return;
-        }
-
+        // Update user password
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $stmt2 = $this->db->prepare("UPDATE users SET password = ? WHERE email = ?");
-        $ok = $stmt2->execute([$hashed, $email]);
+        $stmt2->execute([$hashed, $email]);
 
-        if ($ok && $stmt2->rowCount() > 0) {
-            // Delete used token
-            $this->db->prepare("DELETE FROM password_resets WHERE email = ?")->execute([$email]);
-            sendSuccess(null, 'Password reset successfully. You can now log in.');
-        } else {
-            sendError('Failed to update password', 500);
-        }
+        // Delete the used token
+        $stmt3 = $this->db->prepare("DELETE FROM password_resets WHERE email = ?");
+        $stmt3->execute([$email]);
+
+        sendSuccess(null, 'Password has been successfully updated. You can now login.');
     }
 
     public function register()
     {
-        sendError('Public registration is disabled. Contact your manager for an invitation.', 403);
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = trim($data['name'] ?? '');
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
+
+        if (empty($name) || empty($email) || empty($password)) {
+            sendError('Name, email and password are required', 400);
+            return;
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            sendError('Invalid email format', 400);
+            return;
+        }
+        if (strlen($password) < 6) {
+            sendError('Password must be at least 6 characters', 400);
+            return;
+        }
+
+        $existingUser = $this->userModel->findByEmail($email);
+        if ($existingUser) {
+            sendError('Email already exists', 409);
+            return;
+        }
+
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $userId = $this->userModel->create($name, $email, $hashed, 'pharmacist', null, 'inactive');
+
+        if ($userId) {
+            sendSuccess(['id' => $userId], 'Account created successfully. Please wait for manager approval.');
+        } else {
+            sendError('Failed to create account', 500);
+        }
     }
 
-    /**
-     * Activate an invitation – creates user account after user sets password
-     */
     public function activateInvitation()
     {
         $data = json_decode(file_get_contents('php://input'), true);
         $token = $data['token'] ?? '';
         $password = $data['password'] ?? '';
+        $name = trim($data['name'] ?? '');
 
-        if (empty($token) || empty($password)) {
-            sendError('Missing data', 400);
+        if (empty($token) || empty($password) || empty($name)) {
+            sendError('All fields (Name, Password) are required', 400);
             return;
         }
-        if (strlen($password) < 8 || !preg_match('/[A-Za-z]/', $password) || !preg_match('/\d/', $password)) {
-            sendError('Password must be at least 8 characters and include letters and numbers', 400);
+        if (strlen($password) < 6) {
+            sendError('Password must be at least 6 characters', 400);
             return;
         }
 
-        $stmt = $this->db->prepare("
-            SELECT id, status, token_expiry
-            FROM users
-            WHERE invite_token = ?
-            LIMIT 1
-        ");
+        // Validate token
+        $stmt = $this->db->prepare("SELECT * FROM invitations WHERE token = ? AND status = 'pending' AND expires_at > NOW()");
         $stmt->execute([$token]);
-        $user = $stmt->fetch();
+        $invite = $stmt->fetch();
+        
+        if (!$invite) {
+            sendError('Invalid, expired, or already used invitation', 400);
+            return;
+        }
 
-        if (!$user) {
-            sendError('Invalid or expired invitation', 400);
-            return;
-        }
-        if ($user['status'] !== 'pending') {
-            sendError('This invitation has already been used.', 400);
-            return;
-        }
-        if (empty($user['token_expiry']) || strtotime($user['token_expiry']) < time()) {
-            sendError('This invitation link has expired. Contact your manager for a new invitation.', 400);
+        // Check if user already exists (shouldn't happen if model check was done, but safe to re-check)
+        if ($this->userModel->findByEmail($invite['email'])) {
+            sendError('A user with this email already exists', 409);
             return;
         }
 
         $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt2 = $this->db->prepare("
-            UPDATE users
-            SET password = ?, status = 'active', invite_token = NULL, token_expiry = NULL
-            WHERE id = ? AND status = 'pending'
-        ");
-        $ok = $stmt2->execute([$hashed, $user['id']]);
+        $userId = $this->userModel->create($name, $invite['email'], $hashed, $invite['role'], $invite['branch_id'], 'active');
 
-        if ($ok && $stmt2->rowCount() > 0) {
-            // Mark the audit record in invitations table as used
-            $stmt3 = $this->db->prepare("UPDATE invitations SET used = 1 WHERE token = ?");
-            $stmt3->execute([$token]);
+        if ($userId) {
+            // Mark invitation as accepted and used
+            $stmt2 = $this->db->prepare("UPDATE invitations SET status = 'accepted', used = 1 WHERE id = ?");
+            $stmt2->execute([$invite['id']]);
             
-            sendSuccess(null, 'Account activated successfully. Please log in.');
+            // Notify managers
+            $allUsers = $this->userModel->getAll();
+            $message = "New user '{$name}' ({$invite['role']}) has successfully registered.";
+            foreach ($allUsers as $user) {
+                if ($user['role'] === 'manager' && $user['status'] === 'active') {
+                    $this->notificationModel->create($user['id'], 'system', $message);
+                }
+            }
+
+            sendSuccess(null, 'Account created and activated successfully. You can now log in.');
         } else {
-            sendError('Failed to activate account', 500);
+            sendError('Failed to create account', 500);
         }
+    }
+
+    public function validateInvitation()
+    {
+        $token = $_GET['token'] ?? '';
+        if (empty($token)) {
+            sendError('Token is required', 400);
+            return;
+        }
+
+        $stmt = $this->db->prepare("SELECT email, role, expires_at FROM invitations WHERE token = ? AND status = 'pending' AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $invite = $stmt->fetch();
+
+        if (!$invite) {
+            sendError('Invalid or expired invitation', 404);
+            return;
+        }
+
+        sendSuccess($invite);
+    }
+
+    public function updateProfile()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            sendError('Not authenticated', 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $name = trim($data['name'] ?? '');
+
+        if (empty($name)) {
+            sendError('Name is required', 400);
+            return;
+        }
+
+        $stmt = $this->db->prepare("UPDATE users SET name = ? WHERE id = ?");
+        $stmt->execute([$name, $_SESSION['user_id']]);
+
+        $_SESSION['name'] = $name;
+        sendSuccess(null, 'Profile updated successfully');
+    }
+
+    public function changePassword()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            sendError('Not authenticated', 401);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $currentPassword = $data['current_password'] ?? '';
+        $newPassword = $data['new_password'] ?? '';
+
+        if (empty($currentPassword) || empty($newPassword)) {
+            sendError('All fields are required', 400);
+            return;
+        }
+
+        if (strlen($newPassword) < 6) {
+            sendError('New password must be at least 6 characters', 400);
+            return;
+        }
+
+        $stmt = $this->db->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($currentPassword, $user['password'])) {
+            sendError('Current password is incorrect', 400);
+            return;
+        }
+
+        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->execute([$hashed, $_SESSION['user_id']]);
+
+        sendSuccess(null, 'Password changed successfully');
     }
 }

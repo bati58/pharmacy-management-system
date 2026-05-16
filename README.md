@@ -1,152 +1,143 @@
-# 🏥 PharmaFlow System - Enterprise Pharmacy Management System
+# PharmaFlow – Pharmacy Management System
 
-![Project Status](https://img.shields.io/badge/Status-Completed-success)
-![Version](https://img.shields.io/badge/Version-1.0.0-blue)
-![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?logo=php&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?logo=mysql&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?logo=tailwind-css&logoColor=white)
+PharmaFlow is a robust, role-based Pharmacy Management System meticulously designed to simplify and digitize the daily operations of modern pharmacies. Built on a solid technology stack using **PHP (no framework)**, **MySQL**, and **Vanilla HTML/CSS/JavaScript**, the system provides a fast, secure, and intuitive web interface. 
 
-PharmaFlow System is a comprehensive, multi-branch Pharmacy Management System engineered to streamline operations, enforce strict inventory control, and provide real-time analytical insights. Built entirely on a native PHP architecture with a modern, glassmorphic UI, it eliminates the need for heavy frameworks while delivering enterprise-grade performance.
+It handles complex workflows such as multi-branch inventory management, user invitations, point-of-sale processing, stock transfers, and automated notification alerts seamlessly.
 
 ---
 
-## 🚀 System Overview
+## 🖥️ Platform Preview
 
-The application serves as a centralized hub for managing daily pharmacy operations across multiple geographical branches. It enforces strict **Role-Based Access Control (RBAC)**, ensuring data integrity and security while providing tailored interfaces for different staff roles.
+### Secure Login
+![login](frontend/assets/login.jpg)
 
-### Core Objectives
-* **Inventory Mastery:** Eliminate stockouts and prevent expired drug dispensing through automated alerts and batch tracking.
-* **Operational Efficiency:** Streamline the Point-of-Sale (POS) experience with rapid drug searching, stock deduction, and invoicing.
-* **Managerial Oversight:** Empower administrators with holistic dashboards, granular stock movement audits, and dynamic KPI reporting.
-* **Multi-Branch Capability:** Manage independent inventory silos and securely facilitate inter-branch stock transfers.
+### Successful Authentication
+![success](frontend/assets/success.png)
 
----
-
-## 👥 Role-Based Functionality
-
-The system is strictly partitioned into three core operational roles, each with designated privileges:
-
-### 👑 1. Manager (Administrator)
-The highest privilege level, possessing unrestricted access to the system.
-* **Global Dashboard:** View aggregated revenue, total inventory valuation, and critical alerts across *all* branches.
-* **Branch Management:** Register new pharmacy locations, edit physical addresses, and archive closed branches.
-* **Human Resources:** Manage staff accounts. Issue secure email invitations for new hires and deactivate compromised accounts.
-* **Advanced Analytics:** Generate custom-dated revenue reports, identify top-performing drugs, and review slow-moving inventory.
-* **Audit Control:** View immutable stock movement logs (audit trails) for accountability.
-
-### 📦 2. Store Keeper (Inventory Specialist)
-Responsible for maintaining accurate stock levels and processing supply shipments.
-* **Catalog Management:** Add new pharmaceuticals to the database (Name, Category, Manufacturer, Supplier, Batch No., Expiry Date).
-* **Stock Adjustments:** Perform manual stock counts and adjustments, requiring mandatory justification remarks (e.g., "Damaged goods", "Audit correction").
-* **Transfer Logistics:** Initiate and receive stock transfers between the main store and dispensary branches.
-* **Alert Monitoring:** Track low-stock thresholds and imminent drug expiries through the notification center.
-
-### 💊 3. Pharmacist (Sales & Dispensing)
-The frontline operational role, focused entirely on secure and rapid patient transactions.
-* **Point of Sale (POS):** Utilize a streamlined interface to search active inventory, add items to a cart, and compute totals automatically.
-* **Transaction Processing:** Record sales with optional fields for **Prescription References** and **Discount Amounts**.
-* **Automated Deduction:** Finalized sales instantly deduct stock from the assigned branch's inventory pool.
-* **Sales Ledger:** Review historical transactions, reverse erroneous entries (if permitted), and generate patient receipts.
+### Manager Dashboard & Analytics
+![dashboard](frontend/assets/dashboard.png)
 
 ---
 
-## 🛠️ Technology Stack
+## ✨ Key Functionalities & Workflows
 
-PharmaFlow System is intentionally built without heavy backend frameworks to demonstrate native language proficiency, speed, and raw architectural design.
+The system uses strict Role-Based Access Control (RBAC) to ensure that users only have access to modules pertinent to their jobs. There are three primary roles: **Manager (Owner)**, **Pharmacist**, and **Store Keeper**.
 
-* **Backend Environment:** Native PHP 8.x (Procedural & Object-Oriented blend)
-* **Database Management:** MySQL / MariaDB (Relational design, strict foreign keys)
-* **Frontend Presentation:** HTML5, Vanilla JavaScript (ES6+), CSS3
-* **CSS Framework:** Tailwind CSS (via CDN) for rapid, responsive layout creation
-* **Data Visualization:** Chart.js for dynamic, interactive KPI rendering
-* **Email Infrastructure:** PHPMailer (via Composer) for secure account invitation distribution
-* **Iconography:** FontAwesome 6
+### 1. Manager (Owner) Capabilities
+The Manager oversees the entire business operation across all branches.
+- **Branch Management:** Create, edit, and delete branches dynamically.
+- **Enterprise User Onboarding:** Employs an invitation-only system. Managers invite new pharmacists or store keepers via secure, expiring email links. There is no open registration, ensuring a secure enterprise environment.
+- **Global Inventory Oversight:** Full visibility of stock levels, drug prices, and expiry dates across all branches.
+- **Analytics & Reporting:** View real-time revenue trends, daily/weekly/monthly sales records, and generate professional PDF reports. Analyze top-selling and slow-moving drugs to optimize purchasing.
+- **Global Settings:** Establish pricing updates across the pharmacy chain.
 
----
+### 2. Pharmacist Capabilities
+The Pharmacist focuses on the point of sale (POS) and dispensing medicine.
+- **Streamlined Sales (POS):** Quickly search for drugs by name, category, or batch. Add items to a smart cart, process payments, and generate printable invoices.
+- **Prescription Handling:** Option to attach prescription details for controlled substances.
+- **Real-time Stock Updates:** Stock quantities are automatically deducted from the branch's inventory upon completing a sale.
+- **Personal Sales Tracking:** Pharmacists can view their own sales history and metrics.
 
-## ⚙️ Architecture & Database Design
+### 3. Store Keeper Capabilities
+The Store Keeper manages the backend logistics, procurement, and stock transfers.
+- **Drug Registry:** Add new drugs to the system detailing the manufacturer, supplier, cost price, selling price, and category.
+- **Inventory & Batch Tracking:** Manage stock by batches and monitor expiry dates closely to avoid dispensing expired drugs.
+- **Stock Logistics:** Adjust stock, receive new shipments, and record damages.
+- **Inter-branch Transfers:** Transfer stock from the main store/warehouse to branch dispensaries safely. The system tracks the complete transfer history.
 
-The system employs a customized MVC-like structure to separate concerns:
-* `/backend/api/`: REST-like JSON endpoints serving the frontend via AJAX/Fetch API.
-* `/backend/models/`: Database abstraction, query generation, and data validation.
-* `/frontend/pages/`: View templates combining PHP session logic with HTML markup.
-
-### Key Database Entities
-* `users`: Authentication credentials, role mapping, and branch assignment.
-* `branches`: Geographical entities that silo stock data.
-* `drugs`: The master pharmaceutical catalog including pricing and expiry metadata.
-* `sales` & `sale_items`: Normalized transaction ledgers supporting one-to-many item associations.
-* `transfers`: Tracking logistics and state (Pending/Completed) of inter-branch movements.
-* `stock_movements`: A critical, append-only audit table logging every addition, deduction, or transfer of a drug.
-
----
-
-## 💻 Installation & Deployment
-
-Follow these instructions to deploy the system on a local XAMPP/WAMP environment.
-
-### 1. Prerequisites
-* **XAMPP** installed (Apache & MySQL).
-* **PHP 7.4 or higher** (PHP 8.0+ strongly recommended).
-* **Composer** (required for the PHPMailer vendor dependency).
-
-### 2. File Placement
-Clone or extract the project repository into your local server directory.
-**Crucial:** The project folder *must* be named exactly `pharmacy-management-system` for relative routing to function out-of-the-box.
-`C:\xampp\htdocs\pharmacy-management-system`
-
-### 3. Database Initialization
-1. Launch **Apache** and **MySQL** via the XAMPP Control Panel.
-2. Navigate to `http://localhost/phpmyadmin`.
-3. Create a new, empty database named `pharmacy_db`.
-4. Import the SQL schemas located in the `/database` folder in the following strict order:
-   * 📄 `schema.sql` (Creates core tables and relationships)
-   * 📄 `seed.sql` (Injects demo data and default administrator accounts)
-
-### 4. Configuration
-1. Open `backend/config/database.php`.
-2. Ensure the connection credentials match your local MySQL setup:
-```php
-<?php
-$host = 'localhost';
-$dbname = 'pharmacy_db';
-$username = 'root';
-$password = ''; // Default XAMPP password is empty
-```
-3. *(Optional)* Configure your SMTP credentials in `backend/config/config.local.php` if you wish to test the email invitation functionality.
-
-### 5. Dependency Installation
-Open your terminal, navigate to the project root, and run:
-```bash
-composer install
-```
-*(This ensures the `vendor/` directory is populated with PHPMailer for email services).*
-
-### 6. Launch Application
-Access the system via your browser:
-* **Login Portal:** `http://localhost/pharmacy-management-system/frontend/index.php`
+### General Features (All Users)
+- **Advanced UI/UX:** A highly responsive, premium glassmorphic interface built with modern aesthetic principles, fluid micro-animations, and dynamic loading states.
+- **Smart Notification Engine:** A YouTube-style notification badge alerts users in real-time. Role-scoped notifications for:
+  - Low stock warnings.
+  - Drug expiration alerts.
+  - Incoming stock transfers (Store Keepers).
+  - New user registrations (Managers).
+- **Security First:** Features secure password hashing (Bcrypt), session management, SQL injection prevention through Prepared Statements, and encrypted tokens for invitations.
 
 ---
 
-## 🔑 Demo Access Credentials
+## 👥 Roles Matrix
 
-The `seed.sql` file provisions three primary accounts for testing distinct role capabilities:
+| Feature                             | Manager |   Pharmacist   | Store Keeper |
+| ----------------------------------- | :-----: | :------------: | :----------: |
+| Manage branches                     |    ✅    |       ❌        |      ❌       |
+| Manage users (Invite & Activate)    |    ✅    |       ❌        |      ❌       |
+| View all drugs (all branches)       |    ✅    | ✅ (own branch) |      ✅       |
+| Add/edit drugs in registry          |    ❌    |       ❌        |      ✅       |
+| Update/Adjust stock                 |    ❌    |       ❌        |      ✅       |
+| Transfer stock (store ↔ dispensary) |    ❌    |       ❌        |      ✅       |
+| Process sales / POS / Invoices      |    ❌    |       ✅        |      ❌       |
+| View own sales                      |    ❌    |       ✅        |      ❌       |
+| View global reports & analytics     |    ✅    |       ❌        |      ❌       |
+| Receive low stock / expiry alerts   |    ✅    |       ✅        |      ✅       |
 
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| **Manager** | `manager@pharmaflow.com` | `Admin@123` |
-| **Store Keeper** | `storekeeper@pharmaflow.com` | `Admin@123` |
-| **Pharmacist** | `pharmacist@pharmaflow.com` | `Admin@123` |
+---
+
+## 🛠 Technology Stack & Architecture
+
+- **Backend Logic:** PHP 8+ (Native, PDO for secure database interactions)
+- **Database Engine:** MySQL / MariaDB
+- **Frontend Interface:** HTML5, CSS3, Vanilla JavaScript (DOM Manipulation, Fetch API for asynchronous requests)
+- **Visuals & Styling:** Custom CSS, Tailwind CSS (for utility classes where needed), Font Awesome 6
+- **Data Visualization:** Chart.js (for analytics dashboards)
+- **Email Delivery:** PHPMailer (For user invitations and alerts)
 
 ---
 
-## 📱 Mobile Responsiveness & UI Experience
+## 📦 Local Installation & Setup
 
-PharmaFlow System guarantees a premium user experience across all devices. 
-* **Glassmorphism Aesthetic:** Modern translucent backgrounds with blur effects, soft shadows, and clean gradients.
-* **Fluid Layouts:** The responsive sidebar automatically converts into an off-canvas mobile drawer on screens below 768px.
-* **Data Tables:** Complex inventory and sales tables utilize horizontal touch-scrolling on mobile devices to prevent layout breakage.
-* **Dynamic Modals:** All CRUD (Create, Read, Update, Delete) operations occur seamlessly via animated, centralized modal overlays without requiring page reloads.
+### System Prerequisites
+- **Web Server:** Apache (XAMPP / WAMP / LAMP) with `mod_rewrite` enabled.
+- **PHP:** Version 7.4 or higher (8.x highly recommended).
+- **Database:** MySQL 5.7+ or MariaDB.
+
+### Step-by-Step Guide
+
+1. **Clone the Repository**
+   Download or clone the project and place it inside your web server's document root (e.g., `C:\xampp\htdocs\pharmacy system` for XAMPP).
+
+2. **Database Configuration**
+   - Open your MySQL management tool (e.g., phpMyAdmin).
+   - Create a new, empty database named `pms_db`.
+   - Import the schema by executing the SQL file located at `database/schema.sql`.
+   - Next, import the initial seed data from `database/seed.sql`. This file populates default branches, sample drugs, and initial users.
+
+3. **Backend Configuration**
+   Navigate to `backend/config/database.php` and verify the connection settings. Update the `$password` if your local MySQL instance has one.
+   ```php
+   $host = 'localhost';
+   $dbname = 'pms_db';
+   $username = 'root';
+   $password = ''; // Update if necessary
+   ```
+
+4. **Default Login Credentials**
+   The `seed.sql` script creates three default users to help you explore the system right away.
+   - **Manager:** 
+     - Email: `admin@pharmaflow.system`
+     - Password: `Admin@123`
+   - **Pharmacist:** 
+     - Email: `pharmacist@PharmaFlow.com`
+     - Password: `Admin@123`
+   - **Store Keeper:** 
+     - Email: `storekeeper@PharmaFlow.com`
+     - Password: `Admin@123`
+
+5. **Automated Background Jobs (Optional but Recommended)**
+   To ensure the notification engine detects expired drugs and low stock automatically, set up a daily Cron Job (Linux) or Task Scheduler (Windows) that executes the `backend/helpers/expiry_checker.php` script.
 
 ---
-*Built as a professional demonstration of Native PHP architecture and Modern Web Design.*
+
+## 🔒 Security Best Practices Implemented
+- **No Direct Registration:** Eliminates spam accounts. Staff can only join via a Manager's cryptographically secure email link.
+- **Prepared Statements:** All database queries utilize PHP PDO prepared statements to entirely block SQL Injection attacks.
+- **XSS Protection:** Input sanitization and proper output escaping using `htmlspecialchars()` prevent Cross-Site Scripting.
+- **Authentication:** Sessions are strictly validated on every secure page. Passwords are never stored in plaintext (uses `password_hash`).
+
+## 📈 Future Enhancements
+- Integration with barcode scanners for faster POS checkouts.
+- Direct supplier portal for automated procurement.
+- SMS gateway integration for offline notifications.
+
+---
+*Built with ❤️ for better healthcare management.*

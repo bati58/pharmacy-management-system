@@ -1,4 +1,15 @@
 <?php
+// Import controllers
+require_once __DIR__ . '/../controllers/AuthController.php';
+require_once __DIR__ . '/../controllers/BranchController.php';
+require_once __DIR__ . '/../controllers/UserController.php';
+require_once __DIR__ . '/../controllers/DrugController.php';
+require_once __DIR__ . '/../controllers/InventoryController.php';
+require_once __DIR__ . '/../controllers/TransferController.php';
+require_once __DIR__ . '/../controllers/SaleController.php';
+require_once __DIR__ . '/../controllers/ReportController.php';
+require_once __DIR__ . '/../controllers/NotificationController.php';
+require_once __DIR__ . '/../controllers/BackupController.php';
 
 $routes = [
     'POST /auth/login' => ['AuthController', 'login'],
@@ -7,8 +18,11 @@ $routes = [
     'GET /auth/logout' => ['AuthController', 'logout'],
     'POST /auth/register' => ['AuthController', 'register'],
     'POST /auth/reset-password' => ['AuthController', 'resetPassword'],
-    'POST /auth/confirm-reset' => ['AuthController', 'confirmReset'],
+    'POST /auth/reset-password-confirm' => ['AuthController', 'resetPasswordConfirm'],
     'POST /auth/activate-invitation' => ['AuthController', 'activateInvitation'],
+    'GET /auth/validate-invitation' => ['AuthController', 'validateInvitation'],
+    'POST /auth/update-profile' => ['AuthController', 'updateProfile'],
+    'POST /auth/change-password' => ['AuthController', 'changePassword'],
     'GET /branches' => ['BranchController', 'index'],
     'GET /branches/{id}' => ['BranchController', 'show'],
     'POST /branches' => ['BranchController', 'create'],
@@ -40,11 +54,10 @@ $routes = [
     'GET /reports/revenue-by-pharmacist' => ['ReportController', 'revenueByPharmacist'],
     'GET /reports/top-drugs' => ['ReportController', 'topDrugs'],
     'GET /reports/slow-moving-drugs' => ['ReportController', 'slowMovingDrugs'],
-    'GET /reports/profit' => ['ReportController', 'profitReport'],
-    'GET /reports/inventory-history' => ['ReportController', 'inventoryHistory'],
     'GET /notifications' => ['NotificationController', 'index'],
     'PUT /notifications/{id}/read' => ['NotificationController', 'markAsRead'],
     'PUT /notifications/read-all' => ['NotificationController', 'markAllRead'],
+    'GET /system/backup' => ['BackupController', 'download'],
 ];
 
 function route($requestUri, $requestMethod)
@@ -53,23 +66,35 @@ function route($requestUri, $requestMethod)
 
     // Remove query string
     $requestUri = strtok($requestUri, '?');
-    $requestUri = str_replace('\\', '/', $requestUri);
+    $requestUri = urldecode($requestUri);
 
-    // Strip backend directory prefix (works when app is not at document root)
-    $backendDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-    if ($backendDir !== '' && strpos($requestUri, $backendDir) === 0) {
-        $requestUri = substr($requestUri, strlen($backendDir));
+    // Dynamically determine the base path from the script name
+    // e.g., if SCRIPT_NAME is /pharmacy system/backend/index.php
+    // then the base path to strip is /pharmacy system/backend/
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    $backendPath = dirname($scriptName); // /pharmacy system/backend
+    
+    // Normalize paths to use forward slashes and ensure trailing slash for comparison
+    $backendPath = str_replace('\\', '/', $backendPath);
+    if (substr($backendPath, -1) !== '/') {
+        $backendPath .= '/';
     }
 
-    // Remove leading /index.php or index.php from path-style URLs
-    if (strpos($requestUri, '/index.php') === 0) {
-        $requestUri = substr($requestUri, strlen('/index.php'));
+    if (strpos($requestUri, $backendPath) === 0) {
+        $requestUri = substr($requestUri, strlen($backendPath));
+    }
+
+    // Also handle if the URI includes index.php explicitly
+    $scriptPath = str_replace('\\', '/', $scriptName);
+    if (strpos($requestUri, $scriptPath) === 0) {
+        $requestUri = substr($requestUri, strlen($scriptPath));
     } elseif (strpos($requestUri, 'index.php/') === 0) {
-        $requestUri = substr($requestUri, strlen('index.php'));
+        $requestUri = substr($requestUri, strlen('index.php/'));
     }
 
-    if ($requestUri === '' || $requestUri[0] !== '/') {
-        $requestUri = '/' . ltrim($requestUri, '/');
+    // Ensure the URI starts with a slash for matching
+    if (substr($requestUri, 0, 1) !== '/') {
+        $requestUri = '/' . $requestUri;
     }
 
     foreach ($routes as $routePattern => $action) {
@@ -85,16 +110,7 @@ function route($requestUri, $requestMethod)
                 return !is_numeric($key);
             }, ARRAY_FILTER_USE_KEY);
 
-            $controllerClass = $action[0];
-            $controllerPath = __DIR__ . '/../controllers/' . $controllerClass . '.php';
-            if (!is_file($controllerPath)) {
-                http_response_code(500);
-                echo json_encode(['success' => false, 'message' => 'Controller not found']);
-                return;
-            }
-            require_once $controllerPath;
-
-            $controller = new $controllerClass();
+            $controller = new $action[0]();
             call_user_func_array([$controller, $action[1]], $params);
             return;
         }
