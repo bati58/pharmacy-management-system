@@ -13,7 +13,7 @@ INSERT INTO `branches` (`name`, `address`, `phone`) VALUES
 -- Insert manager user (password: Admin@123)
 -- Hash generated using password_hash('Admin@123', PASSWORD_DEFAULT)
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('Pharma Manager', 'manager@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
+('Pharma Manager', 'batijano58@gmail.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
 
 -- Insert sample pharmacist
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
