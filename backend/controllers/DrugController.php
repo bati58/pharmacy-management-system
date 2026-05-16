@@ -80,6 +80,7 @@ class DrugController
         $batch = $data['batch'] ?? null;
         $price = $data['price'] ?? null;
         $costPrice = $data['cost_price'] ?? null;
+
         $requiresPrescription = $data['requires_prescription'] ?? null;
         $expiry = $data['expiry_date'] ?? null;
 

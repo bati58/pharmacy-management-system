@@ -40,13 +40,13 @@ class Drug
         return $stmt->fetch();
     }
 
-    public function create($name, $category, $manufacturer, $supplier, $batch, $stock, $price, $expiry, $branchId, $costPrice = 0, $requiresPrescription = 0)
+    public function create($name, $category, $manufacturer, $supplier, $batch, $stock, $price, $expiry, $branchId, $costPrice = 0, $requiresPrescription = 0, $dispensaryStock = 0)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO drugs (name, category, manufacturer, supplier, batch, stock, price, expiry_date, branch_id, cost_price, requires_prescription) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO drugs (name, category, manufacturer, supplier, batch, stock, dispensary_stock, price, expiry_date, branch_id, cost_price, requires_prescription) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$name, $category, $manufacturer ?: null, $supplier ?: null, $batch, $stock, $price, $expiry, $branchId, $costPrice, $requiresPrescription]);
+        $stmt->execute([$name, $category, $manufacturer ?: null, $supplier ?: null, $batch, $stock, $dispensaryStock, $price, $expiry, $branchId, $costPrice, $requiresPrescription]);
         return $this->db->lastInsertId();
     }
 
@@ -97,13 +97,15 @@ class Drug
         return $stmt->execute($params);
     }
 
-    public function updateStock($id, $newStock = null, $change = null)
+    public function updateStock($id, $newStock = null, $change = null, $target = 'stock')
     {
+        $column = $target === 'dispensary' ? 'dispensary_stock' : 'stock';
+        
         if ($newStock !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET stock = ? WHERE id = ?");
+            $stmt = $this->db->prepare("UPDATE drugs SET $column = ? WHERE id = ?");
             return $stmt->execute([$newStock, $id]);
         } elseif ($change !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET stock = stock + ? WHERE id = ?");
+            $stmt = $this->db->prepare("UPDATE drugs SET $column = $column + ? WHERE id = ?");
             return $stmt->execute([$change, $id]);
         }
         return false;

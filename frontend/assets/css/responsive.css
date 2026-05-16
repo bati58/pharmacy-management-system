@@ -1,0 +1,144 @@
+/* ======================================================
+   Responsive Styles for PharmaFlow System
+   Mobile, tablet, and desktop adjustments
+   ====================================================== */
+
+/* Overlay for mobile sidebar */
+#overlay,
+.mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    z-index: 900;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+}
+
+#overlay.active,
+.mobile-backdrop.show {
+    display: block !important;
+}
+
+/* Tablet & Mobile (max-width: 1024px) */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+
+    /* Sidebar: drawer mode */
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed !important;
+        z-index: 2000 !important;
+        width: var(--sidebar-width);
+        height: 100vh !important;
+        overflow-y: auto !important;
+        background: #0f172a;
+        box-shadow: 20px 0 50px rgba(0,0,0,0.3);
+        display: flex !important;
+        flex-direction: column;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Ensure internal elements are clickable */
+    .sidebar-logo, .sidebar nav, .sidebar a, .sidebar button, .sidebar .mt-auto {
+        position: relative;
+        z-index: 2001 !important;
+        cursor: pointer;
+    }
+
+    .sidebar a {
+        padding: 1rem 1.25rem !important;
+        margin: 0.25rem 0.75rem !important;
+        font-size: 0.95rem !important;
+    }
+
+    .main-content, .ml-64 {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 1rem !important;
+    }
+
+    /* Force show mobile menu button */
+    #navMobileMenuBtn, .mobile-menu-btn {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Mobile Specific Adjustments (max-width: 768px) */
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .modal-content {
+        width: 96% !important;
+        max-width: 96% !important;
+        margin: 1rem auto;
+        max-height: 85vh;
+    }
+
+    .grid-cols-4 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    .navbar h1, nav h1 {
+        font-size: 0.9rem !important;
+        max-width: 150px;
+    }
+}
+
+/* Small mobile (max-width: 480px) */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 85%;
+    }
+
+    .grid-cols-4, .grid-cols-3, .grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .kpi-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Auth pages & Shared Components */
+.login-card,
+.card {
+    max-width: 100%;
+}
+
+table th,
+table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* Print Styles */
+@media print {
+    .sidebar, .navbar, .btn, .mobile-menu-btn, .no-print, #overlay {
+        display: none !important;
+    }
+
+    .main-content, .ml-64 {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    body {
+        background: white;
+    }
+}

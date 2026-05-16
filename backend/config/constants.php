@@ -25,7 +25,7 @@ define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'pdf']);
 
 // ========== SESSION ==========
 define('SESSION_TIMEOUT', 7200);          // 2 hours (in seconds)
-define('SESSION_NAME', 'batiflow_session');
+define('SESSION_NAME', 'pharmaflow_session');
 
 // ========== PAGINATION ==========
 define('ITEMS_PER_PAGE', 20);
@@ -40,8 +40,8 @@ define('CURRENCY_SYMBOL', '$');
 define('CURRENCY_CODE', 'USD');
 
 // ========== EMAIL ==========
-define('FROM_EMAIL', 'noreply@batiflow.com');
-define('FROM_NAME', 'BatiFlow Pharma System');
+define('FROM_EMAIL', 'noreply@pharmaflow.com');
+define('FROM_NAME', 'PharmaFlow System');
 
 // ========== SYSTEM PATHS ==========
 define('BASE_URL', 'http://localhost/pharmacy-management-system');

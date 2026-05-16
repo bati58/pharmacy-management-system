@@ -1,4 +1,4 @@
-# 🏥 BatiFlow Smart Pharma - Enterprise Pharmacy Management System
+# 🏥 PharmaFlow System - Enterprise Pharmacy Management System
 
 ![Project Status](https://img.shields.io/badge/Status-Completed-success)
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue)
@@ -6,7 +6,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?logo=mysql&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC?logo=tailwind-css&logoColor=white)
 
-BatiFlow Smart Pharma is a comprehensive, multi-branch Pharmacy Management System engineered to streamline operations, enforce strict inventory control, and provide real-time analytical insights. Built entirely on a native PHP architecture with a modern, glassmorphic UI, it eliminates the need for heavy frameworks while delivering enterprise-grade performance.
+PharmaFlow System is a comprehensive, multi-branch Pharmacy Management System engineered to streamline operations, enforce strict inventory control, and provide real-time analytical insights. Built entirely on a native PHP architecture with a modern, glassmorphic UI, it eliminates the need for heavy frameworks while delivering enterprise-grade performance.
 
 ---
 
@@ -52,7 +52,7 @@ The frontline operational role, focused entirely on secure and rapid patient tra
 
 ## 🛠️ Technology Stack
 
-BatiFlow Smart Pharma is intentionally built without heavy backend frameworks to demonstrate native language proficiency, speed, and raw architectural design.
+PharmaFlow System is intentionally built without heavy backend frameworks to demonstrate native language proficiency, speed, and raw architectural design.
 
 * **Backend Environment:** Native PHP 8.x (Procedural & Object-Oriented blend)
 * **Database Management:** MySQL / MariaDB (Relational design, strict foreign keys)
@@ -102,7 +102,6 @@ Clone or extract the project repository into your local server directory.
 4. Import the SQL schemas located in the `/database` folder in the following strict order:
    * 📄 `schema.sql` (Creates core tables and relationships)
    * 📄 `seed.sql` (Injects demo data and default administrator accounts)
-   * 📄 `migration_add_sales_discount_and_prescription.sql` (Alters sales table for extended features)
 
 ### 4. Configuration
 1. Open `backend/config/database.php`.
@@ -135,15 +134,15 @@ The `seed.sql` file provisions three primary accounts for testing distinct role 
 
 | Role | Email | Password |
 | :--- | :--- | :--- |
-| **Manager** | `manager@batiflow.com` | `Admin@123` |
-| **Store Keeper** | `storekeeper@batiflow.com` | `Admin@123` |
-| **Pharmacist** | `pharmacist@batiflow.com` | `Admin@123` |
+| **Manager** | `manager@pharmaflow.com` | `Admin@123` |
+| **Store Keeper** | `storekeeper@pharmaflow.com` | `Admin@123` |
+| **Pharmacist** | `pharmacist@pharmaflow.com` | `Admin@123` |
 
 ---
 
 ## 📱 Mobile Responsiveness & UI Experience
 
-BatiFlow Smart Pharma guarantees a premium user experience across all devices. 
+PharmaFlow System guarantees a premium user experience across all devices. 
 * **Glassmorphism Aesthetic:** Modern translucent backgrounds with blur effects, soft shadows, and clean gradients.
 * **Fluid Layouts:** The responsive sidebar automatically converts into an off-canvas mobile drawer on screens below 768px.
 * **Data Tables:** Complex inventory and sales tables utilize horizontal touch-scrolling on mobile devices to prevent layout breakage.

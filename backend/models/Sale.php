@@ -75,7 +75,7 @@ class Sale
         return $stmt->execute([$saleId, $drugId, $quantity, $price]);
     }
 
-    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null)
+    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null, $pharmacistId = null)
     {
         switch ($period) {
             case 'weekly':
@@ -108,8 +108,12 @@ class Sale
         ";
         $params = [];
         if ($branchId) {
-            $sql .= " AND branch_id = ?";
+            $sql .= " AND s.branch_id = ?";
             $params[] = $branchId;
+        }
+        if ($pharmacistId) {
+            $sql .= " AND s.pharmacist_id = ?";
+            $params[] = $pharmacistId;
         }
         if ($startDate && $endDate) {
             $sql .= " AND sale_date BETWEEN ? AND ?";
@@ -158,6 +162,36 @@ class Sale
             LIMIT ?
         ");
         $stmt->execute([$limit]);
+        return $stmt->fetchAll();
+    }
+
+    public function getProfitReport($branchId = null, $startDate = null, $endDate = null)
+    {
+        $sql = "
+            SELECT 
+                d.name as drug_name,
+                SUM(si.quantity) as quantity_sold,
+                SUM(si.quantity * si.price) as total_revenue,
+                SUM(si.quantity * d.cost_price) as total_cost,
+                SUM(si.quantity * (si.price - d.cost_price)) as total_profit
+            FROM sale_items si
+            JOIN drugs d ON si.drug_id = d.id
+            JOIN sales s ON si.sale_id = s.id
+            WHERE 1=1
+        ";
+        $params = [];
+        if ($branchId) {
+            $sql .= " AND s.branch_id = ?";
+            $params[] = $branchId;
+        }
+        if ($startDate && $endDate) {
+            $sql .= " AND s.sale_date BETWEEN ? AND ?";
+            $params[] = $startDate;
+            $params[] = $endDate;
+        }
+        $sql .= " GROUP BY d.id ORDER BY total_profit DESC";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 }
