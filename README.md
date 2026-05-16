@@ -9,7 +9,7 @@ It handles complex workflows such as multi-branch inventory management, user inv
 ## 🖥️ Platform Preview
 
 ### Secure Login
-![login](frontend/assets/login.jpg)
+![login](frontend/assets/login.png)
 
 ### Successful Authentication
 ![success](frontend/assets/success.png)
