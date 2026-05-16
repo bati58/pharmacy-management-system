@@ -11,5 +11,5 @@ return [
     'username' => 'your-email@gmail.com',
     'password' => 'your-16-digit-app-password',
     'from_email' => 'your-email@gmail.com',
-    'from_name' => 'BatiFlow Pharma',
+    'from_name' => 'PharmaFlow System',
 ];

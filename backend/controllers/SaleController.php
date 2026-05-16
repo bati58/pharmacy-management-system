@@ -1,42 +1,38 @@
 <?php
 require_once __DIR__ . '/../models/Sale.php';
 require_once __DIR__ . '/../models/Drug.php';
-require_once __DIR__ . '/../models/StockMovement.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/alert.php';
 
 class SaleController
 {
     private $saleModel;
     private $drugModel;
-    private $stockMovementModel;
 
     public function __construct()
     {
         global $pdo;
         $this->saleModel = new Sale($pdo);
         $this->drugModel = new Drug($pdo);
-        $this->stockMovementModel = new StockMovement($pdo);
         AuthMiddleware::check();
+        // Pharmacist and manager can access; store keeper no.
         AuthMiddleware::requireRole(['manager', 'pharmacist']);
     }
 
     public function index()
     {
-        if (($_SESSION['role'] ?? '') === 'manager') {
-            $branchId = isset($_GET['branch_id']) && $_GET['branch_id'] !== ''
-                ? $_GET['branch_id']
-                : null;
-        } else {
-            $branchId = $_SESSION['branch_id'] ?? null;
-        }
-
+        $branchId = $_GET['branch_id'] ?? $_SESSION['branch_id'];
         $pharmacistId = null;
-        if (($_SESSION['role'] ?? '') === 'pharmacist') {
+
+        if ($_SESSION['role'] === 'pharmacist') {
+            // Pharmacists see ONLY their own sales (SRS §3.3)
+            $branchId = $_SESSION['branch_id'];
             $pharmacistId = $_SESSION['user_id'];
         }
 
-        $sales = $this->saleModel->getAll($branchId, $pharmacistId);
+        $period = $_GET['period'] ?? 'all';
+        $sales = $this->saleModel->getAll($branchId, $pharmacistId, $period);
         sendSuccess($sales);
     }
 
@@ -47,58 +43,49 @@ class SaleController
             sendError('Sale not found', 404);
             return;
         }
-        if (($_SESSION['role'] ?? '') === 'pharmacist') {
-            if ((int)$sale['pharmacist_id'] !== (int)$_SESSION['user_id']) {
-                sendError('Forbidden', 403);
-                return;
-            }
-        }
         sendSuccess($sale);
     }
 
     public function create()
     {
-        if (($_SESSION['role'] ?? '') !== 'pharmacist') {
-            sendError('Only pharmacists can process sales', 403);
-            return;
-        }
+        // Only pharmacist can create sales (SRS §3.3)
+        AuthMiddleware::requireRole(['pharmacist']);
 
         $data = json_decode(file_get_contents('php://input'), true);
         $customerName = $data['customer_name'] ?? 'Walk-in customer';
-        $prescriptionReference = trim((string)($data['prescription_reference'] ?? ''));
-        $items = $data['items'] ?? [];
+        $items = $data['items'] ?? []; // array of {drug_id, quantity}
+        $discount = $data['discount_amount'] ?? 0;
+        $prescriptionRef = $data['prescription_ref'] ?? null;
         $paymentMethod = $data['payment_method'] ?? 'Cash';
-        $discountAmount = (float)($data['discount_amount'] ?? 0);
-        $branchId = $_SESSION['branch_id'] ?? null;
+        $branchId = $data['branch_id'] ?? $_SESSION['branch_id'];
+        
+        // Security: Pharmacists can ONLY create sales in their own branch
+        if ($_SESSION['role'] === 'pharmacist') {
+            $branchId = $_SESSION['branch_id'];
+        }
 
         if (empty($items)) {
             sendError('No items in sale', 400);
             return;
         }
 
-        global $pdo;
-        $subTotal = 0;
+        $total = 0;
+        $totalCost = 0;
         $saleItems = [];
 
+        // Validate stock and calculate total
         foreach ($items as $item) {
             $drug = $this->drugModel->findById($item['drug_id']);
-            if (!$drug || (int)$drug['branch_id'] !== (int)$branchId) {
+            if (!$drug || $drug['branch_id'] != $branchId) {
                 sendError("Drug ID {$item['drug_id']} not found in this branch", 400);
-                return;
-            }
-            if ($drug['requires_prescription'] && empty($prescriptionReference)) {
-                sendError("Drug {$drug['name']} requires a prescription. Please provide a reference.", 400);
-                return;
-            }
-            if ($drug['expiry_date'] < date('Y-m-d')) {
-                sendError("Cannot sell expired drug: {$drug['name']}", 400);
                 return;
             }
             if ($drug['stock'] < $item['quantity']) {
                 sendError("Insufficient stock for {$drug['name']}", 400);
                 return;
             }
-            $subTotal += $drug['price'] * $item['quantity'];
+            $total += $drug['price'] * $item['quantity'];
+            $totalCost += $drug['cost_price'] * $item['quantity'];
             $saleItems[] = [
                 'drug_id' => $drug['id'],
                 'quantity' => $item['quantity'],
@@ -106,58 +93,29 @@ class SaleController
             ];
         }
 
-        if ($discountAmount < 0) {
-            sendError('Discount cannot be negative', 400);
-            return;
-        }
-        if ($discountAmount > $subTotal) {
-            sendError('Discount cannot exceed subtotal', 400);
-            return;
-        }
-        $total = $subTotal - $discountAmount;
-
+        // Generate invoice number
         $invoiceNo = 'INV-' . strtoupper(uniqid());
 
-        try {
-            $pdo->beginTransaction();
+        // Apply discount to total
+        $finalTotal = $total - $discount;
+        if ($finalTotal < 0) $finalTotal = 0;
 
-            $saleId = $this->saleModel->create(
-                $invoiceNo,
-                $customerName,
-                $total,
-                $paymentMethod,
-                $_SESSION['user_id'],
-                $branchId,
-                $discountAmount,
-                $prescriptionReference !== '' ? $prescriptionReference : null
-            );
+        $saleId = $this->saleModel->create($invoiceNo, $customerName, $finalTotal, $discount, $totalCost, $prescriptionRef, $paymentMethod, $_SESSION['user_id'], $branchId);
 
-            foreach ($saleItems as $item) {
-                $this->saleModel->addItem($saleId, $item['drug_id'], $item['quantity'], $item['price']);
-                $this->drugModel->updateStock($item['drug_id'], null, -$item['quantity']);
-                $this->stockMovementModel->create(
-                    (int)$item['drug_id'],
-                    (int)$item['quantity'] * -1,
-                    'sale:' . $invoiceNo,
-                    (int)($_SESSION['user_id'] ?? 0)
-                );
-            }
-
-            $pdo->commit();
-        } catch (Exception $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            sendError('Sale failed: ' . $e->getMessage(), 500);
-            return;
+        // Add sale items and deduct stock
+        foreach ($saleItems as $item) {
+            $this->saleModel->addItem($saleId, $item['drug_id'], $item['quantity'], $item['price']);
+            
+            // Get new stock level after deduction
+            $drug = $this->drugModel->findById($item['drug_id']);
+            $newStock = $drug['stock'] - $item['quantity'];
+            
+            $this->drugModel->updateStock($item['drug_id'], $newStock, null, $_SESSION['user_id'], 'sale');
+            
+            // Automated Low Stock Alert (SRS §3.2)
+            checkAndNotifyLowStock($item['drug_id'], $newStock);
         }
 
-        sendSuccess([
-            'sale_id' => $saleId,
-            'invoice_no' => $invoiceNo,
-            'subtotal' => $subTotal,
-            'discount_amount' => $discountAmount,
-            'net_total' => $total
-        ], 'Sale completed successfully');
+        sendSuccess(['sale_id' => $saleId, 'invoice_no' => $invoiceNo], 'Sale completed successfully');
     }
 }

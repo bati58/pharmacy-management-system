@@ -40,17 +40,17 @@ class Drug
         return $stmt->fetch();
     }
 
-    public function create($name, $category, $manufacturer, $supplier, $batch, $stock, $price, $expiry, $branchId, $costPrice = 0, $requiresPrescription = 0)
+    public function create($name, $category, $batch, $stock, $price, $cost_price, $manufacturer, $supplier, $expiry, $branchId)
     {
         $stmt = $this->db->prepare("
-            INSERT INTO drugs (name, category, manufacturer, supplier, batch, stock, price, expiry_date, branch_id, cost_price, requires_prescription) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO drugs (name, category, batch, stock, price, cost_price, manufacturer, supplier, expiry_date, branch_id) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        $stmt->execute([$name, $category, $manufacturer ?: null, $supplier ?: null, $batch, $stock, $price, $expiry, $branchId, $costPrice, $requiresPrescription]);
+        $stmt->execute([$name, $category, $batch, $stock, $price, $cost_price, $manufacturer, $supplier, $expiry, $branchId]);
         return $this->db->lastInsertId();
     }
 
-    public function update($id, $name, $category, $manufacturer, $supplier, $batch, $price, $expiry, $costPrice = null, $requiresPrescription = null)
+    public function update($id, $name, $category, $batch, $price, $cost_price, $manufacturer, $supplier, $expiry)
     {
         $fields = [];
         $params = [];
@@ -62,14 +62,6 @@ class Drug
             $fields[] = "category = ?";
             $params[] = $category;
         }
-        if ($manufacturer !== null) {
-            $fields[] = "manufacturer = ?";
-            $params[] = $manufacturer;
-        }
-        if ($supplier !== null) {
-            $fields[] = "supplier = ?";
-            $params[] = $supplier;
-        }
         if ($batch !== null) {
             $fields[] = "batch = ?";
             $params[] = $batch;
@@ -78,17 +70,21 @@ class Drug
             $fields[] = "price = ?";
             $params[] = $price;
         }
+        if ($cost_price !== null) {
+            $fields[] = "cost_price = ?";
+            $params[] = $cost_price;
+        }
+        if ($manufacturer !== null) {
+            $fields[] = "manufacturer = ?";
+            $params[] = $manufacturer;
+        }
+        if ($supplier !== null) {
+            $fields[] = "supplier = ?";
+            $params[] = $supplier;
+        }
         if ($expiry !== null) {
             $fields[] = "expiry_date = ?";
             $params[] = $expiry;
-        }
-        if ($costPrice !== null) {
-            $fields[] = "cost_price = ?";
-            $params[] = $costPrice;
-        }
-        if ($requiresPrescription !== null) {
-            $fields[] = "requires_prescription = ?";
-            $params[] = $requiresPrescription;
         }
         if (empty($fields)) return false;
         $params[] = $id;
@@ -97,16 +93,39 @@ class Drug
         return $stmt->execute($params);
     }
 
-    public function updateStock($id, $newStock = null, $change = null)
+    public function updateStock($id, $newStock = null, $change = null, $userId = null, $reason = 'manual')
     {
-        if ($newStock !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET stock = ? WHERE id = ?");
-            return $stmt->execute([$newStock, $id]);
-        } elseif ($change !== null) {
-            $stmt = $this->db->prepare("UPDATE drugs SET stock = stock + ? WHERE id = ?");
-            return $stmt->execute([$change, $id]);
+        $this->db->beginTransaction();
+        try {
+            if ($newStock !== null) {
+                // Get current stock to calculate change
+                $drug = $this->findById($id);
+                $oldStock = $drug['stock'];
+                $actualChange = $newStock - $oldStock;
+                
+                $stmt = $this->db->prepare("UPDATE drugs SET stock = ? WHERE id = ?");
+                $stmt->execute([$newStock, $id]);
+            } elseif ($change !== null) {
+                $actualChange = $change;
+                $stmt = $this->db->prepare("UPDATE drugs SET stock = stock + ? WHERE id = ?");
+                $stmt->execute([$change, $id]);
+            } else {
+                $this->db->rollBack();
+                return false;
+            }
+
+            // Log movement if user ID is provided
+            if ($userId !== null && $actualChange != 0) {
+                $stmtLog = $this->db->prepare("INSERT INTO stock_movements (drug_id, quantity_change, reason, user_id) VALUES (?, ?, ?, ?)");
+                $stmtLog->execute([$id, $actualChange, $reason, $userId]);
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
         }
-        return false;
     }
 
     public function getLowStock($threshold = 10)
@@ -153,6 +172,11 @@ class Drug
 
     public function delete($id)
     {
+        // Force delete related records for class project requirements
+        $this->db->prepare("DELETE FROM sale_items WHERE drug_id = ?")->execute([$id]);
+        $this->db->prepare("DELETE FROM transfers WHERE drug_id = ?")->execute([$id]);
+        $this->db->prepare("DELETE FROM stock_movements WHERE drug_id = ?")->execute([$id]);
+        
         $stmt = $this->db->prepare("DELETE FROM drugs WHERE id = ?");
         return $stmt->execute([$id]);
     }

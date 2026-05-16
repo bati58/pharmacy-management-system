@@ -78,6 +78,11 @@ class User
 
     public function delete($id)
     {
+        // Force delete related records for class project requirements
+        $this->db->prepare("DELETE FROM stock_movements WHERE user_id = ?")->execute([$id]);
+        $this->db->prepare("DELETE FROM transfers WHERE created_by = ?")->execute([$id]);
+        $this->db->prepare("DELETE FROM sales WHERE pharmacist_id = ?")->execute([$id]);
+        
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = ?");
         return $stmt->execute([$id]);
     }

@@ -1,4 +1,4 @@
-// BatiFlow Smart Pharma - Core Application Logic
+// PharmaFlow System - Core Application Logic
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -25,7 +25,7 @@ define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'pdf']);
 
 // ========== SESSION ==========
 define('SESSION_TIMEOUT', 7200);          // 2 hours (in seconds)
-define('SESSION_NAME', 'batiflow_session');
+define('SESSION_NAME', 'PharmaFlow_session');
 
 // ========== PAGINATION ==========
 define('ITEMS_PER_PAGE', 20);
@@ -40,12 +40,31 @@ define('CURRENCY_SYMBOL', '$');
 define('CURRENCY_CODE', 'USD');
 
 // ========== EMAIL ==========
-define('FROM_EMAIL', 'noreply@batiflow.com');
-define('FROM_NAME', 'BatiFlow Pharma System');
+if (file_exists(__DIR__ . '/config.local.php')) {
+    require_once __DIR__ . '/config.local.php';
+} else {
+    // WARNING: Never hardcode real passwords in this file if it's pushed to GitHub!
+    define('SMTP_HOST', 'smtp.gmail.com');
+    define('SMTP_PORT', 465);
+    define('SMTP_USER', 'your-email@gmail.com'); // Replace locally, do not commit
+    define('SMTP_PASS', 'your-app-password');    // Replace locally, do not commit
+    define('SMTP_SECURE', 'ssl');                     // 'tls' or 'ssl'
+    define('FROM_EMAIL', 'your-email@gmail.com');
+    define('FROM_NAME', 'PharmaFlow System');
+}
 
 // ========== SYSTEM PATHS ==========
-define('BASE_URL', 'http://localhost/pharmacy-management-system');
+// Dynamically detect base URL
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+// Get the directory of the current script, then go up one level to get project root
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+$projectPath = str_replace('\\', '/', dirname(dirname($scriptName)));
+if ($projectPath === '/') $projectPath = '';
+
+define('BASE_URL', $protocol . "://" . $host . $projectPath);
 define('API_BASE_URL', BASE_URL . '/backend');
+define('DB_NAME', 'pms_db');
 
 // ========== ERROR LOGGING ==========
 define('LOG_ERRORS', true);

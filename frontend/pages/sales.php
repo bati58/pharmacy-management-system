@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/init_session.php';
+session_start();
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'pharmacist'])) {
     header('Location: dashboard.php');
     exit;
@@ -7,121 +7,91 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['manager', 'ph
 include '../includes/header.php';
 include '../includes/sidebar.php';
 ?>
-<div class="ml-64 flex-1">
-    <?php include '../includes/navbar.php'; ?>
-    <div class="p-6 space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up">
-            <div>
-                <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Sales History</h2>
-                <p class="text-slate-500 font-medium">Review and manage past transactions.</p>
-            </div>
-            <a href="new-sale.php" class="btn btn-primary shadow-lg shadow-blue-500/20">
+<?php include '../includes/navbar.php'; ?>
+<div class="animate-fade-in">
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 no-print">
+        <div>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Sales History</h2>
+            <p class="text-slate-500 mt-1 font-medium">Track and review all transactions across your branches.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+            <select id="salesPeriod" onchange="loadSalesTable()" class="w-full sm:w-40 py-2.5 bg-white border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-600">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="weekly">This Week</option>
+                <option value="monthly">This Month</option>
+            </select>
+            <?php if ($_SESSION['role'] === 'pharmacist'): ?>
+            <a href="new-sale.php" class="btn-premium btn-premium-primary shadow-indigo-200">
                 <i class="fas fa-plus"></i> Process New Sale
             </a>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+        <!-- Sales Table Column -->
+        <div class="flex-1 w-full overflow-hidden no-print">
+            <div class="card overflow-hidden">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-history text-indigo-500"></i> Recent Transactions
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer / Date</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Payment</th>
+                                <th>Pharmacist</th>
+                                <th class="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table-body">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="card animate-slide-up" style="animation-delay: 0.1s;">
-            <div class="table-container">
-                <table class="min-w-full">
-                    <thead>
-                        <tr>
-                            <th>Invoice</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Amount</th>
-                            <th>Payment</th>
-                            <th>Pharmacist</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sales-table-body"></tbody>
-                </table>
+        <!-- Details Panel Column -->
+        <div id="saleDetailsPanel" class="w-full lg:w-[400px] hidden animate-slide-in-right sticky top-8">
+            <div class="card p-8 bg-white border-indigo-100 shadow-xl shadow-indigo-100/20 relative overflow-hidden">
+                <!-- Decoration -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-50 rounded-full blur-3xl opacity-60"></div>
+                
+                <div class="flex justify-between items-start mb-8 relative">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-800 tracking-tight">Invoice Details</h3>
+                        <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest mt-1" id="detailInvoiceNo">#INV-0000</p>
+                    </div>
+                    <button type="button" onclick="closeDetails()" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all flex items-center justify-center relative z-50">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div id="detailContent" class="space-y-8 relative">
+                    <!-- Dynamic content will be injected here -->
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-slate-100 flex gap-3">
+                    <button id="printBtn" onclick="printInvoice()" class="flex-1 btn-premium bg-slate-100 text-slate-600">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                    <button id="pdfBtn" onclick="downloadPDF()" class="flex-1 btn-premium btn-premium-primary">
+                        <i class="fas fa-download"></i> PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Sale Details Modal -->
-<div id="saleDetailsModal" class="modal-backdrop hidden z-50 p-4">
-    <div class="modal-content !max-w-3xl">
-        <div class="flex items-center justify-between p-6 border-b border-slate-100">
-            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <i class="fas fa-file-invoice-dollar text-blue-600"></i>
-                Invoice Details
-            </h3>
-            <button id="closeSaleDetailsBtn" class="text-slate-400 hover:text-slate-600 transition-colors" aria-label="Close">
-                <i class="fas fa-times-circle text-xl"></i>
-            </button>
-        </div>
-        <div class="p-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Invoice Number</p>
-                    <p id="detailInvoiceNo" class="text-sm font-bold text-slate-800">-</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date & Time</p>
-                    <p id="detailDate" class="text-sm font-semibold text-slate-700">-</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Customer</p>
-                    <p id="detailCustomer" class="text-sm font-semibold text-slate-700">-</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Payment Method</p>
-                    <p id="detailPayment" class="text-sm font-semibold text-slate-700">-</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pharmacist</p>
-                    <p id="detailPharmacist" class="text-sm font-semibold text-slate-700">-</p>
-                </div>
-                <div class="space-y-1">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Prescription Ref</p>
-                    <p id="detailPrescription" class="text-sm font-semibold text-slate-700">-</p>
-                </div>
-            </div>
-
-            <div class="table-container mb-6 !rounded-xl">
-                <table class="min-w-full !text-xs">
-                    <thead>
-                        <tr>
-                            <th>Drug Item</th>
-                            <th class="text-center">Qty</th>
-                            <th class="text-right">Unit Price</th>
-                            <th class="text-right">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="saleDetailsItems" class="divide-y divide-slate-50"></tbody>
-                </table>
-            </div>
-
-            <div class="flex justify-end">
-                <div class="w-full sm:w-64 space-y-2">
-                    <div class="flex justify-between text-sm text-slate-500 px-2">
-                        <span>Subtotal</span>
-                        <span id="detailSubtotal" class="font-semibold text-slate-700">$0.00</span>
-                    </div>
-                    <div class="flex justify-between text-sm text-slate-500 px-2">
-                        <span>Discount</span>
-                        <span id="detailDiscount" class="font-semibold text-red-500">-$0.00</span>
-                    </div>
-                    <div class="flex justify-between items-center bg-blue-600 text-white p-4 rounded-xl shadow-lg shadow-blue-600/20 mt-4">
-                        <span class="text-xs font-bold uppercase tracking-widest">Grand Total</span>
-                        <span id="detailTotal" class="text-xl font-bold">$0.00</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-between items-center rounded-b-lg">
-            <button class="btn !bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 no-print" onclick="window.print()">
-                <i class="fas fa-print"></i> Print Invoice
-            </button>
-            <button id="closeSaleDetailsBtnBottom" class="btn btn-primary px-8" onclick="closeModal()">Close Details</button>
-        </div>
-    </div>
-</div>
-
 <script src="../assets/js/utils.js"></script>
 <script src="../assets/js/api.js"></script>
 <script src="../assets/js/sales.js"></script>

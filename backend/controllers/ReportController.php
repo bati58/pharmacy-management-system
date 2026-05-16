@@ -17,21 +17,18 @@ class ReportController
         AuthMiddleware::check();
     }
 
-    /**
-     * Sales aggregates — all roles; non-managers are limited to their branch.
-     */
     public function salesReport()
     {
-        AuthMiddleware::requireRole(['manager', 'pharmacist', 'store_keeper']);
-
-        $period = $_GET['period'] ?? 'daily';
+        AuthMiddleware::requireRole(['manager']);
+        $period = $_GET['period'] ?? 'daily'; // daily, weekly, monthly, custom
         $branchId = $_GET['branch_id'] ?? null;
-        if (($_SESSION['role'] ?? '') !== 'manager') {
-            $branchId = $_SESSION['branch_id'] ?? null;
-        }
-
         $startDate = $_GET['start_date'] ?? null;
         $endDate = $_GET['end_date'] ?? null;
+
+        // If not manager, force their own branch
+        if ($_SESSION['role'] !== 'manager') {
+            $branchId = $_SESSION['branch_id'];
+        }
 
         $data = $this->saleModel->getSalesReport($period, $branchId, $startDate, $endDate);
         sendSuccess($data);
@@ -53,7 +50,6 @@ class ReportController
 
     public function topDrugs()
     {
-        AuthMiddleware::requireRole(['manager']);
         $limit = $_GET['limit'] ?? 10;
         $data = $this->saleModel->getTopDrugs($limit);
         sendSuccess($data);
@@ -61,7 +57,6 @@ class ReportController
 
     public function slowMovingDrugs()
     {
-        AuthMiddleware::requireRole(['manager']);
         $limit = $_GET['limit'] ?? 10;
         $data = $this->drugModel->getSlowMoving($limit);
         sendSuccess($data);

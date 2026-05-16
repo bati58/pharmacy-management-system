@@ -5,25 +5,15 @@ document.addEventListener('DOMContentLoaded', function () {
     loadDrugs();
     loadBranchFilter();
     setupInventoryEventListeners();
+    // Load stock report summary for store keepers (SRS §3.2)
+    loadStoreKeeperStats();
 });
 
-function canDeleteDrug() {
-    return (window.APP_ROLE || '') === 'manager';
-}
-
-// Load branches into filter dropdown (managers only)
+// Load branches into filter dropdown
 async function loadBranchFilter() {
-    const branchSelect = document.getElementById('branchFilter');
-    const role = window.APP_ROLE || '';
-    if (role !== 'manager') {
-        if (branchSelect && branchSelect.parentElement) {
-            branchSelect.parentElement.style.display = 'none';
-        }
-        currentBranchFilter = String(window.APP_BRANCH_ID || '');
-        return;
-    }
     try {
         const branches = await API.getBranches();
+        const branchSelect = document.getElementById('branchFilter');
         if (branchSelect && branches.data) {
             branchSelect.innerHTML = '<option value="">All Branches</option>';
             branches.data.forEach(branch => {
@@ -43,41 +33,68 @@ async function loadDrugs() {
 
         tbody.innerHTML = '';
         if (!drugs.data || drugs.data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4">No drugs found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No drugs found</td></tr>';
             return;
         }
 
         drugs.data.forEach(drug => {
             const expiryStatus = checkExpiryStatus(drug.expiry_date);
-            const expiryClass = expiryStatus.status === 'expired' ? 'text-red-600' : (expiryStatus.status === 'expiring_soon' ? 'text-orange-500' : '');
-            const ms = [drug.manufacturer, drug.supplier].filter(Boolean).join(' / ') || '-';
-            const deleteBtn = canDeleteDrug()
-                ? `<button class="btn-delete action-icon-btn action-delete mr-1" data-id="${drug.id}" title="Delete drug" aria-label="Delete drug">
-                        <i class="fas fa-trash"></i>
-                   </button>`
-                : '';
+            let expiryStatusClass = 'bg-slate-100 text-slate-600';
+            if (expiryStatus.status === 'expired') expiryStatusClass = 'bg-rose-100 text-rose-600';
+            else if (expiryStatus.status === 'expiring_soon') expiryStatusClass = 'bg-amber-100 text-amber-600';
+
+            const stockStatus = drug.stock <= 10 ? 'bg-rose-100 text-rose-600' : (drug.stock <= 50 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600');
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const isStoreKeeper = user.role === 'store_keeper';
+
             const row = `
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="px-4 py-2">${escapeHtml(drug.name)}</td>
-                    <td class="px-4 py-2">${escapeHtml(drug.category || '-')}</td>
-                    <td class="px-4 py-2 text-sm">${escapeHtml(ms)}</td>
-                    <td class="px-4 py-2">${escapeHtml(drug.batch)}</td>
-                    <td class="px-4 py-2">${drug.stock}</td>
-                    <td class="px-4 py-2">${formatCurrency(drug.cost_price || 0)}</td>
-                    <td class="px-4 py-2">${formatCurrency(drug.price)}</td>
-                    <td class="px-4 py-2">
-                        ${drug.requires_prescription ? '<span class="px-2 py-1 bg-red-100 text-red-600 text-[10px] font-bold rounded-full uppercase">Rx</span>' : '<span class="text-slate-300">-</span>'}
+                <tr class="group hover:bg-slate-50 transition-colors">
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs border border-indigo-100">
+                                <i class="fas fa-capsules"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800">${escapeHtml(drug.name)}</p>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${escapeHtml(drug.manufacturer || 'General Pharma')}</p>
+                            </div>
+                        </div>
                     </td>
-                    <td class="px-4 py-2 ${expiryClass}">${formatDate(drug.expiry_date)}</td>
-                    <td class="px-4 py-2">${escapeHtml(drug.branch_name)}</td>
-                    <td class="px-4 py-2 whitespace-nowrap">
-                        <button class="btn-edit action-icon-btn action-edit mr-1" data-id="${drug.id}" title="Edit drug" aria-label="Edit drug">
-                            <i class="fas fa-pen"></i>
-                        </button>
-                        ${deleteBtn}
-                        <button class="btn-stock action-icon-btn action-stock" data-id="${drug.id}" title="Adjust stock" aria-label="Adjust stock">
-                            <i class="fas fa-boxes-stacked"></i>
-                        </button>
+                    <td><span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg uppercase tracking-tight">${escapeHtml(drug.category || 'General')}</span></td>
+                    <td><code class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">${escapeHtml(drug.batch)}</code></td>
+                    <td>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${stockStatus}">
+                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            ${drug.stock} Units
+                        </span>
+                    </td>
+                    <td>
+                        <div class="font-bold text-slate-900">${formatCurrency(drug.price)}</div>
+                        <div class="text-[10px] text-slate-400 font-bold">Cost: ${formatCurrency(drug.cost_price)}</div>
+                    </td>
+                    <td>
+                        <span class="inline-flex px-2 py-1 rounded-lg text-xs font-bold ${expiryStatusClass}">
+                            ${formatDate(drug.expiry_date)}
+                        </span>
+                    </td>
+                    <td><span class="text-xs font-bold text-slate-500">${escapeHtml(drug.branch_name)}</span></td>
+                    <td class="text-right">
+                        <div class="flex justify-end gap-2">
+                            ${isStoreKeeper ? `
+                            <button onclick="updateStock(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center" title="Update Stock">
+                                <i class="fas fa-boxes text-xs"></i>
+                            </button>
+                            ` : ''}
+                            <button onclick="editDrug(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center" title="Edit">
+                                <i class="fas fa-edit text-xs"></i>
+                            </button>
+                            ${isStoreKeeper ? `
+                            <button onclick="deleteDrug(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center" title="Delete">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
             `;
@@ -92,8 +109,32 @@ async function loadDrugs() {
     } catch (error) {
         console.error('Error loading drugs:', error);
         const tbody = document.getElementById('drugsTable');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-red-600">Error loading drugs. Check console.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-red-600">Error loading drugs. Check console.</td></tr>';
         showToast('Error loading drugs', 'error');
+    }
+}
+
+/**
+ * Load stock report summary stats for the Store Keeper panel (SRS §3.2).
+ * Only runs when the panel elements exist in the DOM.
+ */
+async function loadStoreKeeperStats() {
+    const lowStockEl = document.getElementById('sk-low-stock-count');
+    const expiringEl = document.getElementById('sk-expiring-count');
+    const totalEl    = document.getElementById('sk-total-drugs');
+    if (!lowStockEl && !expiringEl && !totalEl) return; // panel not present for this role
+
+    try {
+        const [lowStock, expiring, allDrugs] = await Promise.all([
+            API.getLowStock(),
+            API.getExpiringSoon(),
+            API.getDrugs()
+        ]);
+        if (lowStockEl) lowStockEl.textContent = (lowStock.data || []).length;
+        if (expiringEl) expiringEl.textContent = (expiring.data || []).length;
+        if (totalEl)    totalEl.textContent    = (allDrugs.data || []).length;
+    } catch (err) {
+        console.error('Failed to load store keeper stats:', err);
     }
 }
 
@@ -125,15 +166,12 @@ function showDrugModal() {
     document.getElementById('drugId').value = '';
     document.getElementById('drugName').value = '';
     document.getElementById('drugCategory').value = '';
-    const mfr = document.getElementById('drugManufacturer');
-    const sup = document.getElementById('drugSupplier');
-    if (mfr) mfr.value = '';
-    if (sup) sup.value = '';
     document.getElementById('drugBatch').value = '';
     document.getElementById('drugStock').value = '';
     document.getElementById('drugPrice').value = '';
     document.getElementById('drugCostPrice').value = '';
-    document.getElementById('drugRequiresPrescription').checked = false;
+    document.getElementById('drugManufacturer').value = '';
+    document.getElementById('drugSupplier').value = '';
     document.getElementById('drugExpiry').value = '';
     document.getElementById('drugModalTitle').innerText = 'Add Drug';
     document.getElementById('drugModal').classList.remove('hidden');
@@ -143,32 +181,15 @@ function showDrugModal() {
 }
 
 async function loadBranchesIntoSelect() {
-    const branchSelect = document.getElementById('drugBranch');
-    if (!branchSelect) return;
-    if ((window.APP_ROLE || '') !== 'manager') {
-        const bid = window.APP_BRANCH_ID || '';
-        let branchLabel = `Branch #${escapeHtml(String(bid))}`;
-        try {
-            const branches = await API.getBranches();
-            const found = (branches.data || []).find(b => String(b.id) === String(bid));
-            if (found) {
-                branchLabel = escapeHtml(found.name);
-            }
-        } catch (e) {
-            // Keep fallback label when branch list cannot be loaded.
-        }
-        branchSelect.innerHTML = `<option value="${bid}">${branchLabel}</option>`;
-        branchSelect.disabled = true;
-        return;
-    }
-    branchSelect.disabled = false;
     try {
         const branches = await API.getBranches();
-        if (branches.data) {
+        const branchSelect = document.getElementById('drugBranch');
+        if (branchSelect && branches.data) {
             branchSelect.innerHTML = '<option value="">Select Branch</option>';
             branches.data.forEach(branch => {
                 branchSelect.innerHTML += `<option value="${branch.id}">${escapeHtml(branch.name)}</option>`;
             });
+            // Pre-select current user's branch if available
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             if (user.branch_id) branchSelect.value = user.branch_id;
         }
@@ -184,15 +205,12 @@ async function editDrug(id) {
             document.getElementById('drugId').value = drug.data.id;
             document.getElementById('drugName').value = drug.data.name;
             document.getElementById('drugCategory').value = drug.data.category || '';
-            const mfr = document.getElementById('drugManufacturer');
-            const sup = document.getElementById('drugSupplier');
-            if (mfr) mfr.value = drug.data.manufacturer || '';
-            if (sup) sup.value = drug.data.supplier || '';
             document.getElementById('drugBatch').value = drug.data.batch;
             document.getElementById('drugStock').value = drug.data.stock;
             document.getElementById('drugPrice').value = drug.data.price;
             document.getElementById('drugCostPrice').value = drug.data.cost_price || 0;
-            document.getElementById('drugRequiresPrescription').checked = !!drug.data.requires_prescription;
+            document.getElementById('drugManufacturer').value = drug.data.manufacturer || '';
+            document.getElementById('drugSupplier').value = drug.data.supplier || '';
             document.getElementById('drugExpiry').value = drug.data.expiry_date;
             document.getElementById('drugModalTitle').innerText = 'Edit Drug';
             document.getElementById('drugModal').classList.remove('hidden');
@@ -210,12 +228,11 @@ async function saveDrug() {
     const data = {
         name: document.getElementById('drugName').value,
         category: document.getElementById('drugCategory').value,
-        manufacturer: document.getElementById('drugManufacturer') ? document.getElementById('drugManufacturer').value : '',
-        supplier: document.getElementById('drugSupplier') ? document.getElementById('drugSupplier').value : '',
         batch: document.getElementById('drugBatch').value,
         price: parseFloat(document.getElementById('drugPrice').value),
-        cost_price: parseFloat(document.getElementById('drugCostPrice').value),
-        requires_prescription: document.getElementById('drugRequiresPrescription').checked ? 1 : 0,
+        cost_price: parseFloat(document.getElementById('drugCostPrice').value) || 0,
+        manufacturer: document.getElementById('drugManufacturer').value,
+        supplier: document.getElementById('drugSupplier').value,
         expiry_date: document.getElementById('drugExpiry').value,
         branch_id: document.getElementById('drugBranch').value,
         stock: parseInt(document.getElementById('drugStock').value) || 0
@@ -243,17 +260,11 @@ async function saveDrug() {
 }
 
 async function deleteDrug(id) {
-    const confirmed = await showConfirmDialog({
-        title: 'Delete Drug',
-        message: 'This action is <strong>permanent</strong> and cannot be undone. Are you sure you want to delete this drug from the inventory?',
-        type: 'danger',
-        confirmText: 'Yes, Delete',
-        cancelText: 'Cancel'
-    });
+    const confirmed = await showConfirm('Delete Medication', 'Are you sure you want to permanently remove this drug from the inventory? This action cannot be undone.');
     if (confirmed) {
         try {
             await API.deleteDrug(id);
-            showToast('Drug deleted successfully');
+            showToast('Drug deleted');
             loadDrugs();
         } catch (error) {
             showToast(error.message, 'error');
@@ -262,34 +273,44 @@ async function deleteDrug(id) {
 }
 
 async function updateStock(id) {
-    const quantity = await showPromptDialog({
-        title: 'Adjust Stock',
-        message: 'Enter the quantity change. Use a <strong>positive number</strong> to add stock, or a <strong>negative number</strong> to remove stock.',
-        placeholder: 'e.g. +50 or -10',
-        inputType: 'number',
-        confirmText: 'Apply'
-    });
-    if (quantity === null) return;
-    const change = parseInt(quantity);
-    if (isNaN(change)) {
-        showToast('Please enter a valid number', 'error');
+    try {
+        const drug = await API.getDrug(id);
+        if (drug.data) {
+            document.getElementById('stockDrugId').value = drug.data.id;
+            document.getElementById('stockDrugName').innerText = drug.data.name;
+            document.getElementById('stockChange').value = '';
+            document.getElementById('stockReason').value = 'manual';
+            document.getElementById('stockModal').classList.remove('hidden');
+            document.getElementById('stockModal').classList.add('flex');
+        }
+    } catch (error) {
+        showToast('Error loading drug info', 'error');
+    }
+}
+
+async function saveStockUpdate() {
+    const id = document.getElementById('stockDrugId').value;
+    const change = parseInt(document.getElementById('stockChange').value);
+    const reason = document.getElementById('stockReason').value;
+
+    if (isNaN(change) || change === 0) {
+        showToast('Please enter a valid quantity change', 'error');
         return;
     }
-    const reason = await showPromptDialog({
-        title: 'Adjustment Reason',
-        message: 'Provide a brief reason for this stock adjustment (for audit trail).',
-        placeholder: 'e.g., Restock, Damaged, Expired',
-        defaultValue: 'manual',
-        confirmText: 'Submit'
-    });
-    if (reason === null) return;
+
     try {
-        await API.updateStock(id, change, reason || 'manual');
+        await API.updateStock(id, change, reason);
         showToast('Stock updated successfully');
+        closeStockModal();
         loadDrugs();
     } catch (error) {
         showToast(error.message, 'error');
     }
+}
+
+function closeStockModal() {
+    document.getElementById('stockModal').classList.add('hidden');
+    document.getElementById('stockModal').classList.remove('flex');
 }
 
 function closeDrugModal() {

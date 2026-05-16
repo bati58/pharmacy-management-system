@@ -1,7 +1,5 @@
 let currentSaleCart = [];
 let currentDrugsList = [];
-let filteredDrugsList = [];
-let activeSaleBranchId = '';
 
 document.addEventListener('DOMContentLoaded', function () {
     // If on sales.php, load the table
@@ -10,31 +8,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // If on new-sale.php, load drugs
     if (document.getElementById('drugSelect')) {
-        setupSaleBranchAndSearch();
+        loadDrugsForSale();
     }
-    setupSaleDetailsModal();
 });
 
 async function loadSalesTable() {
     try {
-        const sales = await API.getSales();
+        const period = document.getElementById('salesPeriod')?.value || 'all';
+        const sales = await API.getSales(null, period);
         const tbody = document.getElementById('sales-table-body');
         if (!tbody) return;
         tbody.innerHTML = '';
         if (sales.data && sales.data.length) {
             sales.data.forEach(sale => {
+                const methodBadge = sale.payment_method === 'Cash' ? 'bg-emerald-100 text-emerald-600' : (sale.payment_method === 'Card' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600');
                 tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="px-4 py-2">${sale.invoice_no}</td>
-                        <td class="px-4 py-2">${escapeHtml(sale.customer_name)}</td>
-                        <td class="px-4 py-2">${sale.items_count || '-'}</td>
-                        <td class="px-4 py-2">${formatCurrency(sale.total_amount)}</td>
-                        <td class="px-4 py-2">${sale.payment_method}</td>
-                        <td class="px-4 py-2">${escapeHtml(sale.pharmacist_name)}</td>
-                        <td class="px-4 py-2">${formatDateTime(sale.sale_date)}</td>
-                        <td class="px-4 py-2">
-                            <button class="action-icon-btn action-view" onclick="viewSale(${sale.id})" title="View sale" aria-label="View sale">
-                                <i class="fas fa-eye"></i>
+                    <tr class="group hover:bg-slate-50 transition-colors">
+                        <td><code class="text-xs font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">${sale.invoice_no}</code></td>
+                        <td>
+                            <p class="font-bold text-slate-800 text-sm">${escapeHtml(sale.customer_name)}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">${formatDateTime(sale.sale_date)}</p>
+                        </td>
+                        <td class="text-slate-600 font-bold text-sm">${sale.items_count || '0'} Items</td>
+                        <td class="font-black text-slate-900">${formatCurrency(sale.total_amount)}</td>
+                        <td>
+                            <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${methodBadge}">
+                                ${sale.payment_method}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                    ${sale.pharmacist_name.charAt(0)}
+                                </div>
+                                <span class="text-xs font-bold text-slate-600">${escapeHtml(sale.pharmacist_name)}</span>
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            <button onclick="viewSale(${sale.id})" 
+                                class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 transition-all flex items-center justify-center mx-auto lg:ml-auto" title="View Invoice">
+                                <i class="fas fa-eye text-xs"></i>
                             </button>
                         </td>
                     </tr>
@@ -49,79 +62,22 @@ async function loadSalesTable() {
     }
 }
 
-async function setupSaleBranchAndSearch() {
-    const role = window.APP_ROLE || '';
-    const userBranchId = String(window.APP_BRANCH_ID || '');
-    const branchWrap = document.getElementById('saleBranchWrap');
-    const branchSelect = document.getElementById('saleBranch');
-    const searchInput = document.getElementById('drugSearch');
-
-    activeSaleBranchId = userBranchId;
-
-    if (branchWrap) {
-        branchWrap.style.display = 'none';
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            filterAndRenderDrugOptions(searchInput.value || '');
-        });
-    }
-
-    loadDrugsForSale();
-}
-
-function filterAndRenderDrugOptions(keyword) {
-    const select = document.getElementById('drugSelect');
-    if (!select) return;
-
-    const q = String(keyword || '').trim().toLowerCase();
-    filteredDrugsList = currentDrugsList.filter(drug => {
-        if (q === '') return true;
-        return (
-            String(drug.name || '').toLowerCase().includes(q) ||
-            String(drug.category || '').toLowerCase().includes(q) ||
-            String(drug.batch || '').toLowerCase().includes(q)
-        );
-    });
-
-    select.innerHTML = '<option value="">Select drug</option>';
-    if (filteredDrugsList.length === 0) {
-        select.innerHTML = '<option value="">No matching drugs found</option>';
-        return;
-    }
-
-    filteredDrugsList.forEach(drug => {
-        const rx = drug.requires_prescription ? '[Rx Only] ' : '';
-        select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}">${rx}${escapeHtml(drug.name)} - $${drug.price} (Stock: ${drug.stock})</option>`;
-    });
-}
-
 async function loadDrugsForSale() {
     try {
-        const userBranchId = String(window.APP_BRANCH_ID || '');
-        const branchId = userBranchId;
-
-        if (!branchId) {
-            const select = document.getElementById('drugSelect');
-            if (select) {
-                select.innerHTML = '<option value="">Select a branch first</option>';
-            }
-            return;
-        }
-
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const branchId = user.branch_id || '';
         const drugs = await API.getDrugs(branchId);
         const select = document.getElementById('drugSelect');
         if (!select) return;
         select.innerHTML = '<option value="">Select drug</option>';
-        currentDrugsList = (drugs.data || []).filter(d => Number(d.stock || 0) > 0);
-        if (currentDrugsList.length === 0) {
-            select.innerHTML = '<option value="">No drugs available in your branch</option>';
-            showToast('No drugs available for your branch. Ask store keeper/manager to add or transfer stock.', 'info');
-            return;
-        }
-        const searchInput = document.getElementById('drugSearch');
-        filterAndRenderDrugOptions(searchInput ? searchInput.value : '');
+        currentDrugsList = drugs.data || [];
+        currentDrugsList.forEach(drug => {
+            const isExpired = new Date(drug.expiry_date) < new Date();
+            const expiryLabel = isExpired ? '[EXPIRED]' : `Exp: ${formatDate(drug.expiry_date)}`;
+            select.innerHTML += `<option value="${drug.id}" data-price="${drug.price}" data-stock="${drug.stock}" ${isExpired ? 'disabled' : ''}>
+                ${escapeHtml(drug.name)} - ${formatCurrency(drug.price)} (${expiryLabel}) - Stock: ${drug.stock}
+            </option>`;
+        });
     } catch (err) {
         console.error('Error loading drugs for sale:', err);
         showToast('Failed to load drugs', 'error');
@@ -142,12 +98,11 @@ function addToCart() {
         showToast(`Only ${drug.stock} units available`, 'error');
         return;
     }
-    if (drug.requires_prescription) {
-        const rxRef = document.getElementById('prescriptionReference');
-        if (rxRef) {
-            rxRef.classList.add('ring-2', 'ring-red-500', 'animate-pulse');
-            showToast('Note: This drug requires a prescription reference.', 'info');
-        }
+    
+    // Check for expired drug (SRS §3.3)
+    if (new Date(drug.expiry_date) < new Date()) {
+        showToast(`Cannot sell expired medication: ${drug.name}`, 'error');
+        return;
     }
     const existing = currentSaleCart.find(item => item.drug_id == drugId);
     if (existing) {
@@ -176,26 +131,45 @@ function updateCartDisplay() {
         const subtotal = item.quantity * item.price;
         total += subtotal;
         cartBody.innerHTML += `
-            <tr>
-                <td class="px-2 py-1">${escapeHtml(item.name)}</td>
-                <td class="px-2 py-1">${item.quantity}</td>
-                <td class="px-2 py-1">${formatCurrency(item.price)}</td>
-                <td class="px-2 py-1">${formatCurrency(subtotal)}</td>
-                <td class="px-2 py-1">
-                    <button class="action-icon-btn action-delete" onclick="removeFromCart(${index})" title="Remove item" aria-label="Remove item">
-                        <i class="fas fa-trash"></i>
+            <tr class="group hover:bg-slate-50 transition-colors">
+                <td>
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-[10px]">
+                            <i class="fas fa-pills"></i>
+                        </div>
+                        <span class="font-bold text-slate-700 text-sm">${escapeHtml(item.name)}</span>
+                    </div>
+                </td>
+                <td class="text-slate-600 font-medium text-sm">${formatCurrency(item.price)}</td>
+                <td class="text-slate-600 font-bold text-sm">x${item.quantity}</td>
+                <td class="text-right font-black text-slate-900 text-sm">${formatCurrency(subtotal)}</td>
+                <td class="text-right">
+                    <button onclick="removeFromCart(${index})" class="w-8 h-8 rounded-lg bg-slate-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all flex items-center justify-center" title="Remove">
+                        <i class="fas fa-trash-alt text-xs"></i>
                     </button>
                 </td>
             </tr>
         `;
     });
-    totalSpan.innerText = formatCurrency(total);
+    const discount = parseFloat(document.getElementById('discountAmount')?.value || 0);
+    const finalTotal = Math.max(0, total - discount);
+    totalSpan.innerText = formatCurrency(finalTotal);
 }
 
 function removeFromCart(index) {
     currentSaleCart.splice(index, 1);
     updateCartDisplay();
-    showToast('Item removed', 'info');
+    showToast('Item removed from basket', 'info');
+}
+
+async function clearCart() {
+    if (currentSaleCart.length === 0) return;
+    const confirmed = await showConfirm('Clear Basket', 'Are you sure you want to remove all items from your current sales basket?');
+    if (confirmed) {
+        currentSaleCart = [];
+        updateCartDisplay();
+        showToast('Basket cleared');
+    }
 }
 
 async function completeSale() {
@@ -205,38 +179,13 @@ async function completeSale() {
     }
     const customerName = document.getElementById('customerName').value.trim() || 'Walk-in customer';
     const paymentMethod = document.getElementById('paymentMethod').value;
-    const discountAmount = parseFloat(document.getElementById('discountAmount')?.value || '0');
-    const prescriptionReference = document.getElementById('prescriptionReference')?.value?.trim() || '';
-
-    // Check if any drug in cart requires prescription
-    const needsRx = currentSaleCart.some(item => {
-        const drug = currentDrugsList.find(d => d.id == item.drug_id);
-        return drug && drug.requires_prescription;
-    });
-
-    if (needsRx && !prescriptionReference) {
-        showToast('Prescription reference is required for Rx-only drugs', 'error');
-        const rxRef = document.getElementById('prescriptionReference');
-        if (rxRef) rxRef.focus();
-        return;
-    }
-
-    const branchId = String(window.APP_BRANCH_ID || '');
-    if (discountAmount < 0) {
-        showToast('Discount cannot be negative', 'error');
-        return;
-    }
-    if (!branchId) {
-        showToast('Please select branch before completing sale', 'error');
-        return;
-    }
-
+    const discount = parseFloat(document.getElementById('discountAmount')?.value || 0);
+    const prescriptionRef = document.getElementById('prescriptionRef')?.value || null;
     const saleData = {
         customer_name: customerName,
         payment_method: paymentMethod,
-        branch_id: branchId,
-        discount_amount: discountAmount,
-        prescription_reference: prescriptionReference,
+        discount_amount: discount,
+        prescription_ref: prescriptionRef,
         items: currentSaleCart.map(item => ({
             drug_id: item.drug_id,
             quantity: item.quantity
@@ -258,91 +207,102 @@ async function completeSale() {
     }
 }
 
-function viewSale(id) {
-    loadSaleDetails(id);
-}
-
-function setupSaleDetailsModal() {
-    const modal = document.getElementById('saleDetailsModal');
-    const closeBtn = document.getElementById('closeSaleDetailsBtn');
-    if (!modal) return;
-
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeSaleDetailsModal);
-    }
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeSaleDetailsModal();
-        }
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            closeSaleDetailsModal();
-        }
-    });
-}
-
-function openSaleDetailsModal() {
-    const modal = document.getElementById('saleDetailsModal');
-    if (!modal) return;
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function closeSaleDetailsModal() {
-    const modal = document.getElementById('saleDetailsModal');
-    if (!modal) return;
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
-async function loadSaleDetails(id) {
+async function viewSale(id) {
     try {
         const res = await API.getSale(id);
+        if (!res.success) throw new Error(res.message);
         const sale = res.data;
-        if (!sale) {
-            showToast('Sale not found', 'error');
-            return;
-        }
 
-        document.getElementById('detailInvoiceNo').innerText = sale.invoice_no || '-';
-        document.getElementById('detailDate').innerText = formatDateTime(sale.sale_date || '');
-        document.getElementById('detailCustomer').innerText = sale.customer_name || '-';
-        document.getElementById('detailPayment').innerText = sale.payment_method || '-';
-        document.getElementById('detailPharmacist').innerText = sale.pharmacist_name || '-';
-        document.getElementById('detailPrescription').innerText = sale.prescription_reference || 'N/A';
+        const panel = document.getElementById('saleDetailsPanel');
+        const content = document.getElementById('detailContent');
+        const invoiceNo = document.getElementById('detailInvoiceNo');
 
-        const tbody = document.getElementById('saleDetailsItems');
-        tbody.innerHTML = '';
-
-        let subtotal = 0;
-        (sale.items || []).forEach(item => {
-            const qty = Number(item.quantity || 0);
-            const price = Number(item.price || 0);
-            const rowTotal = qty * price;
-            subtotal += rowTotal;
-            tbody.innerHTML += `
-                <tr class="border-t">
-                    <td class="px-3 py-2">${escapeHtml(item.drug_name || '-')}</td>
-                    <td class="px-3 py-2">${qty}</td>
-                    <td class="px-3 py-2">${formatCurrency(price)}</td>
-                    <td class="px-3 py-2">${formatCurrency(rowTotal)}</td>
-                </tr>
+        invoiceNo.innerText = `#${sale.invoice_no}`;
+        
+        let itemsHtml = '';
+        sale.items.forEach(item => {
+            itemsHtml += `
+                <div class="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">${escapeHtml(item.drug_name)}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">Qty: ${item.quantity} × ${formatCurrency(item.price)}</p>
+                    </div>
+                    <span class="font-black text-slate-700 text-sm">${formatCurrency(item.quantity * item.price)}</span>
+                </div>
             `;
         });
-        if (!sale.items || sale.items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="px-3 py-3 text-center text-gray-500">No items found</td></tr>';
+
+        content.innerHTML = `
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Customer Information</p>
+                <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl">
+                    <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-indigo-500">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-slate-800 text-sm">${escapeHtml(sale.customer_name)}</p>
+                        <p class="text-[10px] text-slate-400 font-bold">${formatDateTime(sale.sale_date)}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Purchased Items</p>
+                <div class="space-y-1">${itemsHtml}</div>
+            </div>
+
+            <div class="bg-indigo-600 rounded-2xl p-5 text-white shadow-lg shadow-indigo-200">
+                <div class="flex justify-between items-center text-xs opacity-80 mb-1">
+                    <span>Subtotal</span>
+                    <span>${formatCurrency(parseFloat(sale.total_amount) + parseFloat(sale.discount_amount))}</span>
+                </div>
+                <div class="flex justify-between items-center text-xs opacity-80 mb-3 pb-3 border-b border-white/10">
+                    <span>Discount</span>
+                    <span>-${formatCurrency(sale.discount_amount)}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider">Total Amount</span>
+                    <span class="text-xl font-black">${formatCurrency(sale.total_amount)}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Payment Method</p>
+                    <p class="text-xs font-bold text-slate-700">${sale.payment_method}</p>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Pharmacist</p>
+                    <p class="text-xs font-bold text-slate-700">${escapeHtml(sale.pharmacist_name)}</p>
+                </div>
+            </div>
+        `;
+
+        panel.classList.remove('hidden');
+        panel.classList.add('block');
+        
+        // Scroll into view if needed on mobile
+        if (window.innerWidth < 1024) {
+            panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        const discount = Number(sale.discount_amount || 0);
-        const total = Number(sale.total_amount || 0);
-
-        document.getElementById('detailSubtotal').innerText = formatCurrency(subtotal);
-        document.getElementById('detailDiscount').innerText = formatCurrency(discount);
-        document.getElementById('detailTotal').innerText = formatCurrency(total);
-
-        openSaleDetailsModal();
     } catch (err) {
-        showToast(err.message || 'Failed to load sale details', 'error');
+        showToast(err.message, 'error');
     }
+}
+
+function printInvoice() {
+    window.print();
+}
+
+function downloadPDF() {
+    // In modern browsers, window.print() provides a "Save as PDF" option
+    // This is the cleanest implementation without external libraries.
+    window.print();
+}
+
+function closeDetails() {
+    const panel = document.getElementById('saleDetailsPanel');
+    panel.classList.add('hidden');
+    panel.classList.remove('block');
 }
