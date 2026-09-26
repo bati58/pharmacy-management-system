@@ -19,6 +19,9 @@ It handles complex workflows such as multi-branch inventory management, user inv
 
 ---
 
+ Run on Browser: 
+ http://localhost/pharmacy-management-system/frontend/pages/auth/login.php.
+
 ## ✨ Key Functionalities & Workflows
 
 The system uses strict Role-Based Access Control (RBAC) to ensure that users only have access to modules pertinent to their jobs. There are three primary roles: **Manager (Owner)**, **Pharmacist**, and **Store Keeper**.
