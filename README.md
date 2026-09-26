@@ -1,6 +1,6 @@
 # PharmaFlow – Pharmacy Management System
 
-PharmaFlow is a robust, role-based Pharmacy Management System meticulously designed to simplify and digitize the daily operations of modern pharmacies. Built on a solid technology stack using **PHP (no framework)**, **MySQL**, and **Vanilla HTML/CSS/JavaScript**, the system provides a fast, secure, and intuitive web interface. 
+PharmaFlow is a robust, role-based Pharmacy Management System meticulously designed to simplify and digitize the daily operations of modern pharmacies. Built on a solid technology stack using **PHP, MySQL, HTML, CSS, and JavaScript**, it provides a secure and efficient platform for managing complex pharmacy workflows.
 
 It handles complex workflows such as multi-branch inventory management, user invitations, point-of-sale processing, stock transfers, and automated notification alerts seamlessly.
 
@@ -19,9 +19,6 @@ It handles complex workflows such as multi-branch inventory management, user inv
 
 ---
 
- Run on Browser: 
- http://localhost/pharmacy-management-system/frontend/pages/auth/login.php.
-
 ## ✨ Key Functionalities & Workflows
 
 The system uses strict Role-Based Access Control (RBAC) to ensure that users only have access to modules pertinent to their jobs. There are three primary roles: **Manager (Owner)**, **Pharmacist**, and **Store Keeper**.
@@ -29,7 +26,7 @@ The system uses strict Role-Based Access Control (RBAC) to ensure that users onl
 ### 1. Manager (Owner) Capabilities
 The Manager oversees the entire business operation across all branches.
 - **Branch Management:** Create, edit, and delete branches dynamically.
-- **Enterprise User Onboarding:** Employs an invitation-only system. Managers invite new pharmacists or store keepers via secure, expiring email links. There is no open registration, ensuring a secure enterprise environment.
+- **Enterprise User Onboarding:** Employs an invitation-only system. Managers invite new pharmacists or store keepers via secure, expiring email links. There is no open registration, ensuring a secure staff directory.
 - **Global Inventory Oversight:** Full visibility of stock levels, drug prices, and expiry dates across all branches.
 - **Analytics & Reporting:** View real-time revenue trends, daily/weekly/monthly sales records, and generate professional PDF reports. Analyze top-selling and slow-moving drugs to optimize purchasing.
 - **Global Settings:** Establish pricing updates across the pharmacy chain.
