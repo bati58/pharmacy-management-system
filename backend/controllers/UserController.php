@@ -124,8 +124,17 @@ class UserController
         $branchId = $data['branch_id'] ?? null;
         $status = $data['status'] ?? null;
 
+        if ($role !== null && !in_array($role, ['manager', 'pharmacist', 'store_keeper'], true)) {
+            sendError('Invalid role', 400);
+            return;
+        }
+
         $updated = $this->userModel->update($id, $name, $role, $branchId, $status);
         if ($updated) {
+            if ((int)$id === (int)($_SESSION['user_id'] ?? 0)) {
+                if ($name !== null) $_SESSION['name'] = $name;
+                if ($role !== null) $_SESSION['role'] = $role;
+            }
             sendSuccess(null, 'User updated successfully');
         } else {
             sendError('User not found or update failed', 404);

@@ -108,7 +108,7 @@ The Store Keeper manages the backend logistics, procurement, and stock transfers
    Navigate to `backend/config/database.php` and verify the connection settings. Update the `$password` if your local MySQL instance has one.
    ```php
    $host = 'localhost';
-   $dbname = 'pms_db';
+   $dbname = 'pharmacy_db';
    $username = 'root';
    $password = ''; // Update if necessary
    ```

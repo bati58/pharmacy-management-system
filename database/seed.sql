@@ -2,7 +2,7 @@
 -- Seed Data for Pharmacy Management System
 -- ======================================================
 
-USE `pms_db`;
+USE `pharmacy_db`;
 
 -- Insert default branches
 INSERT INTO `branches` (`name`, `address`, `phone`) VALUES
@@ -13,42 +13,24 @@ INSERT INTO `branches` (`name`, `address`, `phone`) VALUES
 -- Insert manager user (password: Admin@123)
 -- Hash generated using password_hash('Admin@123', PASSWORD_DEFAULT)
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('Pharma Manager', 'batijano58@gmail.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
+('Yonas', 'admin@pharmaflow.system', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'manager', 1, 'active');
 
 -- Insert sample pharmacist
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('Demo Pharmacist', 'pharmacist@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 1, 'active');
+('Abel', 'pharmacist@PharmaFlow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'pharmacist', 1, 'active');
 
 -- Insert sample store keeper
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `branch_id`, `status`) VALUES
-('Demo Storekeeper', 'storekeeper@pharmaflow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 1, 'active');
+('Hana', 'storekeeper@PharmaFlow.com', '$2y$10$dHwT9PB3bTiAR2uvXnsfPulNpe4bXkQDsUdwo7rEqWd3EHgGKRzuK', 'store_keeper', 1, 'active');
 
 -- Insert sample drugs (with new SRS fields: Cost Price, Manufacturer, Supplier)
 INSERT INTO `drugs` (`name`, `category`, `batch`, `stock`, `price`, `cost_price`, `manufacturer`, `supplier`, `expiry_date`, `branch_id`) VALUES
-('Amoxicillin 500mg', 'Antibiotic', 'APX-2026-001', 250, 12.50, 8.00, 'HealthCorp', 'Global Meds', '2027-06-15', 1),
-('Ibuprofen 400mg', 'Painkiller', 'IBU-2026-002', 500, 5.99, 3.20, 'ReliefPharma', 'Local Distrib', '2027-03-20', 1),
-('Metformin 850mg', 'Diabetes', 'MET-2026-003', 120, 18.75, 12.00, 'BioCare', 'UniHealth', '2026-12-01', 1),
-('Cetirizine 10mg', 'Respiratory', 'CET-2026-004', 300, 4.50, 2.10, 'AllergySoft', 'QuickMeds', '2027-09-10', 2),
-('Omeprazole 20mg', 'Gastrointestinal', 'OMP-2026-005', 12, 9.25, 5.50, 'DigestiveCare', 'UniHealth', '2026-05-01', 2),
-('Clotrimazole Cream', 'Antifungal', 'CLT-2026-008', 5, 3.50, 1.80, 'SkinMed', 'Local Distrib', '2026-04-20', 1);
-
--- Insert sample sales (with total_cost and discount_amount)
-INSERT INTO `sales` (`invoice_no`, `customer_name`, `total_amount`, `total_cost`, `discount_amount`, `payment_method`, `pharmacist_id`, `branch_id`, `sale_date`) VALUES
-('INV-MNUIBHOG', 'Walk-in Customer', 3.50, 1.80, 0.00, 'Cash', 2, 1, '2026-04-11 15:45:00'),
-('INV-MNOBFQBU', 'Demo Customer', 22.00, 11.00, 2.00, 'Cash', 2, 1, '2026-04-07 07:46:00'),
-('INV-ABC001', 'John Doe', 42.50, 25.00, 0.00, 'Cash', 2, 1, '2026-04-07 07:36:00'),
-('INV-ABC002', 'Jane Smith', 17.97, 10.00, 1.50, 'Card', 2, 1, '2026-04-07 07:36:00'),
-('INV-ABC003', 'Alice Johnson', 35.75, 20.00, 5.00, 'Mobile Money', 2, 1, '2026-04-07 07:36:00');
-
--- Insert sample sale items (for above sales)
-INSERT INTO `sale_items` (`sale_id`, `drug_id`, `quantity`, `price`) VALUES
-(1, 6, 1, 3.50),  -- Clotrimazole Cream
-(2, 5, 2, 11.00), -- Omeprazole 20mg x2? Actually total 22, price 9.25 each -> quantity 2? Let's adjust
-(2, 5, 2, 9.25),  -- Corrected: 2 * 9.25 = 18.50 not 22, but we'll keep as sample
-(3, 1, 2, 12.50), -- Amoxicillin x2 = 25.00
-(3, 2, 1, 17.50), -- Ibuprofen? price 5.99, not 17.50. Keep as approximate sample.
-(4, 4, 1, 17.97),
-(5, 3, 2, 17.875); -- approximate
+('Amoxicillin 500mg', 'Antibiotic', 'APX-2026-001', 250, 6.00, 4.00, 'HealthCorp', 'Global Meds', '2027-06-15', 1),
+('Ibuprofen 400mg', 'Painkiller', 'IBU-2026-002', 500, 3.50, 2.30, 'ReliefPharma', 'Local Distrib', '2027-03-20', 1),
+('Metformin 850mg', 'Diabetes', 'MET-2026-003', 120, 5.50, 3.70, 'BioCare', 'UniHealth', '2026-12-01', 1),
+('Cetirizine 10mg', 'Respiratory', 'CET-2026-004', 300, 3.50, 2.30, 'AllergySoft', 'QuickMeds', '2027-09-10', 2),
+('Omeprazole 20mg', 'Gastrointestinal', 'OMP-2026-005', 12, 5.50, 3.70, 'DigestiveCare', 'UniHealth', '2026-05-01', 2),
+('Clotrimazole Cream', 'Antifungal', 'CLT-2026-008', 5, 40.00, 30.00, 'SkinMed', 'Local Distrib', '2026-04-20', 1);
 
 -- Insert sample notifications
 INSERT INTO `notifications` (`user_id`, `type`, `message`, `is_read`, `created_at`) VALUES

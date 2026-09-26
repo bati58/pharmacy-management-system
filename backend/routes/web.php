@@ -56,6 +56,7 @@ $routes = [
     'GET /reports/slow-moving-drugs' => ['ReportController', 'slowMovingDrugs'],
     'GET /notifications' => ['NotificationController', 'index'],
     'PUT /notifications/{id}/read' => ['NotificationController', 'markAsRead'],
+    'DELETE /notifications/{id}' => ['NotificationController', 'delete'],
     'PUT /notifications/read-all' => ['NotificationController', 'markAllRead'],
     'GET /system/backup' => ['BackupController', 'download'],
 ];

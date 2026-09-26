@@ -69,18 +69,6 @@ $name = $_SESSION['name'] ?? 'User';
             </a>
         </div>
         
-        <!-- All roles -->
-        <div class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] px-4 mt-6 mb-2">Account</div>
-        <a href="settings.php" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
-            <i class="fas fa-user-cog text-lg"></i> <span class="text-sm">Settings</span>
-        </a>
-        <a href="notifications.php" class="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : 'text-slate-400 hover:text-white hover:bg-slate-800/50'; ?>">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-bell text-lg"></i>
-                <span class="text-sm">Notifications</span>
-            </div>
-            <span id="sidebarNotifCount" class="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
-        </a>
     </nav>
 
     <!-- Profile (Fixed Bottom) -->
@@ -94,12 +82,6 @@ $name = $_SESSION['name'] ?? 'User';
                     <p class="text-white text-sm font-semibold truncate"><?php echo htmlspecialchars($name); ?></p>
                     <p class="text-slate-400 text-[10px] uppercase font-bold tracking-tight"><?php echo ucfirst(str_replace('_', ' ', $role)); ?></p>
                 </div>
-                <a href="../../backend/index.php/auth/logout"
-                   id="logout-btn"
-                   title="Logout"
-                   class="flex-shrink-0 w-9 h-9 rounded-xl bg-slate-700/50 hover:bg-rose-500 flex items-center justify-center text-slate-300 hover:text-white transition-all duration-200 group">
-                    <i class="fas fa-power-off text-sm group-hover:scale-110 transition-transform"></i>
-                </a>
             </div>
         </div>
     </div>

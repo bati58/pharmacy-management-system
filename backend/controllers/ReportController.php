@@ -19,18 +19,19 @@ class ReportController
 
     public function salesReport()
     {
-        AuthMiddleware::requireRole(['manager']);
+        AuthMiddleware::requireRole(['manager', 'pharmacist']);
         $period = $_GET['period'] ?? 'daily'; // daily, weekly, monthly, custom
         $branchId = $_GET['branch_id'] ?? null;
         $startDate = $_GET['start_date'] ?? null;
         $endDate = $_GET['end_date'] ?? null;
+        $pharmacistId = null;
 
-        // If not manager, force their own branch
-        if ($_SESSION['role'] !== 'manager') {
+        if ($_SESSION['role'] === 'pharmacist') {
             $branchId = $_SESSION['branch_id'];
+            $pharmacistId = $_SESSION['user_id'];
         }
 
-        $data = $this->saleModel->getSalesReport($period, $branchId, $startDate, $endDate);
+        $data = $this->saleModel->getSalesReport($period, $branchId, $startDate, $endDate, $pharmacistId);
         sendSuccess($data);
     }
 

@@ -44,6 +44,13 @@ class Notification
         return $stmt->execute([$userId]);
     }
 
+    public function delete($id, $userId)
+    {
+        $stmt = $this->db->prepare("DELETE FROM notifications WHERE id = ? AND user_id = ?");
+        $stmt->execute([$id, $userId]);
+        return $stmt->rowCount() > 0;
+    }
+
     public function deleteOld($days = 30)
     {
         $stmt = $this->db->prepare("DELETE FROM notifications WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)");

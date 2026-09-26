@@ -18,10 +18,10 @@ async function loadReports() {
     try {
         // Fetch all data in parallel with individual catches so 403s for non-managers don't break the page
         const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs] = await Promise.all([
-            API.getSalesReport(period, branchId, startDate, endDate).catch(() => ({data: []})),
-            API.getRevenueByBranch().catch(() => ({data: []})),
-            API.getRevenueByPharmacist().catch(() => ({data: []})),
-            API.getTopDrugs(10).catch(() => ({data: []}))
+            API.getSalesReport(period, branchId, startDate, endDate).catch(() => ({ data: [] })),
+            API.getRevenueByBranch().catch(() => ({ data: [] })),
+            API.getRevenueByPharmacist().catch(() => ({ data: [] })),
+            API.getTopDrugs(10).catch(() => ({ data: [] }))
         ]);
 
         // Calculate KPI totals
@@ -63,7 +63,7 @@ function renderRevenueChart(data) {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{ label: 'Revenue ($)', data: values, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true }]
+            datasets: [{ label: 'Revenue (Br)', data: values, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true }]
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
@@ -81,7 +81,7 @@ function renderBranchChart(data) {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{ label: 'Revenue ($)', data: values, backgroundColor: '#10b981' }]
+            datasets: [{ label: 'Revenue (Br)', data: values, backgroundColor: '#10b981' }]
         }
     });
 }

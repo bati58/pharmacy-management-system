@@ -7,13 +7,13 @@
 
 // Database credentials
 $host = 'localhost';
-$dbname = 'pms_db';
+$dbname = 'pharmacy_db';
 $username = 'root';
 $password = '';
 
 // Optional: for production, use environment variables
 // $host = getenv('DB_HOST') ?: 'localhost';
-// $dbname = getenv('DB_NAME') ?: 'pms_db';
+// $dbname = getenv('DB_NAME') ?: 'pharmacy_db';
 // $username = getenv('DB_USER') ?: 'root';
 // $password = getenv('DB_PASS') ?: '';
 

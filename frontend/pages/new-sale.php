@@ -108,7 +108,7 @@ include '../includes/sidebar.php';
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-1">Discount</label>
                                     <div class="relative">
-                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">Br</span>
                                         <input type="number" id="discountAmount" value="0" min="0" step="0.01" class="w-full pl-8 pr-4 py-3 bg-white border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all font-medium" oninput="updateCartDisplay()">
                                     </div>
                                 </div>
@@ -125,7 +125,7 @@ include '../includes/sidebar.php';
                             <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100/50">
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="text-indigo-500 font-bold text-xs uppercase tracking-wider">Payable Total</span>
-                                    <span id="cartTotal" class="text-2xl font-black text-indigo-700">$0.00</span>
+                                    <span id="cartTotal" class="text-2xl font-black text-indigo-700">Br 0.00</span>
                                 </div>
                                 <p class="text-[10px] text-indigo-400 font-medium">All taxes and discounts are included.</p>
                             </div>

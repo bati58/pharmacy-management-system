@@ -7,21 +7,11 @@
             try {
                 const res = await API.getNotifications(true);
                 const count = res.data ? res.data.length : 0;
-                const badges = [
-                    document.getElementById('headerNotifCount'),
-                    document.getElementById('sidebarNotifCount')
-                ];
-                
-                badges.forEach(badge => {
-                    if (badge) {
-                        if (count > 0) {
-                            badge.textContent = count;
-                            badge.classList.remove('hidden');
-                        } else {
-                            badge.classList.add('hidden');
-                        }
-                    }
-                });
+                const badge = document.getElementById('headerNotifCount');
+                if (badge) {
+                    badge.textContent = count;
+                    badge.classList.toggle('hidden', count === 0);
+                }
             } catch (e) {
                 console.error('Failed to update notification badge:', e);
             }
