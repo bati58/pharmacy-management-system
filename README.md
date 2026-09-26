@@ -14,8 +14,7 @@ It handles complex workflows such as multi-branch inventory management, user inv
 ### Successful Authentication
 ![success](frontend/assets/success.png)
 
-### Manager Dashboard & Analytics
-![dashboard](frontend/assets/dashboard.png)
+
 
 ---
 Run:http://localhost/pharmacy-management-system/frontend/pages/auth/login.php.
