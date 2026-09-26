@@ -61,6 +61,17 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     }
 }
 
+const buildReportQuery = (filters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== '') {
+            params.set(key, value);
+        }
+    });
+    const query = params.toString();
+    return query ? `?${query}` : '';
+};
+
 const API = {
     // Auth
     login: (email, password) => apiRequest('/auth/login', 'POST', { email, password }),
@@ -123,20 +134,16 @@ const API = {
     createSale: (data) => apiRequest('/sales', 'POST', data),
 
     // Reports
-    getSalesReport: (period, branchId, startDate, endDate) => {
-        let url = '/reports/sales';
-        const params = new URLSearchParams();
-        if (period) params.append('period', period);
-        if (branchId) params.append('branch_id', branchId);
-        if (startDate) params.append('start_date', startDate);
-        if (endDate) params.append('end_date', endDate);
-        if (params.toString()) url += '?' + params.toString();
-        return apiRequest(url);
-    },
-    getRevenueByBranch: () => apiRequest('/reports/revenue-by-branch'),
-    getRevenueByPharmacist: () => apiRequest('/reports/revenue-by-pharmacist'),
-    getTopDrugs: (limit = 10) => apiRequest(`/reports/top-drugs?limit=${limit}`),
-    getSlowMovingDrugs: (limit = 10) => apiRequest(`/reports/slow-moving-drugs?limit=${limit}`),
+    getSalesReport: (period, branchId, startDate, endDate) =>
+        apiRequest('/reports/sales' + buildReportQuery({ period, branch_id: branchId, start_date: startDate, end_date: endDate })),
+    getRevenueByBranch: (period, branchId, startDate, endDate) =>
+        apiRequest('/reports/revenue-by-branch' + buildReportQuery({ period, branch_id: branchId, start_date: startDate, end_date: endDate })),
+    getRevenueByPharmacist: (period, branchId, startDate, endDate) =>
+        apiRequest('/reports/revenue-by-pharmacist' + buildReportQuery({ period, branch_id: branchId, start_date: startDate, end_date: endDate })),
+    getTopDrugs: (limit = 10, period, branchId, startDate, endDate) =>
+        apiRequest('/reports/top-drugs' + buildReportQuery({ limit, period, branch_id: branchId, start_date: startDate, end_date: endDate })),
+    getSlowMovingDrugs: (limit = 10, period, branchId, startDate, endDate) =>
+        apiRequest('/reports/slow-moving-drugs' + buildReportQuery({ limit, period, branch_id: branchId, start_date: startDate, end_date: endDate })),
 
     // Notifications
     getNotifications: (unreadOnly = false) => apiRequest(`/notifications?unread_only=${unreadOnly}`),

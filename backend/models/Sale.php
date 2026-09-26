@@ -86,99 +86,137 @@ class Sale
         return $stmt->execute([$saleId, $drugId, $quantity, $price]);
     }
 
-    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null, $pharmacistId = null)
+    private function buildReportFilters($period, $branchId, $startDate, $endDate, $alias = 's')
     {
-        switch ($period) {
-            case 'weekly':
-                $groupBy = "YEARWEEK(sale_date)";
-                $dateFormat = "'%Y Week %v'";
-                break;
-            case 'monthly':
-                $groupBy = "DATE_FORMAT(sale_date, '%Y-%m')";
-                $dateFormat = "'%Y-%m'";
-                break;
-            case 'custom':
-                $groupBy = "DATE(sale_date)";
-                $dateFormat = "'%Y-%m-%d'";
-                break;
-            default: // daily
-                $groupBy = "DATE(sale_date)";
-                $dateFormat = "'%Y-%m-%d'";
-        }
-
-        $sql = "
-            SELECT 
-                DATE_FORMAT(sale_date, $dateFormat) as period,
-                COUNT(*) as transaction_count,
-                SUM(total_amount) as total_revenue,
-                SUM(total_cost) as total_cost,
-                SUM(total_amount - total_cost) as total_profit,
-                AVG(total_amount) as avg_sale
-            FROM sales
-            WHERE 1=1
-        ";
+        $filters = [];
         $params = [];
-        if ($branchId) {
-            $sql .= " AND branch_id = ?";
-            $params[] = $branchId;
-        }
-        if ($pharmacistId) {
-            $sql .= " AND pharmacist_id = ?";
-            $params[] = $pharmacistId;
-        }
+
         if ($startDate && $endDate) {
-            $sql .= " AND sale_date BETWEEN ? AND ?";
+            $filters[] = "$alias.sale_date >= ?";
+            $filters[] = "$alias.sale_date < DATE_ADD(?, INTERVAL 1 DAY)";
             $params[] = $startDate;
             $params[] = $endDate;
+        } else {
+            if ($period === 'daily') {
+                $filters[] = "DATE($alias.sale_date) = CURDATE()";
+            } elseif ($period === 'weekly') {
+                $filters[] = "YEARWEEK($alias.sale_date, 1) = YEARWEEK(CURDATE(), 1)";
+            } elseif ($period === 'monthly') {
+                $filters[] = "YEAR($alias.sale_date) = YEAR(CURDATE()) AND MONTH($alias.sale_date) = MONTH(CURDATE())";
+            }
         }
-        $sql .= " GROUP BY period ORDER BY period DESC";
+
+        if ($branchId) {
+            $filters[] = "$alias.branch_id = ?";
+            $params[] = $branchId;
+        }
+
+        return [$filters, $params];
+    }
+
+    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null, $pharmacistId = null)
+    {
+        if ($startDate && $endDate) {
+            $dateFormat = "'%Y-%m-%d'";
+        } elseif ($period === 'weekly') {
+            $dateFormat = "'%x Week %v'";
+        } elseif ($period === 'monthly') {
+            $dateFormat = "'%Y-%m'";
+        } else {
+            $dateFormat = "'%Y-%m-%d'";
+        }
+
+        [$filters, $params] = $this->buildReportFilters($period, $branchId, $startDate, $endDate);
+        $sql = "
+            SELECT
+                DATE_FORMAT(s.sale_date, $dateFormat) as period,
+                COUNT(*) as transaction_count,
+                SUM(s.total_amount) as total_revenue,
+                SUM(s.total_cost) as total_cost,
+                SUM(s.total_amount - s.total_cost) as total_profit,
+                AVG(s.total_amount) as avg_sale
+            FROM sales s
+        ";
+        if ($filters) {
+            $sql .= ' WHERE ' . implode(' AND ', $filters);
+        }
+        if ($pharmacistId) {
+            $sql .= $filters ? ' AND s.pharmacist_id = ?' : ' WHERE s.pharmacist_id = ?';
+            $params[] = $pharmacistId;
+        }
+        $sql .= ' GROUP BY period ORDER BY MIN(s.sale_date)';
+
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function getRevenueByBranch()
+    public function getRevenueByBranch($period = 'all', $branchId = null, $startDate = null, $endDate = null)
     {
-        $stmt = $this->db->query("
-            SELECT 
-                b.name as branch_name, 
-                COALESCE(SUM(s.total_amount), 0) as revenue, 
+        [$filters, $params] = $this->buildReportFilters($period, $branchId, $startDate, $endDate);
+        $sql = "
+            SELECT
+                b.name as branch_name,
+                COALESCE(SUM(s.total_amount), 0) as revenue,
                 COALESCE(SUM(s.total_amount - s.total_cost), 0) as profit,
                 COUNT(s.id) as sales_count
             FROM branches b
             LEFT JOIN sales s ON b.id = s.branch_id
-            GROUP BY b.id
-        ");
+        ";
+        if ($filters) {
+            $sql .= ' AND ' . implode(' AND ', $filters);
+        }
+        if ($branchId) {
+            $sql .= ' WHERE b.id = ?';
+            $params[] = $branchId;
+        }
+        $sql .= ' GROUP BY b.id ORDER BY b.name';
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function getRevenueByPharmacist()
+    public function getRevenueByPharmacist($period = 'all', $branchId = null, $startDate = null, $endDate = null)
     {
-        $stmt = $this->db->query("
-            SELECT 
-                u.name as pharmacist_name, 
-                COALESCE(SUM(s.total_amount), 0) as revenue, 
+        [$filters, $params] = $this->buildReportFilters($period, $branchId, $startDate, $endDate);
+        $sql = "
+            SELECT
+                u.name as pharmacist_name,
+                COALESCE(SUM(s.total_amount), 0) as revenue,
                 COALESCE(SUM(s.total_amount - s.total_cost), 0) as profit,
                 COUNT(s.id) as sales_count
             FROM users u
             LEFT JOIN sales s ON u.id = s.pharmacist_id
-            WHERE u.role = 'pharmacist'
-            GROUP BY u.id
-        ");
+        ";
+        if ($filters) {
+            $sql .= ' AND ' . implode(' AND ', $filters);
+        }
+        $sql .= " WHERE u.role = 'pharmacist' GROUP BY u.id ORDER BY u.name";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function getTopDrugs($limit = 10)
+    public function getTopDrugs($limit = 10, $period = 'all', $branchId = null, $startDate = null, $endDate = null)
     {
-        $stmt = $this->db->prepare("
+        [$filters, $params] = $this->buildReportFilters($period, $branchId, $startDate, $endDate);
+        $sql = "
             SELECT d.name, SUM(si.quantity) as total_quantity, SUM(si.quantity * si.price) as total_revenue
             FROM sale_items si
-            JOIN drugs d ON si.drug_id = d.id
-            GROUP BY d.id
-            ORDER BY total_quantity DESC
-            LIMIT ?
-        ");
-        $stmt->execute([$limit]);
+            JOIN sales s ON s.id = si.sale_id
+            JOIN drugs d ON d.id = si.drug_id
+        ";
+        if ($filters) {
+            $sql .= ' WHERE ' . implode(' AND ', $filters);
+        }
+        $sql .= ' GROUP BY d.id ORDER BY total_quantity DESC LIMIT ?';
+
+        $params[] = (int)$limit;
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
+
 }

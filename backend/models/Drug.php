@@ -154,19 +154,48 @@ class Drug
         return $stmt->fetchAll();
     }
 
-    public function getSlowMoving($limit = 10)
+    public function getSlowMoving($limit = 10, $period = 'all', $branchId = null, $startDate = null, $endDate = null)
     {
-        // Slow-moving: drugs with low sales volume (assuming sale_items table)
+        $saleFilters = [];
+        $params = [];
+
+        if ($startDate && $endDate) {
+            $saleFilters[] = 's.sale_date >= ?';
+            $saleFilters[] = 's.sale_date < DATE_ADD(?, INTERVAL 1 DAY)';
+            $params[] = $startDate;
+            $params[] = $endDate;
+        } elseif ($period === 'daily') {
+            $saleFilters[] = 'DATE(s.sale_date) = CURDATE()';
+        } elseif ($period === 'weekly') {
+            $saleFilters[] = 'YEARWEEK(s.sale_date, 1) = YEARWEEK(CURDATE(), 1)';
+        } elseif ($period === 'monthly') {
+            $saleFilters[] = 'YEAR(s.sale_date) = YEAR(CURDATE()) AND MONTH(s.sale_date) = MONTH(CURDATE())';
+        }
+
+        if ($branchId) {
+            $saleFilters[] = 's.branch_id = ?';
+            $params[] = $branchId;
+        }
+
+        $drugBranchFilter = '';
+        if ($branchId) {
+            $drugBranchFilter = ' WHERE d.branch_id = ?';
+            $params[] = $branchId;
+        }
+
         $stmt = $this->db->prepare("
-            SELECT d.*, COALESCE(SUM(si.quantity), 0) as total_sold
+            SELECT d.*, COALESCE(SUM(CASE WHEN s.id IS NOT NULL THEN si.quantity ELSE 0 END), 0) as total_sold
             FROM drugs d
             LEFT JOIN sale_items si ON d.id = si.drug_id
-            LEFT JOIN sales s ON si.sale_id = s.id AND s.sale_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            LEFT JOIN sales s ON si.sale_id = s.id
+            " . ($saleFilters ? ' AND ' . implode(' AND ', $saleFilters) : '') . "
+            $drugBranchFilter
             GROUP BY d.id
             ORDER BY total_sold ASC
             LIMIT ?
         ");
-        $stmt->execute([$limit]);
+        $params[] = (int)$limit;
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 

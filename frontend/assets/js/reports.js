@@ -1,137 +1,216 @@
-let revenueChart = null;
-let branchChart = null;
-let pharmacistChart = null;
-let topDrugsChart = null;
+let currentChart = null;
+let activeTab = 'revenueTrend';
+let reportData = null;
+let requestVersion = 0;
 
-document.addEventListener('DOMContentLoaded', function () {
-    loadBranchesForReport();
-    loadReports();
-    document.getElementById('applyFilters').addEventListener('click', loadReports);
-});
+const reportTabs = {
+    tabRevenueTrend: 'revenueTrend',
+    tabProfitTrend: 'profitTrend',
+    tabRevenueBranch: 'revenueBranch',
+    tabRevenuePharmacist: 'revenuePharmacist',
+    tabTopDrugs: 'topDrugs',
+    tabSlowDrugs: 'slowDrugs'
+};
+
+document.addEventListener('DOMContentLoaded', initializeReports);
+
+async function initializeReports() {
+    document.getElementById('applyFilters')?.addEventListener('click', loadReports);
+    Object.entries(reportTabs).forEach(([buttonId, tab]) => {
+        document.getElementById(buttonId)?.addEventListener('click', () => switchReportTab(tab));
+    });
+
+    await loadBranchesForReport();
+    await loadReports();
+}
+
+function readReportFilters() {
+    const startDate = document.getElementById('startDate')?.value || '';
+    const endDate = document.getElementById('endDate')?.value || '';
+
+    if (Boolean(startDate) !== Boolean(endDate)) {
+        showToast('Choose both a start and end date', 'error');
+        return null;
+    }
+    if (startDate && startDate > endDate) {
+        showToast('Start date must be on or before the end date', 'error');
+        return null;
+    }
+
+    return {
+        period: document.getElementById('reportPeriod')?.value || 'weekly',
+        branchId: document.getElementById('reportBranch')?.value || '',
+        startDate,
+        endDate
+    };
+}
 
 async function loadReports() {
-    const period = document.getElementById('reportPeriod').value;
-    const branchId = document.getElementById('reportBranch').value;
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
+    const filters = readReportFilters();
+    if (!filters) return;
+
+    const currentRequest = ++requestVersion;
+    const button = document.getElementById('applyFilters');
+    const originalButtonContent = button?.innerHTML;
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Updating...';
+    }
 
     try {
-        // Fetch all data in parallel with individual catches so 403s for non-managers don't break the page
-        const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs] = await Promise.all([
-            API.getSalesReport(period, branchId, startDate, endDate).catch(() => ({ data: [] })),
-            API.getRevenueByBranch().catch(() => ({ data: [] })),
-            API.getRevenueByPharmacist().catch(() => ({ data: [] })),
-            API.getTopDrugs(10).catch(() => ({ data: [] }))
+        const [salesReport, revenueByBranch, revenueByPharmacist, topDrugs, slowDrugs] = await Promise.all([
+            API.getSalesReport(filters.period, filters.branchId, filters.startDate, filters.endDate),
+            API.getRevenueByBranch(filters.period, filters.branchId, filters.startDate, filters.endDate),
+            API.getRevenueByPharmacist(filters.period, filters.branchId, filters.startDate, filters.endDate),
+            API.getTopDrugs(10, filters.period, filters.branchId, filters.startDate, filters.endDate),
+            API.getSlowMovingDrugs(10, filters.period, filters.branchId, filters.startDate, filters.endDate)
         ]);
 
-        // Calculate KPI totals
-        let totalRevenue = 0;
-        let totalSales = 0;
-        if (salesReport.data && salesReport.data.length) {
-            totalRevenue = salesReport.data.reduce((sum, item) => sum + parseFloat(item.total_revenue), 0);
-            totalSales = salesReport.data.reduce((sum, item) => sum + item.transaction_count, 0);
-        }
-        const avgSale = totalSales > 0 ? totalRevenue / totalSales : 0;
+        if (currentRequest !== requestVersion) return;
+
+        reportData = {
+            salesReport: salesReport.data || [],
+            revenueByBranch: revenueByBranch.data || [],
+            revenueByPharmacist: revenueByPharmacist.data || [],
+            topDrugs: topDrugs.data || [],
+            slowDrugs: slowDrugs.data || []
+        };
+
+        const totalRevenue = reportData.salesReport.reduce((sum, item) => sum + Number(item.total_revenue || 0), 0);
+        const totalProfit = reportData.salesReport.reduce((sum, item) => sum + Number(item.total_profit || 0), 0);
+        const totalSales = reportData.salesReport.reduce((sum, item) => sum + Number(item.transaction_count || 0), 0);
 
         document.getElementById('totalRevenue').innerText = formatCurrency(totalRevenue);
+        document.getElementById('totalProfit').innerText = formatCurrency(totalProfit);
         document.getElementById('totalSalesCount').innerText = totalSales;
-        document.getElementById('avgSale').innerText = formatCurrency(avgSale);
-
-        // Render charts
-        renderRevenueChart(salesReport.data);
-        renderBranchChart(revenueByBranch.data);
-        renderPharmacistChart(revenueByPharmacist.data);
-        renderTopDrugsChart(topDrugs.data);
-
-    } catch (err) {
-        console.error('Reports error:', err);
-        showToast('Failed to load reports', 'error');
+        renderReportChart();
+    } catch (error) {
+        console.error('Reports error:', error);
+        if (currentRequest === requestVersion) {
+            showToast(error.message || 'Failed to load reports', 'error');
+        }
+    } finally {
+        if (button && currentRequest === requestVersion) {
+            button.disabled = false;
+            button.innerHTML = originalButtonContent;
+        }
     }
 }
 
-function renderRevenueChart(data) {
-    const ctx = document.getElementById('revenueChart')?.getContext('2d');
+function switchReportTab(tab) {
+    activeTab = tab;
+    Object.entries(reportTabs).forEach(([buttonId, buttonTab]) => {
+        document.getElementById(buttonId)?.classList.toggle('active', buttonTab === tab);
+    });
+    renderReportChart();
+}
+
+function renderReportChart() {
+    if (!reportData) return;
+
+    const ctx = document.getElementById('reportChart')?.getContext('2d');
     if (!ctx) return;
-    if (revenueChart) revenueChart.destroy();
+    currentChart?.destroy();
 
-    // Reverse to show chronological order
-    const reversedData = data && data.length ? [...data].reverse() : [];
-    const labels = reversedData.length ? reversedData.map(item => item.period) : ['No Data'];
-    const values = reversedData.length ? reversedData.map(item => parseFloat(item.total_revenue)) : [0];
+    const configuration = getChartConfiguration(activeTab, reportData);
+    const labels = configuration.values.length ? configuration.labels : ['No matching data'];
+    const values = configuration.values.length ? configuration.values : [0];
+    const isPie = configuration.type === 'pie';
 
-    revenueChart = new Chart(ctx, {
-        type: 'line',
+    currentChart = new Chart(ctx, {
+        type: configuration.type,
         data: {
-            labels: labels,
-            datasets: [{ label: 'Revenue (Br)', data: values, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.3, fill: true }]
+            labels,
+            datasets: [{
+                label: configuration.label,
+                data: values,
+                backgroundColor: isPie
+                    ? ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#0891b2', '#65a30d', '#e11d48']
+                    : configuration.color,
+                borderColor: configuration.borderColor || configuration.color,
+                fill: configuration.type === 'line',
+                tension: 0.3
+            }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
-    });
-}
-
-function renderBranchChart(data) {
-    const ctx = document.getElementById('branchChart')?.getContext('2d');
-    if (!ctx) return;
-    if (branchChart) branchChart.destroy();
-
-    const labels = data && data.length ? data.map(item => item.branch_name) : ['No Data'];
-    const values = data && data.length ? data.map(item => parseFloat(item.revenue)) : [0];
-
-    branchChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{ label: 'Revenue (Br)', data: values, backgroundColor: '#10b981' }]
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: isPie } },
+            ...(isPie ? {} : { scales: { y: { beginAtZero: true } } })
         }
     });
 }
 
-function renderPharmacistChart(data) {
-    const ctx = document.getElementById('pharmacistChart')?.getContext('2d');
-    if (!ctx) return;
-    if (pharmacistChart) pharmacistChart.destroy();
-
-    const labels = data && data.length ? data.map(item => item.pharmacist_name) : ['No Data'];
-    const values = data && data.length ? data.map(item => parseFloat(item.revenue)) : [1];
-
-    pharmacistChart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{ data: values, backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6'] }]
+function getChartConfiguration(tab, data) {
+    switch (tab) {
+        case 'profitTrend':
+            return {
+                type: 'line',
+                label: 'Profit (Br)',
+                labels: data.salesReport.map(item => item.period),
+                values: data.salesReport.map(item => Number(item.total_profit || 0)),
+                color: 'rgba(16, 185, 129, 0.25)',
+                borderColor: '#059669'
+            };
+        case 'revenueBranch':
+            return {
+                type: 'bar',
+                label: 'Revenue (Br)',
+                labels: data.revenueByBranch.map(item => item.branch_name),
+                values: data.revenueByBranch.map(item => Number(item.revenue || 0)),
+                color: '#4f46e5'
+            };
+        case 'revenuePharmacist': {
+            const staffWithSales = data.revenueByPharmacist.filter(item => Number(item.revenue) > 0);
+            return {
+                type: 'pie',
+                label: 'Revenue (Br)',
+                labels: staffWithSales.map(item => item.pharmacist_name),
+                values: staffWithSales.map(item => Number(item.revenue)),
+                color: '#4f46e5'
+            };
         }
-    });
-}
-
-function renderTopDrugsChart(data) {
-    const ctx = document.getElementById('topDrugsChart')?.getContext('2d');
-    if (!ctx) return;
-    if (topDrugsChart) topDrugsChart.destroy();
-
-    const top5 = data && data.length ? data.slice(0, 5) : [];
-    const labels = top5.length ? top5.map(item => item.name) : ['No Data'];
-    const values = top5.length ? top5.map(item => parseFloat(item.total_quantity)) : [0];
-
-    topDrugsChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{ label: 'Units Sold', data: values, backgroundColor: '#8b5cf6' }]
-        }
-    });
+        case 'topDrugs':
+            return {
+                type: 'bar',
+                label: 'Units Sold',
+                labels: data.topDrugs.map(item => item.name),
+                values: data.topDrugs.map(item => Number(item.total_quantity || 0)),
+                color: '#0891b2'
+            };
+        case 'slowDrugs':
+            return {
+                type: 'bar',
+                label: 'Units Sold',
+                labels: data.slowDrugs.map(item => item.name),
+                values: data.slowDrugs.map(item => Number(item.total_sold || 0)),
+                color: '#f59e0b'
+            };
+        default:
+            return {
+                type: 'line',
+                label: 'Revenue (Br)',
+                labels: data.salesReport.map(item => item.period),
+                values: data.salesReport.map(item => Number(item.total_revenue || 0)),
+                color: 'rgba(79, 70, 229, 0.2)',
+                borderColor: '#4f46e5'
+            };
+    }
 }
 
 async function loadBranchesForReport() {
     try {
-        const branches = await API.getBranches();
+        const response = await API.getBranches();
         const select = document.getElementById('reportBranch');
-        if (select && branches.data && branches.data.length) {
-            select.innerHTML = '<option value="">All Branches</option>';
-            branches.data.forEach(b => {
-                select.innerHTML += `<option value="${b.id}">${escapeHtml(b.name)}</option>`;
-            });
-        }
-    } catch (err) {
-        console.error('Error loading branches for report:', err);
+        if (!select || !response.data) return;
+
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">All Branches</option>';
+        response.data.forEach(branch => {
+            select.insertAdjacentHTML('beforeend', `<option value="${branch.id}">${escapeHtml(branch.name)}</option>`);
+        });
+        select.value = currentValue;
+    } catch (error) {
+        console.error('Error loading report branches:', error);
     }
 }

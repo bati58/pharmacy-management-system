@@ -11,10 +11,6 @@
                 echo ucwords(str_replace(['-', '_'], ' ', $page));
                 ?>
             </h1>
-            <div class="hidden md:flex items-center bg-slate-100 rounded-xl px-3 py-1.5 gap-2 border border-slate-200/50">
-                <i class="fas fa-search text-slate-400 text-xs"></i>
-                <input type="text" placeholder="Search anything..." class="bg-transparent border-none text-xs focus:ring-0 w-64 text-slate-600 font-medium">
-            </div>
         </div>
         
         <div class="flex items-center gap-3 md:gap-6">
