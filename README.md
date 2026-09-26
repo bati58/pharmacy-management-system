@@ -18,6 +18,8 @@ It handles complex workflows such as multi-branch inventory management, user inv
 ![dashboard](frontend/assets/dashboard.png)
 
 ---
+Run:http://localhost/pharmacy-management-system/frontend/pages/auth/login.php.
+
 
 ## ✨ Key Functionalities & Workflows
 
