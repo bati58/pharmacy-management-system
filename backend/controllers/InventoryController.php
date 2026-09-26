@@ -17,7 +17,7 @@ class InventoryController
 
     public function updateStock($id)
     {
-        AuthMiddleware::requireRole(['store_keeper']);
+        AuthMiddleware::requireRole(['manager', 'store_keeper']);
         $data = json_decode(file_get_contents('php://input'), true);
         $quantityChange = $data['quantity_change'] ?? 0; // can be positive (receive) or negative (damaged/expired)
         $reason = $data['reason'] ?? 'manual';

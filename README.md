@@ -8,14 +8,14 @@ It handles complex workflows such as multi-branch inventory management, user inv
 
 ## 🖥️ Platform Preview
 
-### Secure Login
-![login](frontend/assets/login.png)
+### Staff Sign In
+![PharmaFlow staff sign-in page](frontend/assets/login.png)
 
-### Successful Authentication
-![success](frontend/assets/success.png)
+### Signing In
+![PharmaFlow sign-in confirmation](frontend/assets/success.png)
 
-### Manager Dashboard & Analytics
-![dashboard](frontend/assets/dashboard.png)
+### Manager Dashboard
+![PharmaFlow manager dashboard](frontend/assets/dashboard.png)
 
 ---
 Run:http://localhost/pharmacy-management-system/frontend/pages/auth/login.php.

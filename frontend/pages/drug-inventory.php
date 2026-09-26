@@ -15,7 +15,7 @@ include '../includes/sidebar.php';
             <p class="text-slate-500 mt-1 font-medium">Manage and monitor your pharmaceutical stock across all branches.</p>
         </div>
         <div class="flex items-center gap-3">
-            <?php if ($_SESSION['role'] == 'store_keeper'): ?>
+            <?php if (in_array($_SESSION['role'], ['manager', 'store_keeper'], true)): ?>
                 <button id="add-drug-btn" onclick="showDrugModal()" class="btn-premium btn-premium-primary shadow-indigo-200">
                     <i class="fas fa-plus"></i> Add New Drug
                 </button>

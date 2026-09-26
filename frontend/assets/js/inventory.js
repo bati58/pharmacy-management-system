@@ -47,6 +47,7 @@ async function loadDrugs() {
 
             const user = JSON.parse(localStorage.getItem('user') || '{}');
             const isStoreKeeper = user.role === 'store_keeper';
+            const canManageStock = isStoreKeeper || user.role === 'manager';
 
             const row = `
                 <tr class="group hover:bg-slate-50 transition-colors">
@@ -81,7 +82,7 @@ async function loadDrugs() {
                     <td><span class="text-xs font-bold text-slate-500">${escapeHtml(drug.branch_name)}</span></td>
                     <td class="text-right">
                         <div class="flex justify-end gap-2">
-                            ${isStoreKeeper ? `
+                            ${canManageStock ? `
                             <button onclick="updateStock(${drug.id})" class="w-8 h-8 rounded-lg bg-slate-100 text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all flex items-center justify-center" title="Update Stock">
                                 <i class="fas fa-boxes text-xs"></i>
                             </button>
