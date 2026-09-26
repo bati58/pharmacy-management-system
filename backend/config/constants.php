@@ -36,8 +36,8 @@ define('DATE_FORMAT_DB', 'Y-m-d');
 define('DATETIME_FORMAT_DISPLAY', 'M d, Y H:i');
 
 // ========== CURRENCY ==========
-define('CURRENCY_SYMBOL', '$');
-define('CURRENCY_CODE', 'USD');
+define('CURRENCY_SYMBOL', 'Br');
+define('CURRENCY_CODE', 'ETB');
 
 // ========== EMAIL ==========
 if (file_exists(__DIR__ . '/config.local.php')) {
@@ -64,7 +64,7 @@ if ($projectPath === '/') $projectPath = '';
 
 define('BASE_URL', $protocol . "://" . $host . $projectPath);
 define('API_BASE_URL', BASE_URL . '/backend');
-define('DB_NAME', 'pms_db');
+define('DB_NAME', 'pharmacy_db');
 
 // ========== ERROR LOGGING ==========
 define('LOG_ERRORS', true);

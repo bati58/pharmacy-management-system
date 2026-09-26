@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/init_session.php';
 if (!isset($_SESSION['user_id'])) {
     header('Location: auth/login.php');
     exit;
@@ -60,12 +60,12 @@ include '../includes/sidebar.php';
             <div class="card p-6 kpi-card">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600">
-                        <i class="fas fa-dollar-sign text-xl"></i>
+                        <span class="text-xl font-black">Br</span>
                     </div>
                     <span class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">+24%</span>
                 </div>
                 <h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider">Revenue</h3>
-                <p class="text-3xl kpi-value mt-1" id="kpi-revenue">$0.00</p>
+                    <p class="text-3xl kpi-value mt-1" id="kpi-revenue">Br 0.00</p>
             </div>
         </div>
 

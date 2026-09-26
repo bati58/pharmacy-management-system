@@ -2,18 +2,18 @@
 const getProjectRoot = () => {
     const path = window.location.pathname;
     const parts = path.split('/');
-    
+
     // Check for standard subfolders first
     const frontendIndex = parts.indexOf('frontend');
     if (frontendIndex !== -1) {
         return parts.slice(0, frontendIndex).join('/') || '';
     }
-    
+
     const backendIndex = parts.indexOf('backend');
     if (backendIndex !== -1) {
         return parts.slice(0, backendIndex).join('/') || '';
     }
-    
+
     // If we are in the root (like register.php), the root is everything before the last filename
     // and we ensure it doesn't return an empty string if it's the domain root
     const root = parts.slice(0, parts.length - 1).join('/');
@@ -34,11 +34,11 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     if (data && (method === 'POST' || method === 'PUT')) {
         options.body = JSON.stringify(data);
     }
-    
+
     try {
         const response = await fetch(url, options);
         const text = await response.text(); // Get raw text first
-        
+
         let result;
         try {
             result = JSON.parse(text);
@@ -141,5 +141,6 @@ const API = {
     // Notifications
     getNotifications: (unreadOnly = false) => apiRequest(`/notifications?unread_only=${unreadOnly}`),
     markNotificationRead: (id) => apiRequest(`/notifications/${id}/read`, 'PUT'),
+    deleteNotification: (id) => apiRequest(`/notifications/${id}`, 'DELETE'),
     markAllRead: () => apiRequest('/notifications/read-all', 'PUT')
 };

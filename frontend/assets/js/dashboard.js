@@ -31,8 +31,8 @@ async function loadDashboardData() {
         let totalRevenue = 0;
 
         if (report.length) {
-            totalSales = report.reduce((sum, day) => sum + day.transaction_count, 0);
-            totalRevenue = report.reduce((sum, day) => sum + day.total_revenue, 0);
+            totalSales = report.reduce((sum, day) => sum + Number(day.transaction_count || 0), 0);
+            totalRevenue = report.reduce((sum, day) => sum + Number(day.total_revenue || 0), 0);
         }
 
         document.getElementById('kpi-branches').innerText = totalBranches;
@@ -56,7 +56,7 @@ async function loadRecentSales() {
 
         tbody.innerHTML = '';
         const recent = sales.data ? sales.data.slice(0, 5) : [];
-        
+
         if (recent.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">No recent transactions found</td></tr>';
             return;
@@ -95,7 +95,7 @@ async function loadAlerts() {
 
         lowStockList.innerHTML = '';
         const alerts = lowStock.data || [];
-        
+
         if (alerts.length === 0) {
             lowStockList.innerHTML = '<div class="text-center py-4 text-slate-400 text-sm">No critical stock alerts</div>';
             return;

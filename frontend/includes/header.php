@@ -106,6 +106,26 @@
         .overlay.active {
             display: block;
         }
+
+        .header-dropdown {
+            z-index: 220;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                overflow-x: hidden;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .table-container,
+            .overflow-x-auto {
+                max-width: 100%;
+                overflow-x: auto;
+            }
+        }
     </style>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">

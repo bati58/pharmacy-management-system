@@ -56,11 +56,11 @@ include '../includes/sidebar.php';
         <div class="card p-6 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-100">
             <div class="flex justify-between items-start mb-4">
                 <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
-                    <i class="fas fa-dollar-sign"></i>
+                    <span class="font-black">Br</span>
                 </div>
                 <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Gross Revenue</span>
             </div>
-            <h3 class="text-3xl font-black mb-1" id="totalRevenue">$0.00</h3>
+            <h3 class="text-3xl font-black mb-1" id="totalRevenue">Br 0.00</h3>
             <p class="text-indigo-100/80 text-xs font-medium">Accumulated across selected period</p>
         </div>
 
@@ -71,7 +71,7 @@ include '../includes/sidebar.php';
                 </div>
                 <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 px-2 py-1 rounded-lg">Net Profit</span>
             </div>
-            <h3 class="text-3xl font-black mb-1" id="totalProfit">$0.00</h3>
+            <h3 class="text-3xl font-black mb-1" id="totalProfit">Br 0.00</h3>
             <p class="text-emerald-50/80 text-xs font-medium">After deducting wholesale costs</p>
         </div>
 
@@ -229,7 +229,7 @@ include '../includes/sidebar.php';
         switch (tab) {
             case 'revenueTrend':
                 chartType = 'line';
-                labelText = 'Revenue ($)';
+                labelText = 'Revenue (Br)';
                 if (data.salesReport.data && data.salesReport.data.length) {
                     labels = data.salesReport.data.map(item => item.period);
                     values = data.salesReport.data.map(item => parseFloat(item.total_revenue));
@@ -240,7 +240,7 @@ include '../includes/sidebar.php';
                 break;
             case 'profitTrend':
                 chartType = 'line';
-                labelText = 'Profit ($)';
+                labelText = 'Profit (Br)';
                 if (data.salesReport.data && data.salesReport.data.length) {
                     labels = data.salesReport.data.map(item => item.period);
                     values = data.salesReport.data.map(item => parseFloat(item.total_profit));
@@ -251,7 +251,7 @@ include '../includes/sidebar.php';
                 break;
             case 'revenueBranch':
                 chartType = 'bar';
-                labelText = 'Revenue ($)';
+                labelText = 'Revenue (Br)';
                 if (data.revenueByBranch.data && data.revenueByBranch.data.length) {
                     labels = data.revenueByBranch.data.map(item => item.branch_name);
                     values = data.revenueByBranch.data.map(item => parseFloat(item.revenue));
@@ -262,7 +262,7 @@ include '../includes/sidebar.php';
                 break;
             case 'revenuePharmacist':
                 chartType = 'pie';
-                labelText = 'Revenue ($)';
+                labelText = 'Revenue (Br)';
                 if (data.revenueByPharmacist.data && data.revenueByPharmacist.data.length) {
                     labels = data.revenueByPharmacist.data.map(item => item.pharmacist_name);
                     values = data.revenueByPharmacist.data.map(item => parseFloat(item.revenue));

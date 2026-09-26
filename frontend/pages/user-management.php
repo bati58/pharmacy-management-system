@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/init_session.php';
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'manager') {
     header('Location: dashboard.php');
     exit;
@@ -261,7 +261,21 @@ include '../includes/sidebar.php';
     async function openEditModal(id, name, role, branchId) {
         document.getElementById('editUserId').value = id;
         document.getElementById('editName').value = name;
-        document.getElementById('editRole').value = role;
+        const roleSelect = document.getElementById('editRole');
+        const managerOption = roleSelect.querySelector('option[value="manager"]');
+        if (role === 'manager') {
+            if (!managerOption) {
+                const option = document.createElement('option');
+                option.value = 'manager';
+                option.textContent = 'Manager';
+                roleSelect.appendChild(option);
+            }
+            roleSelect.disabled = true;
+        } else {
+            managerOption?.remove();
+            roleSelect.disabled = false;
+        }
+        roleSelect.value = role;
         await loadBranchesForSelect('editBranch');
         document.getElementById('editBranch').value = branchId || '';
         document.getElementById('editUserModal').classList.remove('hidden');

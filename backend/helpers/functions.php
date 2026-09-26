@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Format currency (USD)
+ * Format currency in Ethiopian Birr
  * @param float $amount
  * @return string
  */
 function formatCurrency($amount)
 {
-    return '$' . number_format($amount, 2);
+    return 'Br ' . number_format($amount, 2);
 }
 
 /**

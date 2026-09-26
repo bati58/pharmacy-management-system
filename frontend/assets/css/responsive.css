@@ -6,11 +6,40 @@
 /* Tablet and smaller (max-width: 1024px) */
 @media (max-width: 1024px) {
     .sidebar {
-        width: 220px;
+        width: 280px;
+        transform: translateX(-100%);
+        pointer-events: none;
+        z-index: 200 !important;
     }
 
-    .ml-64 {
-        margin-left: 220px;
+    .sidebar.open {
+        transform: translateX(0) !important;
+        pointer-events: auto;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    #mobileMenuBtn {
+        display: flex !important;
+    }
+
+    .grid.sm\:grid-cols-2,
+    .grid.md\:grid-cols-2,
+    .grid.md\:grid-cols-3,
+    .grid.lg\:grid-cols-3,
+    .grid.lg\:grid-cols-4 {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .lg\:col-span-2 {
+        grid-column: span 1 / span 1 !important;
+    }
+
+    .md\:flex-row {
+        flex-direction: column !important;
     }
 
     table th,
@@ -26,6 +55,7 @@
 
 /* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
+
     /* Sidebar: hidden off-screen by default */
     .sidebar {
         transform: translateX(-100%);
@@ -46,7 +76,7 @@
 
     /* When sidebar is open, make it visible and interactive */
     .sidebar.open {
-        transform: translateX(0);
+        transform: translateX(0) !important;
         pointer-events: auto;
         box-shadow: 8px 0 32px rgba(0, 0, 0, 0.35);
     }
@@ -69,6 +99,18 @@
 
     .main-content {
         margin-left: 0 !important;
+        width: 100%;
+    }
+
+    header h1 {
+        max-width: 42vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .header-dropdown {
+        right: -0.5rem;
     }
 
     .mobile-menu-btn {
@@ -92,6 +134,11 @@
 
     table {
         min-width: 600px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        max-width: 100%;
     }
 
     table thead {
@@ -119,7 +166,8 @@
     input,
     select,
     button {
-        font-size: 16px; /* prevent zoom on iOS */
+        font-size: 16px;
+        /* prevent zoom on iOS */
     }
 
     .kpi-number {
@@ -198,4 +246,11 @@
 .sidebar a,
 .sidebar button {
     pointer-events: auto;
+}
+
+/* Keep the drawer visible and interactive whenever it is open. */
+.sidebar.open {
+    transform: translateX(0) !important;
+    pointer-events: auto !important;
+    z-index: 200 !important;
 }

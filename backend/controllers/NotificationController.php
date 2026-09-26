@@ -42,4 +42,14 @@ class NotificationController
         $this->notificationModel->markAllAsRead($_SESSION['user_id']);
         sendSuccess(null, 'All notifications marked as read');
     }
+
+    public function delete($id)
+    {
+        $deleted = $this->notificationModel->delete($id, $_SESSION['user_id']);
+        if ($deleted) {
+            sendSuccess(null, 'Notification removed');
+        } else {
+            sendError('Notification not found or not yours', 404);
+        }
+    }
 }

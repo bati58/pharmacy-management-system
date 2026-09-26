@@ -4,8 +4,8 @@
 -- ======================================================
 
 -- Create database (optional - you can create manually)
-CREATE DATABASE IF NOT EXISTS `pms_db`;
-USE `pms_db`;
+CREATE DATABASE IF NOT EXISTS `pharmacy_db`;
+USE `pharmacy_db`;
 
 -- ======================================================
 -- 1. Branches table

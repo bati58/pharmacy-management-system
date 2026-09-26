@@ -86,7 +86,7 @@ class Sale
         return $stmt->execute([$saleId, $drugId, $quantity, $price]);
     }
 
-    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null)
+    public function getSalesReport($period = 'daily', $branchId = null, $startDate = null, $endDate = null, $pharmacistId = null)
     {
         switch ($period) {
             case 'weekly':
@@ -121,6 +121,10 @@ class Sale
         if ($branchId) {
             $sql .= " AND branch_id = ?";
             $params[] = $branchId;
+        }
+        if ($pharmacistId) {
+            $sql .= " AND pharmacist_id = ?";
+            $params[] = $pharmacistId;
         }
         if ($startDate && $endDate) {
             $sql .= " AND sale_date BETWEEN ? AND ?";

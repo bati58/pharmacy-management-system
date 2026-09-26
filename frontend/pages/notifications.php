@@ -42,7 +42,7 @@ include '../includes/sidebar.php';
         </div>
 
         <!-- Notifications List -->
-        <div id="notificationsList" class="hidden divide-y divide-slate-100"></div>
+        <div id="notificationsList" class="hidden max-h-[65vh] overflow-y-auto overscroll-contain custom-scrollbar divide-y divide-slate-100"></div>
     </div>
 </div>
 
@@ -117,6 +117,9 @@ include '../includes/sidebar.php';
                                         <i class="fas fa-check-double text-[10px]"></i> Read
                                        </span>`
                                 }
+                                <button onclick="removeNotification(${n.id})" class="inline-flex items-center gap-1.5 px-3 py-1.5 mt-2 sm:mt-0 sm:ml-2 bg-white border border-rose-200 text-rose-500 hover:bg-rose-500 hover:text-white hover:border-rose-500 text-xs font-bold rounded-lg transition-all duration-200">
+                                    <i class="fas fa-trash text-[10px]"></i> Remove
+                                </button>
                             </div>
                         </div>
                     `;
@@ -144,6 +147,11 @@ include '../includes/sidebar.php';
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-[10px]"></i>';
         }
         await API.markNotificationRead(id);
+        loadNotifications();
+    }
+
+    async function removeNotification(id) {
+        await API.deleteNotification(id);
         loadNotifications();
     }
 
