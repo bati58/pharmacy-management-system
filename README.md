@@ -18,7 +18,7 @@ It handles complex workflows such as multi-branch inventory management, user inv
 ![PharmaFlow manager dashboard](frontend/assets/dashboard.png)
 
 ### Reset Password Page
-![PharmaFlow manager dashboard](frontend/assets/reset.png)
+![PharmaFlow Reset Password](frontend/assets/reset.png)
 
 ---
 Run:http://localhost/pms/pharmacy-management-system/frontend/pages/auth/login.php.
