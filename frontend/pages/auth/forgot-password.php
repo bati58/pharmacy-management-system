@@ -3,79 +3,115 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Reset Password - PharmaFlow</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-    </style>
+    <link rel="stylesheet" href="../../assets/css/auth-recovery.css">
 </head>
 
-<body class="flex items-center justify-center min-h-screen">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-8 m-4">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">Reset your password</h2>
-            <p class="text-gray-500 text-sm">Enter your email and we'll send you a link to reset your password.</p>
-        </div>
+<body>
+    <div class="recovery-layout">
+        <main class="recovery-main">
+            <div class="recovery-content">
+                <header class="brand-lockup">
+                    <div class="brand-mark" aria-hidden="true">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                    </div>
+                    <p class="brand-name">PharmaFlow</p>
+                    <p class="brand-caption">Pharmacy Management</p>
+                </header>
 
-        <div id="messageBox" class="hidden mb-4 p-4 rounded-lg text-sm font-medium"></div>
+                <section class="recovery-card" aria-labelledby="recoveryHeading">
+                    <div class="card-heading">
+                        <p class="card-eyebrow">Account recovery</p>
+                        <h1 class="card-title" id="recoveryHeading">Reset your password</h1>
+                        <p class="card-description">Enter the email address linked to your account and we’ll send you a secure reset link.</p>
+                    </div>
 
-        <form id="resetForm">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-1">Email</label>
-                <input type="email" id="email"
-                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="you@example.com" required>
+                    <div id="messageBox" class="recovery-notice" role="status" aria-live="polite" aria-atomic="true" hidden>
+                        <span class="notice-icon" aria-hidden="true"></span>
+                        <p id="messageText"></p>
+                    </div>
+
+                    <form id="resetForm" class="recovery-form">
+                        <div>
+                            <label class="field-label" for="email">Email address</label>
+                            <div class="field-wrap">
+                                <input class="field-input" type="email" id="email" name="email"
+                                    placeholder="name@pharmacy.com" autocomplete="email" required>
+                                <i class="field-icon fas fa-envelope" aria-hidden="true"></i>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="submitButton" class="submit-button">
+                            <i id="submitIcon" class="fas fa-paper-plane" aria-hidden="true"></i>
+                            <span id="submitLabel">Send reset link</span>
+                        </button>
+                    </form>
+
+                    <a class="text-link back-link" href="login.php">
+                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                        Back to sign in
+                    </a>
+                </section>
+
+                <p class="security-note"><i class="fas fa-shield-alt" aria-hidden="true"></i> Secure staff account recovery</p>
             </div>
-            <button type="submit"
-                class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                Send reset link
-            </button>
-        </form>
-        <p class="mt-4 text-center text-sm">
-            <a href="login.php" class="text-purple-600 hover:underline">Back to sign in</a>
-        </p>
+        </main>
+
+        <footer class="site-footer">
+            <span>&copy; <?php echo date('Y'); ?> PharmaFlow Systems</span>
+            <span class="footer-note">Secure staff portal</span>
+        </footer>
     </div>
 
     <script>
-        document.getElementById('resetForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const btn = document.querySelector('button[type="submit"]');
-            const messageBox = document.getElementById('messageBox');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            messageBox.className = 'hidden mb-4 p-4 rounded-lg text-sm font-medium';
-            messageBox.innerHTML = '';
+        const form = document.getElementById('resetForm');
+        const submitButton = document.getElementById('submitButton');
+        const submitIcon = document.getElementById('submitIcon');
+        const submitLabel = document.getElementById('submitLabel');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+        function showMessage(state, message) {
+            messageBox.dataset.state = state;
+            messageBox.querySelector('.notice-icon').className = state === 'success'
+                ? 'notice-icon fas fa-check-circle'
+                : 'notice-icon fas fa-exclamation-circle';
+            messageText.textContent = message;
+            messageBox.hidden = false;
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            submitIcon.className = 'fas fa-circle-notch fa-spin';
+            submitLabel.textContent = 'Sending link...';
+            messageBox.hidden = true;
 
             try {
                 const response = await fetch('../../../backend/index.php/auth/reset-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email: document.getElementById('email').value })
                 });
                 const data = await response.json();
-                
-                messageBox.classList.remove('hidden');
+
                 if (data.success) {
-                    messageBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-300');
-                    messageBox.innerHTML = `<p><i class="fas fa-check-circle mr-2"></i>${data.message}</p>`;
-                    document.getElementById('resetForm').reset();
+                    showMessage('success', data.message || 'Check your inbox for a password reset link.');
+                    form.reset();
                 } else {
-                    messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-300');
-                    messageBox.innerHTML = `<p><i class="fas fa-exclamation-circle mr-2"></i>${data.message}</p>`;
+                    showMessage('error', data.message || 'We couldn’t send the reset link. Please try again.');
                 }
-            } catch (err) {
-                messageBox.classList.remove('hidden');
-                messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-300');
-                messageBox.innerHTML = `<p><i class="fas fa-exclamation-circle mr-2"></i>Failed to send reset link. Please try again.</p>`;
+            } catch (error) {
+                showMessage('error', 'Unable to contact the server. Check your connection and try again.');
             } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'Send reset link';
+                submitButton.disabled = false;
+                submitIcon.className = 'fas fa-paper-plane';
+                submitLabel.textContent = 'Send reset link';
             }
         });
     </script>
